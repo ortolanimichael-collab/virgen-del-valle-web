@@ -446,3 +446,24 @@ def test_respaldo_y_restauracion(cli, tmp_path):
         with pytest.raises(ValueError):
             respaldo.restaurar({"version": 1, "tablas": {"otra_tabla": []}})
     assert c.get("/media/1").status_code == 200
+
+
+def test_catalogo_para_meta(cli):
+    import csv as _csv
+    import catalogo
+    assert catalogo.precio_meta("$1.425.000") == "1425000.00 ARS" and catalogo.precio_meta("USD 889") == "889.00 USD"
+    assert catalogo.precio_meta("USD 1.699") == "1699.00 USD" and catalogo.precio_meta("$85.500,50") == "85500.50 ARS"
+    assert catalogo.precio_meta("Consultá") is None and catalogo.precio_meta("") is None
+    ap, c = cli
+    r = c.get("/feed/meta.csv")
+    assert r.status_code == 200 and r.mimetype == "text/csv"
+    filas = list(_csv.DictReader(io.StringIO(r.get_data(as_text=True))))
+    ids = {s["id"] for s in json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])["salidas"]}
+    assert filas and {f["id"] for f in filas} <= ids                     # mismos ids que manda el Pixel
+    assert all(f["link"].startswith("http") and "/viaje.html?id=" in f["link"] and f["image_link"].startswith("http") and f["price"].split()[-1] in ("ARS", "USD") for f in filas)
+    assert all(f["availability"] in ("in stock", "out of stock") for f in filas)
+    assert len(filas) < len(ids)                                          # «Consultá» queda afuera
+    assert c.get("/admin/catalogo").status_code == 302
+    entrar(c)
+    pag = c.get("/admin/catalogo").get_data(as_text=True)
+    assert "/feed/meta.csv" in pag and "Quedaron afuera" in pag

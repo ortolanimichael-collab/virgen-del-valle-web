@@ -24,6 +24,7 @@ from extensiones import db
 import modelos4
 import portada
 import respaldo
+import catalogo
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -534,6 +535,7 @@ def crear_app(config=None):
         return Response(json.dumps(d, ensure_ascii=False), mimetype="application/json",
                         headers={"Content-Disposition": f"attachment; filename=respaldo-virgen-del-valle-{hoy().isoformat()}.json"})
 
+    catalogo.montar(app, admin, Salida, hoy)
     import gestion
     gestion.montar(app, admin, dict(Salida=Salida, Consulta=Consulta, hoy=hoy, ahora=ahora, ajustes=ajustes, dia_corto=dia_corto, EMPRESAS=EMPRESAS,
                                     ESTADOS=ESTADOS, ESTADOS_CONSULTA=ESTADOS_CONSULTA, MESES=MESES))

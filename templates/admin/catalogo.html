@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Catálogo para Meta{% endblock %}
+{% block c %}
+<h1>Catálogo para Meta</h1>
+<p class="muted small">Es la lista de tus viajes en el formato que lee Meta (Facebook e Instagram) para armar anuncios con varios viajes. Se actualiza sola con lo que cargás en Salidas: no tenés que hacer nada acá. Esta pantalla es para quien configura los anuncios.</p>
+<div class="card" style="margin-bottom:14px"><label>Link del catálogo (se pega una sola vez en Meta)</label>
+  <div class="link" id="u">{{ url }}</div>
+  <p style="margin:8px 0 0"><button class="btn sec chico" type="button" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('u').textContent).then(()=>this.textContent='¡Copiado!')">Copiar link</button>
+  <a class="btn sec chico" href="/feed/meta.csv" target="_blank" rel="noopener">Ver el archivo ↗</a></p></div>
+<h2>Viajes que van al catálogo ({{ filas|length }})</h2>
+{% if filas %}<div class="lista">{% for f in filas %}<div class="item"><img src="{{ f.image_link }}" alt=""><div><h3>{{ f.title }}</h3><div class="small muted">{{ f.price }} · {{ 'Agotado' if f.availability == 'out of stock' else 'Disponible' }}</div></div><span></span></div>{% endfor %}</div>
+{% else %}<div class="card muted">Todavía no hay viajes para el catálogo.</div>{% endif %}
+{% if afuera %}<h2>Quedaron afuera ({{ afuera|length }})</h2>
+<p class="small muted">Meta pide un precio con número. Si querés que estén, ponele precio en Editar.</p>
+<div class="lista">{% for s, motivo in afuera %}<div class="card"><b>{{ s.destino }}</b> <span class="small muted">· {{ motivo }}</span> <a class="btn sec chico" href="{{ url_for('salida_editar', sid=s.id) }}">Editar</a></div>{% endfor %}</div>{% endif %}
+{% endblock %}
