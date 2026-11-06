@@ -6,6 +6,22 @@
   function leer() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function guardar(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
+  /* El viaje al que pertenece un "?id=slug" (o un link a viaje.html?id=slug) */
+  function viajeDe(texto) {
+    var m = /[?&]id=([^&#]+)/.exec(texto || "");
+    try { return m && V.porId ? V.porId(decodeURIComponent(m[1])) : null; } catch (e) { return null; }
+  }
+  /* Datos del viaje para los eventos: el de la página, o el de la tarjeta donde se hizo clic */
+  function datosViaje(origen, base) {
+    var s = viajeDe(location.search);
+    if (!s && origen && origen.closest) {
+      var card = origen.closest("article, .card"), l = card && card.querySelector("a[href*='viaje.html?id=']");
+      s = l && viajeDe(l.getAttribute("href"));
+    }
+    if (s) { base.content_name = s.destino; base.content_ids = [s.id]; base.content_type = "product"; base.content_category = s.empresa; }
+    return base;
+  }
+
   var cargado = false;
   function cargarPixel() {
     if (cargado || !ID) return; cargado = true;
@@ -14,18 +30,18 @@
       s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, d, "script", "https://connect.facebook.net/en_US/fbevents.js");
     fbq("init", ID); fbq("track", "PageView");
     /* Ver un viaje: la página viaje.html?id=... */
-    var m = /[?&]id=([^&]+)/.exec(location.search), s = m && V.porId && V.porId(decodeURIComponent(m[1]));
+    var s = viajeDe(location.search);
     if (s) fbq("track", "ViewContent", { content_name: s.destino, content_ids: [s.id], content_type: "product", content_category: s.empresa });
   }
   function evento(nombre, datos) { if (cargado && window.fbq) window.fbq("track", nombre, datos || {}); }
 
   /* Consulta enviada (formularios) y clic en WhatsApp */
   d.addEventListener("submit", function (e) {
-    var f = e.target; if (f && f.matches && f.matches("form[data-lead]")) evento("Lead", { content_name: f.getAttribute("data-origen") || "formulario" });
+    var f = e.target; if (f && f.matches && f.matches("form[data-lead]")) evento("Lead", datosViaje(f, { content_name: f.getAttribute("data-origen") || "formulario" }));
   }, true);
   d.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("a[data-wa], a[href*='wa.me']");
-    if (a) evento("Contact", { content_name: location.pathname.replace(/^\//, "") || "inicio" });
+    if (a) evento("Contact", datosViaje(a, { content_name: location.pathname.replace(/^\//, "") || "inicio" }));
   }, true);
 
   /* Aviso */
