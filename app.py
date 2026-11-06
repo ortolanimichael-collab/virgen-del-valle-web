@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 from flask import (Flask, Response, abort, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for)
 from extensiones import db
 import modelos4
+import portada
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -166,6 +167,7 @@ def datos_publicos():
     """Todo lo que usa la web pública: el contenido fijo + contacto + las salidas activas y no vencidas."""
     d = json.loads((AQUI / "contenido.json").read_text(encoding="utf-8"))
     d.update(ajustes())
+    portada.aplicar(d, d)
     q = Salida.query.filter(Salida.activa.is_(True), Salida.fecha >= hoy()).order_by(Salida.fecha, Salida.id)
     d["salidas"] = [s.a_json() for s in q.all()]
     return d
@@ -514,6 +516,7 @@ def crear_app(config=None):
             return redirect(url_for("contacto"))
         return render_template("admin/contacto.html", valores=ajustes(), CONTACTO=CONTACTO)
 
+    portada.montar(app, admin, lambda: json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")), imagenes_de_la_web, reducir_imagen, Imagen)
     import gestion
     gestion.montar(app, admin, dict(Salida=Salida, Consulta=Consulta, hoy=hoy, ahora=ahora, ajustes=ajustes, dia_corto=dia_corto, EMPRESAS=EMPRESAS,
                                     ESTADOS=ESTADOS, ESTADOS_CONSULTA=ESTADOS_CONSULTA, MESES=MESES))

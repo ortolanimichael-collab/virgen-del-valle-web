@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Portada{% endblock %}
+{% block c %}
+<h1>Portada</h1>
+<p class="muted small">Acá cambiás los destinos que se ven en la portada y los programas de Aula Viajera: nombre, textos, foto y orden. Cada lista se guarda por separado con su botón <b>Guardar</b>. Subir y bajar acomodan el orden.</p>
+{% for clave, cfg in secciones.items() %}
+<section id="{{ clave }}" style="margin-bottom:30px">
+<div class="row" style="justify-content:space-between"><h2 style="margin:0">{{ cfg.titulo }}</h2>
+  <span class="small muted">{{ filas[clave]|length }} de {{ cfg.maximo }}{% if not personalizado[clave] %} · los de fábrica{% endif %}</span></div>
+<form method="post" action="{{ url_for('portada_guardar', clave=clave) }}" enctype="multipart/form-data" style="margin-top:10px">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="lista">
+  {% for it in filas[clave] %}{% set i = loop.index0 %}
+  <div class="card">
+    <div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:12px">
+      <img src="{{ '/' ~ it.img if not it.img.startswith('/') else it.img }}" alt="" style="width:96px;height:72px;object-fit:cover;border-radius:10px;flex:none">
+      <div style="flex:1;min-width:0">
+        <div class="g2">
+          <div class="campo"><label>Nombre</label><input name="nombre" value="{{ it.nombre }}" maxlength="60" style="width:100%"></div>
+          <div class="campo"><label>{{ 'Lugar o zona' if clave == 'destinos' else 'Dónde' }}</label><input name="lugar" value="{{ it.lugar }}" maxlength="80" style="width:100%"></div>
+        </div>
+        {% if clave == 'destinos' %}
+        <div class="g2">
+          <div class="campo"><label>Precio «desde»</label><input name="desde" value="{{ it.desde }}" maxlength="40" style="width:100%" placeholder="USD 889 · $1.425.000 · Consultá"></div>
+          <div class="campo"><label>Al tocarlo, mostrar</label><select name="q" style="width:100%">{% for k, v in FILTROS.items() %}<option value="{{ k }}" {{ 'selected' if (it.q == k) or (k == '' and it.q not in FILTROS) }}>{{ v }}</option>{% endfor %}</select></div>
+        </div>
+        {% else %}
+        <div class="campo"><label>Descripción corta</label><input name="detalle" value="{{ it.detalle }}" maxlength="200" style="width:100%"></div>
+        {% endif %}
+        <input type="hidden" name="img_actual" value="{{ it.img }}">
+        <div class="campo"><label>Foto</label>
+          <select name="foto_web" style="width:100%"><option value="__actual__">Dejar la actual</option>{% for f in fotos %}<option value="{{ f }}">{{ f }}</option>{% endfor %}</select>
+          <div class="small muted" style="margin:6px 0 2px">…o subí una propia (JPG o PNG):</div><input type="file" name="foto" accept="image/*"></div>
+      </div>
+    </div>
+    <div class="row noprint" style="margin-top:4px">
+      <button class="btn sec chico" name="accion" value="subir:{{ i }}" {{ 'disabled' if loop.first }}>↑ Subir</button>
+      <button class="btn sec chico" name="accion" value="bajar:{{ i }}" {{ 'disabled' if loop.last }}>↓ Bajar</button>
+      <button class="btn peli chico" name="accion" value="borrar:{{ i }}" onclick="return confirm('¿Sacar «{{ it.nombre|e }}» de la lista?')">Borrar</button>
+    </div>
+  </div>
+  {% else %}<div class="card muted">No hay nada cargado. Tocá «+ Agregar».</div>{% endfor %}
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button class="btn" name="accion" value="guardar">Guardar {{ cfg.titulo|lower }}</button>
+    <button class="btn sec" name="accion" value="agregar" {{ 'disabled' if filas[clave]|length >= cfg.maximo }}>+ Agregar</button>
+  </div>
+</form>
+{% if personalizado[clave] %}<form method="post" action="{{ url_for('portada_restaurar', clave=clave) }}" style="margin-top:8px"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <button class="btn sec chico" onclick="return confirm('Se pierden tus cambios y vuelven los de fábrica. ¿Seguro?')">Volver a los de fábrica</button></form>{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

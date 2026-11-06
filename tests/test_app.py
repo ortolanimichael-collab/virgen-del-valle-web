@@ -342,3 +342,62 @@ def test_migracion_agrega_cupos_a_una_base_vieja(tmp_path):
     ap = A.crear_app({"SQLALCHEMY_DATABASE_URI": f"sqlite:///{ruta}", "ADMIN_PASSWORD": "x"})
     with ap.app_context():
         assert A.Salida.query.filter_by(destino="Vieja").one().cupos is None
+
+
+def test_editor_de_portada(cli):
+    ap, c = cli
+    assert c.get("/admin/portada").status_code == 302
+    entrar(c)
+    pag = c.get("/admin/portada").get_data(as_text=True)
+    assert "Buzios" in pag and "Viaje de egresados" in pag
+
+    def enviar(form, clave="destinos"):
+        f = dict(form)
+        f["foto"] = [(io.BytesIO(x[0].getvalue()), x[1]) for x in form["foto"]]
+        return c.post(f"/admin/portada/{clave}", data=f, content_type="multipart/form-data")
+
+    def datos(): return json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    antes = datos()
+    assert antes["destinos"][0]["nombre"] == "Buzios"
+    n = len(antes["destinos"])
+    # editar nombre, cambiar foto y subir uno nuevo
+    with c.session_transaction() as s:
+        s["csrf"] = "tok"
+    form = {"_csrf": "tok", "accion": "guardar", "nombre": ["Cabo Frío", "Patagonia"], "lugar": ["Brasil", "Argentina"], "desde": ["USD 1", "$2"],
+            "q": ["brasil", "argentina"], "img_actual": ["img/buzios.jpg", "img/perito-moreno.jpg"], "foto_web": ["__actual__", "glaciar.jpg"],
+            "foto": [(io.BytesIO(b""), ""), (io.BytesIO(b""), "")]}
+    r = enviar(form)
+    assert r.status_code == 302
+    d = datos()["destinos"]
+    assert [x["nombre"] for x in d] == ["Cabo Frío", "Patagonia"] and d[0]["img"] == "img/buzios.jpg" and d[1]["img"] == "img/glaciar.jpg"
+    # subir / agregar / borrar
+    form["accion"] = "subir:1"
+    enviar(form)
+    assert [x["nombre"] for x in datos()["destinos"]] == ["Patagonia", "Cabo Frío"]
+    form["accion"] = "agregar"
+    enviar(form)
+    assert len(datos()["destinos"]) == 3
+    form["accion"] = "borrar:2"
+    enviar(form)
+    assert len(datos()["destinos"]) == 2
+    # foto subida por la usuaria + foto inválida no entra
+    from PIL import Image
+    b = io.BytesIO(); Image.new("RGB", (40, 30), "red").save(b, "PNG"); b.seek(0)
+    form["accion"] = "guardar"; form["img_actual"] = ["../../etc/passwd", "img/glaciar.jpg"]; form["foto"] = [(b, "x.png"), (io.BytesIO(b""), "")]
+    enviar(form)
+    d = datos()["destinos"]
+    assert d[0]["img"].startswith("/media/") and c.get(d[0]["img"]).status_code == 200
+    form["img_actual"] = ["../../etc/passwd", "img/glaciar.jpg"]; form["foto"] = [(io.BytesIO(b""), ""), (io.BytesIO(b""), "")]
+    enviar(form)
+    assert datos()["destinos"][0]["img"] == "img/sierras.jpg"
+    # programas
+    r = c.post("/admin/portada/programas", data={"_csrf": "tok", "accion": "guardar", "nombre": ["Egresados", ""], "lugar": ["Bariloche", ""], "detalle": ["x", ""],
+                                                  "img_actual": ["img/floripa.jpg", ""], "foto_web": ["__actual__", "__actual__"], "foto": [(io.BytesIO(b""), ""), (io.BytesIO(b""), "")]},
+               content_type="multipart/form-data")
+    p = datos()["programas"]
+    assert len(p) == 1 and p[0]["id"] == "egresados"
+    assert c.get("/aula-viajera.html").status_code == 200
+    # restaurar
+    post(c, "/admin/portada/destinos/restaurar")
+    assert len(datos()["destinos"]) == n and datos()["destinos"][0]["nombre"] == "Buzios"
+    assert c.post("/admin/portada/otra", data={"_csrf": "tok"}).status_code == 404

@@ -10,6 +10,7 @@
   <a href="{{ url_for('sorteos') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('sorteo') }}">Sorteos</a>
   <a href="{{ url_for('flyers') }}" class="{{ 'on' if request.endpoint == 'flyers' }}">Flyers</a>
   <a href="{{ url_for('reporte') }}" class="{{ 'on' if request.endpoint == 'reporte' }}">Reporte</a>
+  <a href="{{ url_for('portada') }}" class="{{ 'on' if request.endpoint == 'portada' }}">Portada</a>
   <a href="{{ url_for('contacto') }}" class="{{ 'on' if request.endpoint == 'contacto' }}">Contacto</a>
   <span class="sp"></span><a href="/" target="_blank" rel="noopener">Ver la web ↗</a>
   <form method="post" action="{{ url_for('salir') }}" style="margin:0"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button>Salir</button></form></div></header>{% endif %}
