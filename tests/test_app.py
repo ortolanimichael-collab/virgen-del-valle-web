@@ -414,3 +414,35 @@ def test_boton_de_resenas(cli):
     post(c, "/admin/contacto", **{**base, "whatsapp": "5493571593669", "resenas_url": "https://g.page/r/ABC123/review"})
     assert datos()["resenas_url"] == "https://g.page/r/ABC123/review"
     assert "resenas_url" in c.get("/admin/contacto").get_data(as_text=True)
+
+
+def test_respaldo_y_restauracion(cli, tmp_path):
+    import respaldo
+    ap, c = cli
+    assert c.get("/admin/respaldo").status_code == 302
+    entrar(c)
+    assert c.get("/admin/respaldo").status_code == 200
+    from PIL import Image
+    b = io.BytesIO(); Image.new("RGB", (20, 20), "blue").save(b, "PNG"); b.seek(0)
+    with c.session_transaction() as s:
+        s["csrf"] = "tok"
+    c.post("/admin/portada/programas", data={"_csrf": "tok", "accion": "guardar", "nombre": ["Mi programa"], "lugar": ["x"], "detalle": ["y"], "img_actual": [""],
+                                             "foto_web": ["__actual__"], "foto": (b, "f.png")}, content_type="multipart/form-data")
+    with c.session_transaction() as s:
+        s["csrf"] = "tok"
+    r = c.post("/admin/respaldo/descargar", data={"_csrf": "tok"})
+    assert r.status_code == 200 and "attachment" in r.headers["Content-Disposition"]
+    copia = json.loads(r.get_data(as_text=True))
+    assert copia["tablas"]["vdv_salida"] and copia["tablas"]["vdv_imagen"] and "vdv_cliente" in copia["tablas"]
+    with ap.app_context():
+        n_sal = A.Salida.query.count()
+        A.db.session.query(A.Salida).delete(); A.db.session.query(A.Imagen).delete(); A.db.session.commit()
+        assert A.Salida.query.count() == 0
+        res = respaldo.restaurar(copia)
+        assert res["vdv_salida"] == n_sal and A.Salida.query.count() == n_sal and A.Imagen.query.count() == 1
+        assert A.Salida.query.first().fecha is not None
+        with pytest.raises(ValueError):
+            respaldo.restaurar({"version": 9})
+        with pytest.raises(ValueError):
+            respaldo.restaurar({"version": 1, "tablas": {"otra_tabla": []}})
+    assert c.get("/media/1").status_code == 200

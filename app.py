@@ -23,6 +23,7 @@ from flask import (Flask, Response, abort, flash, jsonify, redirect, render_temp
 from extensiones import db
 import modelos4
 import portada
+import respaldo
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -521,6 +522,18 @@ def crear_app(config=None):
         return render_template("admin/contacto.html", valores=ajustes(), CONTACTO=CONTACTO)
 
     portada.montar(app, admin, lambda: json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")), imagenes_de_la_web, reducir_imagen, Imagen)
+    @app.route("/admin/respaldo")
+    @admin
+    def respaldo_pagina():
+        return render_template("admin/respaldo.html", n=respaldo.resumen(respaldo.exportar()) if request.args.get("ver") else None)
+
+    @app.post("/admin/respaldo/descargar")
+    @admin
+    def respaldo_descargar():
+        d = respaldo.exportar()
+        return Response(json.dumps(d, ensure_ascii=False), mimetype="application/json",
+                        headers={"Content-Disposition": f"attachment; filename=respaldo-virgen-del-valle-{hoy().isoformat()}.json"})
+
     import gestion
     gestion.montar(app, admin, dict(Salida=Salida, Consulta=Consulta, hoy=hoy, ahora=ahora, ajustes=ajustes, dia_corto=dia_corto, EMPRESAS=EMPRESAS,
                                     ESTADOS=ESTADOS, ESTADOS_CONSULTA=ESTADOS_CONSULTA, MESES=MESES))

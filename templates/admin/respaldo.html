@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Respaldo{% endblock %}
+{% block c %}
+<h1>Respaldo</h1>
+<p class="muted small">Es una copia de todo lo que cargaste: salidas, consultas, clientes, pasajeros y pagos, sorteos, portada, datos de contacto y las fotos que subiste. Descargala una vez por semana, o antes de hacer cambios grandes, y guardala en tu compu o en el Drive. Si algún día se pierde algo, Michael la vuelve a cargar.</p>
+<div class="card" style="max-width:560px">
+  <form method="post" action="{{ url_for('respaldo_descargar') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <button class="btn">Descargar respaldo</button></form>
+  <p class="small muted" style="margin-bottom:0">El archivo tiene datos de tus clientes: guardalo en un lugar privado y no lo mandes por grupos.</p>
+</div>
+{% endblock %}
