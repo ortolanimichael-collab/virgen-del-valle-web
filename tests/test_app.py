@@ -175,3 +175,18 @@ def test_cambiar_el_whatsapp_actualiza_toda_la_web(cli):
     post(c, "/admin/contacto", whatsapp="+54 9 3571 11-2233", telefono="03571 11-2233", direccion="Otra calle 1", ciudad="Río Tercero", instagram="vdv", legajo="EVT 1")
     d = json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
     assert d["whatsapp"] == "5493571112233" and d["direccion"] == "Otra calle 1"
+
+
+def test_pixel_politica_y_aviso_de_cookies(cli):
+    ap, c = cli
+    for pagina in ("/", "/trekia.html", "/aula-viajera.html", "/viaje.html"):
+        h = c.get(pagina).get_data(as_text=True)
+        assert 'src="js/privacy.js"' in h and "privacidad.html" in h, pagina
+    assert c.get("/privacidad.html").status_code == 200 and "Ley 25.326" in c.get("/privacidad.html").get_data(as_text=True)
+    assert c.get("/js/privacy.js").status_code == 200
+    datos = lambda: json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    assert datos()["pixel_id"] == ""                                        # sin pixel configurado no se instala nada
+    entrar(c)
+    post(c, "/admin/contacto", whatsapp="5493571593669", pixel_id="  1234-5678 90abc", razon_social="Virgen del Valle S.R.L.", cuit="30-11111111-1", email="hola@vdv.com.ar")
+    d = datos()
+    assert d["pixel_id"] == "1234567890" and d["razon_social"] == "Virgen del Valle S.R.L." and d["email"] == "hola@vdv.com.ar"

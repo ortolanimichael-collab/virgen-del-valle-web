@@ -2,7 +2,7 @@
 {% block titulo %}Contacto{% endblock %}
 {% block c %}
 <h1>Datos de contacto</h1>
-<p class="muted small">Estos datos se usan en toda la web: el botón de WhatsApp (el número tiene que ir con 549 y el código de área, sin espacios ni guiones), el pie de página y los formularios.</p>
+<p class="muted small">Estos datos se usan en toda la web: el botón de WhatsApp (el número tiene que ir con 549 y el código de área, sin espacios ni guiones), el pie de página y los formularios. Abajo también va el <b>ID del Meta Pixel</b> (lo sacás del Administrador de eventos de Meta): al cargarlo, la web empieza a medir visitas, consultas y clics de WhatsApp, pero solo de quienes aceptan las cookies.</p>
 <form method="post" class="card" style="max-width:560px"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
   {% for k, etiqueta in CONTACTO.items() %}<div class="campo"><label>{{ etiqueta }}</label><input name="{{ k }}" value="{{ valores[k] }}" maxlength="300" style="width:100%"></div>{% endfor %}
   <button class="btn">Guardar</button></form>

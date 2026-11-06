@@ -34,7 +34,9 @@ REGIONES = {"argentina": "Argentina", "brasil": "Brasil", "europa": "Europa", "c
 DIFICULTADES = ["", "Baja", "Media", "Alta"]
 ESTADOS_CONSULTA = {"nueva": "Nueva", "contactada": "Contactada", "senia": "Dejó seña", "vendida": "Vendida", "descartada": "Descartada"}
 CONTACTO = {"whatsapp": "WhatsApp (solo números, con 549 y código de área)", "telefono": "Teléfono que se muestra", "direccion": "Dirección",
-            "ciudad": "Ciudad", "instagram": "Instagram (sin @)", "legajo": "Legajo EVT"}
+            "ciudad": "Ciudad", "instagram": "Instagram (sin @)", "legajo": "Legajo EVT",
+            "razon_social": "Razón social (para la política de privacidad)", "cuit": "CUIT", "email": "Mail de contacto (para pedidos de datos)",
+            "pixel_id": "ID del Meta Pixel (solo números; vacío = sin pixel)"}
 
 db = SQLAlchemy()
 
@@ -491,8 +493,8 @@ def crear_app(config=None):
         if request.method == "POST":
             for k in CONTACTO:
                 v = " ".join((request.form.get(k) or "").split())[:300]
-                if k == "whatsapp":
-                    v = re.sub(r"\D", "", v)
+                if k in ("whatsapp", "pixel_id"):
+                    v = re.sub(r"\D", "", v)[:20]
                 a = db.session.get(Ajuste, k) or Ajuste(clave=k)
                 a.valor = v
                 db.session.add(a)

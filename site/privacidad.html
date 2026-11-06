@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacidad y cookies — Virgen del Valle</title>
+<meta name="description" content="Qué datos recibimos de tus consultas, para qué los usamos, cómo funcionan las cookies y cómo pedir que los borremos.">
+<meta name="theme-color" content="#2A1220">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf6f8;--tx:#2a1220;--mut:#6f5a66;--pl:#a53f6e;--line:#eadde4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+header{background:#2a1220;padding:14px max(16px,env(safe-area-inset-left,0px))}
+header a{color:#fff;text-decoration:none;font-weight:700}
+main{max-width:760px;margin:0 auto;padding:34px max(16px,env(safe-area-inset-left,0px)) 80px}
+h1{font:700 clamp(28px,5vw,40px)/1.15 "Playfair Display",Georgia,serif;margin:0 0 6px;text-wrap:balance}
+h2{font-size:20px;margin:34px 0 8px}
+p,li{max-width:68ch}li{margin-bottom:6px}
+.mut{color:var(--mut);font-size:14px}
+a{color:var(--pl)}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-top:14px}
+button.lnk{background:none;border:0;padding:0;color:var(--pl);text-decoration:underline;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<header><a href="index.html">← Virgen del Valle</a></header>
+<main>
+  <h1>Privacidad y cookies</h1>
+  <p class="mut">Última actualización: noviembre de 2026</p>
+
+  <h2>Quiénes somos</h2>
+  <p>Este sitio lo opera <b id="rs">Virgen del Valle</b><span id="cu"></span>, agencia de viajes y turismo de Río Tercero, Córdoba (<span id="leg">EVT Legajo 15772</span>), junto con sus propuestas Trekia y Aula Viajera. Domicilio: <span id="dom">Obispo Trejo 110, Río Tercero, Córdoba</span>.</p>
+
+  <h2>Qué datos recibimos</h2>
+  <ul>
+    <li>Los que vos nos escribís en los formularios: nombre, WhatsApp (si lo completás) y lo que nos cuentes del viaje que buscás (destino, fecha, cantidad de personas, presupuesto).</li>
+    <li>Cuando tocás un botón de WhatsApp, la conversación sigue en WhatsApp y se rige por las condiciones de esa aplicación.</li>
+    <li>Si aceptás las cookies de medición, datos de navegación (qué páginas y viajes mirás) que registra Meta, la empresa de Facebook e Instagram.</li>
+  </ul>
+
+  <h2>Para qué los usamos</h2>
+  <ul>
+    <li>Responder tu consulta, armarte un presupuesto y hacer seguimiento de tu viaje.</li>
+    <li>Avisarte de salidas y promociones, solo si lo pediste.</li>
+    <li>Medir qué viajes interesan y mejorar nuestros anuncios (únicamente con tu consentimiento).</li>
+  </ul>
+  <p>No vendemos tus datos ni los cedemos a terceros, salvo a los proveedores que necesitamos para dar el servicio (alojamiento del sitio, Meta para la medición y la publicidad, y los operadores turísticos cuando contratás un viaje).</p>
+
+  <h2>Cookies y Meta Pixel</h2>
+  <p>Usamos el Meta Pixel para medir cuántas personas ven un viaje, nos consultan o tocan el botón de WhatsApp, y para mostrar nuestros anuncios a quienes ya visitaron el sitio. <b>No se activa hasta que lo aceptás</b> en el aviso que aparece al entrar. Podés cambiar tu decisión cuando quieras:</p>
+  <div class="box"><button class="lnk" type="button" data-cookies>Abrir la configuración de cookies</button></div>
+  <p class="mut">Además de aceptar o rechazar acá, podés limitar los anuncios personalizados desde la configuración de tu cuenta de Facebook o Instagram.</p>
+
+  <h2>Cuánto tiempo guardamos los datos</h2>
+  <p>Las consultas se conservan mientras sean necesarias para atenderte y hacer el seguimiento comercial, y luego se eliminan o se anonimizan. Si pedís que las borremos, lo hacemos.</p>
+
+  <h2>Tus derechos</h2>
+  <p>Según la Ley 25.326 de Protección de los Datos Personales, podés pedir acceso a tus datos, que los rectifiquemos o los eliminemos, y retirar tu consentimiento cuando quieras. Escribinos a <a id="mail" href="#">nuestro WhatsApp</a> y lo resolvemos.</p>
+  <p class="mut">El titular de los datos puede ejercer el derecho de acceso en forma gratuita a intervalos no inferiores a seis meses. La Agencia de Acceso a la Información Pública, órgano de control de la Ley 25.326, tiene la atribución de atender las denuncias y reclamos por incumplimiento de las normas sobre protección de datos personales.</p>
+</main>
+<script src="js/data.js"></script>
+<script src="js/privacy.js"></script>
+<script>
+(function(){var V=window.VDV||{},$=function(i){return document.getElementById(i)};
+  if(V.razon_social)$("rs").textContent=V.razon_social;
+  if(V.cuit)$("cu").textContent=" (CUIT "+V.cuit+")";
+  if(V.legajo)$("leg").textContent=V.legajo;
+  if(V.direccion)$("dom").textContent=V.direccion+(V.ciudad?", "+V.ciudad:"");
+  var m=$("mail"); if(V.email){m.href="mailto:"+V.email;m.textContent=V.email}else{m.href=V.waLink("Hola! Quiero consultar por mis datos personales");m.target="_blank";m.rel="noopener"}
+})();
+</script>
+</body>
+</html>
