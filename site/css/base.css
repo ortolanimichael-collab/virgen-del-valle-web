@@ -1,0 +1,48 @@
+/* Base común a las tres empresas: reinicio, contenedor, barra para pasar de una empresa a otra, botón de WhatsApp y animaciones. */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+h1,h2,h3,p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+.wrap{width:100%;max-width:1200px;margin-inline:auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+
+/* Barra de empresas */
+.sw{background:#150f16;color:#e9e3ea;font:600 12.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.02em}
+.sw .wrap{display:flex;align-items:center;gap:6px;min-height:38px;overflow-x:auto;scrollbar-width:none}
+.sw .wrap::-webkit-scrollbar{display:none}
+.sw small{opacity:.55;margin-right:8px;white-space:nowrap;font-weight:500}
+.sw a{text-decoration:none;white-space:nowrap;padding:7px 12px;border-radius:99px;opacity:.75;transition:opacity .2s,background .2s}
+.sw a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.sw a.on{opacity:1;background:rgba(255,255,255,.14)}
+
+/* Botón flotante de WhatsApp */
+.wa-float{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;width:58px;height:58px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.35);transition:transform .2s}
+.wa-float:hover{transform:scale(1.08)}
+.wa-float svg{width:30px;height:30px;fill:#fff}
+
+/* Aparición al hacer scroll (solo si hay JavaScript) */
+.js .rv:not(.in){opacity:0;translate:0 22px}
+.js .rv.in{animation:rvin .7s ease both}
+@keyframes rvin{from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
+
+/* Menú móvil */
+.burger{display:none;width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:inherit;cursor:pointer}
+.burger i{display:block;width:22px;height:2px;background:currentColor;margin:5px auto;border-radius:2px;transition:transform .25s,opacity .25s}
+.nav-open .burger i:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-open .burger i:nth-child(2){opacity:0}
+.nav-open .burger i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid currentColor;background:transparent;color:inherit;border-radius:99px;padding:9px 16px;font-weight:600;font-size:14px;cursor:pointer;transition:background .2s,color .2s}
+.visually-empty{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .js .rv:not(.in){opacity:1;translate:none}
+}

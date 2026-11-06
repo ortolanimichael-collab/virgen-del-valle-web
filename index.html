@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Virgen del Valle — Agencia de viajes en Río Tercero</title>
+<meta name="description" content="Del valle al mundo, viajá con Virgen del Valle. Salidas grupales, viajes religiosos, educativos, nacionales e internacionales desde Río Tercero, Córdoba. EVT Legajo 15772.">
+<meta name="theme-color" content="#2A1220">
+<meta property="og:title" content="Virgen del Valle — Del valle al mundo">
+<meta property="og:description" content="Salidas desde Río Tercero a la Patagonia, Brasil, Europa y las sierras. Consultá por WhatsApp.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="img/crucero.jpg">
+<!-- Meta Pixel: se instala en la Etapa 3 (eventos: ver viaje, consulta, clic en WhatsApp) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Allura&family=Caveat:wght@700&family=Oswald:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/vdv.css">
+</head>
+<body>
+<div class="sw"><div class="wrap"><small>Nuestras empresas</small>
+  <a class="on" href="index.html">Virgen del Valle</a><a href="trekia.html">Trekia</a><a href="aula-viajera.html">Aula Viajera</a></div></div>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html" aria-label="Virgen del Valle, inicio"><img src="img/logo-vdv.jpg" alt="Virgen del Valle, agencia de viajes y turismo"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="#destinos">Destinos</a><a href="#paquetes">Paquetes</a><a href="#nosotros">Nosotros</a><a href="#planifica">Planificá tu viaje</a>
+    <a href="trekia.html" class="only-m">Trekia</a><a href="aula-viajera.html" class="only-m">Aula Viajera</a>
+    <a class="btn pink" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos</a>
+  </nav>
+  <button class="burger" aria-label="Abrir menú" aria-expanded="false"><i></i><i></i><i></i></button>
+</div></header>
+
+<main>
+<section class="hero" style="padding:0">
+  <div class="hp r"><img src="img/buzios.jpg" alt="Costa de Buzios, Brasil" fetchpriority="high"></div>
+  <div class="hp l"><img src="img/crucero.jpg" alt="Crucero en el puerto"></div>
+  <span class="hlab l">Cruceros</span><span class="hlab r">Brasil · Buzios</span>
+  <span class="hand" aria-hidden="true">Buenos lugares,<br>mejor compañía</span>
+  <div class="wrap">
+    <h1>Del valle<br>al mundo</h1>
+    <span class="scr">viajá con Virgen del Valle</span>
+    <p class="sub">Salidas grupales desde Río Tercero a la Patagonia, las sierras, Brasil y Europa. Una sola persona te cotiza, te acompaña y te despide en el colectivo.</p>
+    <form class="finder" id="finder" aria-label="Buscar viaje">
+      <label><span>¿A dónde?</span><select name="region"><option value="">Cualquier destino</option><option value="argentina">Argentina</option><option value="brasil">Brasil</option><option value="europa">Europa</option></select></label>
+      <label><span>Tipo de viaje</span><select name="tipo" id="fTipo"></select></label>
+      <label><span>Mes</span><select name="mes" id="fMes"><option value="">Cualquier mes</option></select></label>
+      <button class="btn" type="submit">Buscar viaje</button>
+    </form>
+    <div class="trust">
+      <div><b id="nSal">—</b>salidas programadas</div>
+      <div><b>Habilitada</b>Legajo EVT 15772</div>
+      <div><b>4.500+</b>seguidores en Instagram</div>
+    </div>
+  </div>
+</section>
+
+<section id="destinos"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Destinos más pedidos</span><h2 class="h2">Lugares para soñar</h2><p class="lead">Playas de Brasil, glaciares, Europa y cruceros. Tocá un destino para ver sus salidas.</p></div></div>
+  <div class="dests" id="dests"></div>
+</div></section>
+
+<section class="packs" id="paquetes"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Salidas con fecha y precio</span><h2 class="h2">Próximas salidas</h2><p class="lead">Precios actualizados por la agencia. Las salidas que ya pasaron se ocultan solas.</p></div></div>
+  <div class="filters" id="filtros" role="group" aria-label="Filtrar por tipo de viaje"></div>
+  <div class="grid" id="salidas"></div>
+</div></section>
+
+<section class="why" id="nosotros"><div class="wrap">
+  <div class="polas rv" aria-hidden="true">
+    <figure class="pola a" style="margin:0"><img src="img/grupo-escalada.jpg" alt=""><em>Contingentes</em></figure>
+    <figure class="pola b" style="margin:0"><img src="img/capilla.jpg" alt=""><em>Capilla Buffo</em></figure>
+    <figure class="pola c" style="margin:0"><img src="img/crucero.jpg" alt=""><em>Cruceros</em></figure>
+    <figure class="pola d" style="margin:0"><img src="img/lujan.jpg" alt=""><em>Luján</em></figure>
+    <span class="note">¡Vamos!</span>
+  </div>
+  <div class="rv">
+    <span class="kicker">Por qué elegirnos</span><h2 class="h2">Somos de acá, tus sueños son nuestra prioridad</h2>
+    <p class="lead">Atendemos en Obispo Trejo 110, Río Tercero. La misma persona que te cotiza el viaje te contesta el WhatsApp y te despide en el colectivo.</p>
+    <ul class="perks">
+      <li><i>1</i><b>Asesoramiento real</b><span>Te ayudamos a elegir destino, fecha y forma de pago.</span></li>
+      <li><i>2</i><b>Cuotas y buenos precios</b><span>Promos y cupos en viajes seleccionados.</span></li>
+      <li><i>3</i><b>Viajás seguro</b><span>Coordinación permanente y asistencia médica a bordo.</span></li>
+      <li><i>4</i><b>A tu medida</b><span>Familias, parejas, escuelas y grupos de parroquia.</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<section class="plan" id="planifica">
+  <img src="img/buzios.jpg" alt="" loading="lazy">
+  <div class="wrap">
+    <div><span class="kicker">Planificá tu viaje</span><h2>Tu próxima aventura empieza acá</h2><p style="opacity:.92;margin-top:12px">Contanos qué soñás y te armamos el itinerario ideal.</p><span class="vamos" aria-hidden="true">¡Vamos!</span></div>
+    <form class="fcard" data-origen="planificá tu viaje" data-lead="Hola! Quiero planificar un viaje con Virgen del Valle. Destino: {destino}. Fecha: {fecha}. Pasajeros: {pasajeros}. Presupuesto: {presupuesto}. Mi nombre es {nombre}.">
+      <label>Destino<input name="destino" placeholder="¿A dónde querés ir?"></label>
+      <label>Fecha del viaje<input name="fecha" placeholder="Ej: enero 2027"></label>
+      <label>Pasajeros<select name="pasajeros"><option>1 adulto</option><option selected>2 adultos</option><option>Familia</option><option>Grupo</option></select></label>
+      <label>Presupuesto<select name="presupuesto"><option value="">Elegí un rango</option><option>Hasta $500.000</option><option>$500.000 a $1.500.000</option><option>Más de $1.500.000</option><option>En dólares</option></select></label>
+      <label>Tu nombre<input name="nombre" placeholder="Nombre" required></label>
+      <button class="btn pink" type="submit">Planificar mi viaje →</button>
+      <p class="gracias" hidden></p>
+    </form>
+    <div class="signs" aria-hidden="false"><a class="sign s1" href="#paquetes" data-q="brasil">PLAYAS</a><a class="sign s2" href="#paquetes" data-t="naturaleza">SIERRAS</a><a class="sign s3" href="#paquetes" data-t="religioso">FE</a><a class="sign s4" href="#paquetes" data-q="europa">EUROPA</a></div>
+  </div>
+</section>
+
+<section class="group"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Más de Virgen del Valle</span><h2 class="h2">Tres empresas, una misma familia</h2><p class="lead">Además de la agencia, hay dos propuestas con identidad propia.</p></div></div>
+  <div class="gcards">
+    <a class="gc t rv" href="trekia.html"><img class="lg" src="img/logo-trekia-c.jpg" alt="Trekia"><div><h3>Trekia</h3><p>Trekking y naturaleza: sierras, cerros y cordillera con guías y grupos reducidos.</p><span class="go">Conocer Trekia →</span></div></a>
+    <a class="gc a rv" href="aula-viajera.html"><img class="lg" src="img/logo-aula.jpg" alt="Aula Viajera"><div><h3>Aula Viajera</h3><p>Viajes educativos, de egresados y de fin de curso para escuelas y grupos.</p><span class="go">Conocer Aula Viajera →</span></div></a>
+  </div>
+</div></section>
+
+<section class="promos">
+  <img src="img/cruceros-noche.jpg" alt="" loading="lazy">
+  <div class="wrap">
+    <span class="hs" aria-hidden="true">Seguí<br>soñando ♡</span>
+    <div class="prbox">
+      <span class="kicker">Ofertas por WhatsApp</span><h2>Recibí las promos antes que nadie</h2>
+      <p>Salidas nuevas, preventas y cupos de último momento.</p>
+      <form class="pill" data-origen="promos" data-lead="Hola! Soy {nombre}. Quiero recibir las promos y salidas nuevas de Virgen del Valle por WhatsApp.">
+        <input name="nombre" placeholder="Tu nombre" aria-label="Tu nombre" required><button class="btn" type="submit">Quiero las promos</button>
+        <span class="gracias" hidden></span>
+      </form>
+    </div>
+    <span class="hs r" aria-hidden="true">Viajá más,<br>preocupate<br>menos</span>
+  </div>
+</section>
+</main>
+
+<footer class="pie"><div class="wrap">
+  <div><img src="img/logo-vdv.jpg" alt="Virgen del Valle"><p style="margin-top:14px;max-width:30ch;opacity:.85">Agencia de viajes y turismo de Río Tercero. Viajes nacionales, internacionales, educativos, religiosos y grupales.</p></div>
+  <div><h4>Accesos</h4><ul><li><a href="#destinos">Destinos</a></li><li><a href="#paquetes">Paquetes</a></li><li><a href="#nosotros">Nosotros</a></li><li><a href="#planifica">Planificá tu viaje</a></li></ul></div>
+  <div><h4>Empresas</h4><ul><li><a href="index.html">Virgen del Valle</a></li><li><a href="trekia.html">Trekia</a></li><li><a href="aula-viajera.html">Aula Viajera</a></li></ul></div>
+  <div><h4>Contacto</h4><ul><li>03571 15-59-3669</li><li>Obispo Trejo 110</li><li>Río Tercero, Córdoba</li><li>EVT Legajo 15772</li></ul></div>
+  <div><h4>Seguinos</h4><p style="opacity:.85">Todas las salidas nuevas, primero en Instagram.</p><p style="margin-top:12px"><a class="btn pink" href="https://instagram.com/virgendelvalleagencia" target="_blank" rel="noopener">@virgendelvalleagencia</a></p></div>
+  <div class="copy" style="grid-column:1/-1"><span>© <span id="y"></span> Virgen del Valle · Agencia de viajes y turismo · EVT Legajo 15772</span><span>Río Tercero, Córdoba</span></div>
+</div></footer>
+
+<a class="wa-float" data-wa="Hola! Quiero consultar por un viaje" href="#" aria-label="Escribinos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.52.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.18 2.095 3.195 5.076 4.483.709.3 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+<script>
+(function(){
+  var V=VDV, A=VDVapp, tipoSel="todos", q={region:"",mes:""};
+  document.getElementById("y").textContent=new Date().getFullYear();
+  var vig=V.vigentes();
+  document.getElementById("nSal").textContent=vig.length;
+  /* Destinos */
+  document.getElementById("dests").innerHTML=V.destinos.map(function(d){
+    return '<a class="dest rv" href="#paquetes" data-q="'+V.esc(d.q)+'"><img src="'+d.img+'" alt="'+V.esc(d.nombre)+'" loading="lazy"><span class="tx"><b>'+V.esc(d.nombre)+'</b><small>'+V.esc(d.lugar)+'<br>desde '+V.esc(d.desde)+'</small></span></a>';
+  }).join("");
+  A.reveal();
+  /* Filtros */
+  var fTipo=document.getElementById("fTipo"), fMes=document.getElementById("fMes"), fil=document.getElementById("filtros");
+  fTipo.innerHTML=V.tipos.map(function(t){return '<option value="'+t.id+'">'+(t.id==="todos"?"Todos los viajes":t.nombre)+'</option>';}).join("");
+  var meses={}, NM=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  vig.forEach(function(s){meses[s.fecha.slice(0,7)]=1;});
+  Object.keys(meses).sort().forEach(function(m){fMes.insertAdjacentHTML("beforeend",'<option value="'+m+'">'+NM[+m.slice(5)-1]+" "+m.slice(0,4)+"</option>");});
+  fil.innerHTML=V.tipos.map(function(t){return '<button class="chip'+(t.id==="todos"?" on":"")+'" data-t="'+t.id+'">'+t.nombre+'</button>';}).join("");
+  function pintar(){
+    var l=A.filtrar(vig,tipoSel);
+    if(q.region) l=l.filter(function(s){return s.region===q.region;});
+    if(q.mes) l=l.filter(function(s){return s.fecha.slice(0,7)===q.mes;});
+    A.salidas(document.getElementById("salidas"),l,function(s){
+      var sold=s.estado==="agotado";
+      return '<article class="card rv'+(sold?" sold":"")+'"><a class="ph" href="viaje.html?id='+s.id+'" tabindex="-1" aria-hidden="true"><img src="'+s.img+'" alt="" loading="lazy">'+A.badge(s)+'<span class="date">'+V.esc(s.dia)+'</span></a>'+
+      '<div class="bd"><span class="lug">'+V.esc(s.lugar)+'</span><h3><a href="viaje.html?id='+s.id+'" style="text-decoration:none">'+V.esc(s.destino)+'</a></h3><p>'+V.esc(s.detalle)+'</p>'+
+      '<div class="tags">'+s.incluye.map(function(i){return '<span>'+V.esc(i)+'</span>';}).join("")+'</div>'+
+      '<div class="ft"><div class="price"><b>'+V.esc(s.precio)+'</b><small>'+V.esc(s.nota)+'</small></div>'+
+      (sold?'<a class="btn out" data-wa="Hola! La salida a '+V.esc(s.destino)+' figura agotada. ¿Me avisan si se libera un lugar?" href="#">Avisame</a>':'<a class="btn" data-wa="Hola! Quiero consultar por la salida a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')" href="#">Consultar</a>')+
+      '</div></div></article>';
+    });
+  }
+  function marcar(){fil.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.dataset.t===tipoSel);});fTipo.value=tipoSel;}
+  fil.addEventListener("click",function(e){var c=e.target.closest(".chip");if(!c)return;tipoSel=c.dataset.t;marcar();pintar();});
+  document.getElementById("finder").addEventListener("submit",function(e){e.preventDefault();var f=e.target;q.region=f.region.value;q.mes=f.mes.value;tipoSel=f.tipo.value;marcar();pintar();document.getElementById("paquetes").scrollIntoView({behavior:"smooth"});});
+  /* Atajos desde destinos y carteles */
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-q],[data-t]");if(!a||a.tagName==="OPTION")return;
+    if(a.dataset.q!==undefined){q.region=(a.dataset.q==="crucero"?"":a.dataset.q);}
+    if(a.dataset.t){tipoSel=a.dataset.t;} else if(a.dataset.q!==undefined){tipoSel="todos";}
+    marcar();pintar();
+  });
+  pintar();
+})();
+</script>
+</body>
+</html>

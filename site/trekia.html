@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trekia — Trekking y naturaleza</title>
+<meta name="description" content="Trekia: salidas de trekking y naturaleza desde Río Tercero, con guías, seguro y grupos reducidos. Una empresa de Virgen del Valle.">
+<meta name="theme-color" content="#6B1D35">
+<meta property="og:title" content="Trekia — Trekking y naturaleza">
+<meta property="og:description" content="Sierras, cerros y cordillera con guías y grupos reducidos. Salidas desde Río Tercero.">
+<meta property="og:image" content="img/trekking-cerro.jpg">
+<!-- Meta Pixel: se instala en la Etapa 3 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/trekia.css">
+</head>
+<body>
+<div class="sw"><div class="wrap"><small>Nuestras empresas</small>
+  <a href="index.html">Virgen del Valle</a><a class="on" href="trekia.html">Trekia</a><a href="aula-viajera.html">Aula Viajera</a></div></div>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="trekia.html" aria-label="Trekia, inicio"><img src="img/logo-trekia-c.jpg" alt="Trekia, trekking y naturaleza"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="#salidas">Salidas</a><a href="#escapadas">Escapadas</a><a href="#nosotros">Nosotros</a>
+    <a href="index.html" class="only-m">Virgen del Valle</a><a href="aula-viajera.html" class="only-m">Aula Viajera</a>
+    <a class="btn" data-wa="Hola! Quiero consultar por una salida de Trekia" href="#">Sumate a una salida</a>
+  </nav>
+  <button class="burger" aria-label="Abrir menú" aria-expanded="false"><i></i><i></i><i></i></button>
+</div></header>
+
+<main>
+<section class="hero">
+  <svg class="leaf a" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 56C8 28 28 8 58 6 58 36 38 56 8 56z" fill="#6B1D35" opacity=".18"/><path d="M10 54C26 38 38 26 56 8" stroke="#6B1D35" stroke-width="2" fill="none" opacity=".4"/></svg>
+  <div class="wrap">
+    <div>
+      <span class="kicker">Trekking y naturaleza</span>
+      <h1>Descubrí la montaña. <em>Encontrá tu sendero.</em></h1>
+      <p class="sub">Salidas guiadas a las sierras, los cerros y la cordillera, con seguro, coordinación y grupos reducidos. Salimos desde Río Tercero.</p>
+      <div class="cta"><a class="btn" href="#salidas">Ver salidas</a><a class="btn dark" data-wa="Hola! Quiero consultar por una salida de Trekia" href="#">Consultar por WhatsApp</a></div>
+    </div>
+    <div class="ph-hero"><img src="img/trekking-cerro.jpg" alt="Caminante en las sierras" fetchpriority="high"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <form class="finder" id="finder" aria-label="Buscar salida">
+    <label><span>Dónde</span><select name="lugar" id="fLugar"><option value="">Cualquier lugar</option></select></label>
+    <label><span>Mes</span><select name="mes" id="fMes"><option value="">Cualquier mes</option></select></label>
+    <label><span>Dificultad</span><select name="dif"><option value="">Todas</option><option>Baja</option><option>Media</option><option>Alta</option></select></label>
+    <label><span>Personas</span><select name="pers"><option>1</option><option selected>2</option><option>3 a 5</option><option>Grupo</option></select></label>
+    <button class="btn" type="submit">Buscar</button>
+  </form>
+
+  <div class="perks"><ul>
+    <li><i>★</i><div><b>Guías con experiencia</b><small>Cada salida va con coordinador</small></div></li>
+    <li><i>✓</i><div><b>Seguro incluido</b><small>Para todas las salidas</small></div></li>
+    <li><i>◐</i><div><b>Grupos reducidos</b><small>Más cuidado en el sendero</small></div></li>
+    <li><i>☎</i><div><b>Atención personal</b><small>Por WhatsApp, sin vueltas</small></div></li>
+  </ul></div>
+</div>
+
+<section class="s" id="salidas"><div class="wrap">
+  <div class="head"><div><span class="kicker">Próximas salidas</span><h2 class="h2">Salidas populares</h2><p class="lead">Fechas, dificultad y precio de cada caminata. Las que ya pasaron se ocultan solas.</p></div><a data-wa="Hola! Quiero consultar por las próximas salidas de Trekia" href="#">Consultar todas →</a></div>
+  <div class="grid" id="grid"></div>
+  <div class="cats" id="cats" role="group" aria-label="Filtrar por dificultad">
+    <button class="cat on" data-d=""><i>⛰</i>Todas</button>
+    <button class="cat" data-d="Baja"><i>🌿</i>Dificultad baja</button>
+    <button class="cat" data-d="Media"><i>🥾</i>Dificultad media</button>
+    <button class="cat" data-d="Alta"><i>🏔</i>Dificultad alta</button>
+  </div>
+</div></section>
+
+<section class="s" id="escapadas" style="padding-top:0"><div class="wrap">
+  <div class="esc">
+    <div><span class="kicker">¿Buscás inspiración?</span><h2 class="h2">Escapadas cerca de casa</h2><p class="lead">Salidas cortas desde Río Tercero para desconectar un fin de semana, con todo organizado.</p><p style="margin-top:20px"><a class="btn dark" data-wa="Hola! Quiero consultar por las escapadas de Trekia" href="#">Consultar escapadas</a></p></div>
+    <div class="escs">
+      <a class="mini" href="#salidas"><img src="img/capilla.jpg" alt="" loading="lazy"><div><b>Capilla Buffo y Los Quebrachitos</b>15 nov · $85.000</div></a>
+      <a class="mini" href="#salidas"><img src="img/sierras.jpg" alt="" loading="lazy"><div><b>Sierras de Córdoba</b>Salidas de un día</div></a>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" style="padding-top:0"><div class="wrap">
+  <div class="offer">
+    <img src="img/montana-nieve.jpg" alt="Cordillera nevada" loading="lazy">
+    <div class="tx"><span class="kicker" style="color:var(--orange)">Salida en preventa</span><h2>Tu próxima aventura empieza acá</h2><p style="opacity:.9">Trekking de montaña en la cordillera de los Andes, con base en Mendoza. Reservá tu lugar con tiempo.</p><div class="big">Consultá precio</div><p><a class="btn" data-wa="Hola! Quiero reservar lugar en la salida a los Andes de Trekia" href="#">Reservar mi lugar →</a></p></div>
+  </div>
+</div></section>
+
+<section class="mosaic" id="nosotros">
+  <div class="wrap">
+    <div class="mo-hero"><img src="img/mendoza.jpg" alt="Viñedos frente a la cordillera de los Andes" loading="lazy"><h2>SIERRAS·ANDES</h2></div>
+    <div class="mo-grid">
+      <div class="mo-t mo-a"><h3>Caminamos juntos</h3><p>Salimos desde Río Tercero en grupos reducidos. El guía que organiza la salida es el mismo que camina con vos y te despide al volver.</p></div>
+      <div class="mo-t mo-b"><div><big>10 km</big><small>Capilla Buffo y Los Quebrachitos, dificultad media</small></div><div><big>3 niveles</big><small>Salidas de dificultad baja, media y alta para cada grupo</small></div></div>
+      <a class="mo-p" href="#salidas" aria-label="Ver salidas"><img src="img/trekker.jpg" alt="Caminante en la montaña" loading="lazy"><h3>Salidas que<br>se cuentan</h3></a>
+      <a class="mo-p" href="#salidas" aria-label="Capilla Buffo"><img src="img/capilla.jpg" alt="Capilla entre árboles" loading="lazy"></a>
+      <div class="mo-t mo-c"><h3>Para todos<br>los niveles</h3><p>Desde caminatas de un día hasta cumbres de cordillera.</p></div>
+      <div class="mo-t mo-d"><h3>Lejos del ruido</h3><p>Naturaleza, aire de montaña y buena compañía.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="pie"><div class="wrap">
+  <div class="nums"><div><b id="nSal">—</b><span>salidas programadas</span></div><div><b>Río Tercero</b><span>y toda la zona</span></div><div><b>Virgen del Valle</b><span>respaldo de la agencia</span></div></div>
+  <div class="wrap g" style="padding:0">
+    <div><img src="img/logo-trekia-c.jpg" alt="Trekia"><p style="margin-top:12px;max-width:30ch;opacity:.85">Trekking y naturaleza. Una empresa de Virgen del Valle.</p></div>
+    <div><h4>Trekia</h4><ul><li><a href="#salidas">Salidas</a></li><li><a href="#escapadas">Escapadas</a></li><li><a href="#nosotros">Nosotros</a></li></ul></div>
+    <div><h4>Empresas</h4><ul><li><a href="index.html">Virgen del Valle</a></li><li><a href="trekia.html">Trekia</a></li><li><a href="aula-viajera.html">Aula Viajera</a></li></ul></div>
+    <div><h4>Contacto</h4><ul><li>03571 15-59-3669</li><li>Obispo Trejo 110</li><li>Río Tercero, Córdoba</li></ul></div>
+  </div>
+  <p class="copy">© <span id="y"></span> Trekia · una empresa de Virgen del Valle</p>
+</div></footer>
+
+<a class="wa-float" data-wa="Hola! Quiero consultar por una salida de Trekia" href="#" aria-label="Escribinos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.52.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.18 2.095 3.195 5.076 4.483.709.3 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+<script>
+(function(){
+  var V=VDV, A=VDVapp, vig=V.vigentes("trekia"), dif="", q={lugar:"",mes:""};
+  document.getElementById("y").textContent=new Date().getFullYear();
+  document.getElementById("nSal").textContent=vig.length;
+  var NM=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"], lug={}, mes={};
+  vig.forEach(function(s){lug[s.lugar]=1;mes[s.fecha.slice(0,7)]=1;});
+  Object.keys(lug).forEach(function(l){document.getElementById("fLugar").insertAdjacentHTML("beforeend",'<option>'+V.esc(l)+'</option>');});
+  Object.keys(mes).sort().forEach(function(m){document.getElementById("fMes").insertAdjacentHTML("beforeend",'<option value="'+m+'">'+NM[+m.slice(5)-1]+" "+m.slice(0,4)+'</option>');});
+  function pintar(){
+    var l=vig.filter(function(s){return (!dif||s.dificultad===dif)&&(!q.lugar||s.lugar===q.lugar)&&(!q.mes||s.fecha.slice(0,7)===q.mes);});
+    A.salidas(document.getElementById("grid"),l,function(s){
+      return '<a class="tk rv'+(s.estado==="agotado"?" sold":"")+'" href="#" data-wa="Hola! Quiero consultar por la salida de Trekia a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')"><img src="'+s.img+'" alt="" loading="lazy"><div class="top"><span>'+V.esc(s.dia)+'</span>'+(V.estadoTxt[s.estado]?'<span class="badge '+s.estado+'">'+V.estadoTxt[s.estado]+'</span>':'')+'</div><div class="bot"><h3>'+V.esc(s.destino)+'</h3><div class="m"><span>'+V.esc(s.lugar)+'<br>'+(s.dificultad?'Dificultad '+V.esc(s.dificultad.toLowerCase())+' · '+V.esc(s.km):'')+'</span><span class="pr">'+V.esc(s.precio)+'</span></div></div></a>';
+    });
+  }
+  document.getElementById("cats").addEventListener("click",function(e){var c=e.target.closest(".cat");if(!c)return;dif=c.dataset.d;document.querySelectorAll(".cat").forEach(function(x){x.classList.toggle("on",x===c);});pintar();});
+  document.getElementById("finder").addEventListener("submit",function(e){e.preventDefault();var f=e.target;q.lugar=f.lugar.value;q.mes=f.mes.value;dif=f.dif.value;document.querySelectorAll(".cat").forEach(function(x){x.classList.toggle("on",x.dataset.d===dif);});pintar();document.getElementById("salidas").scrollIntoView({behavior:"smooth"});});
+  pintar();
+})();
+</script>
+</body>
+</html>

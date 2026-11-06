@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Salidas{% endblock %}
+{% macro tarjeta(s) %}
+<div class="item {{ 'apagada' if not s.activa or s.vencida }}" id="s{{ s.id }}">
+  <img src="{{ ('/' + s.img) if not s.img.startswith('/') and not s.img.startswith('http') else s.img }}" alt="">
+  <div><h3>{{ s.destino }}</h3>
+    <div class="small muted">{{ s.dia or s.fecha.strftime('%d/%m/%Y') }} · {{ s.precio }}{% if s.nota %} · {{ s.nota }}{% endif %}</div>
+    <div class="row" style="margin-top:4px"><span class="tag {{ s.empresa }}">{{ EMPRESAS[s.empresa] }}</span><span class="tag {{ s.estado }}">{{ ESTADOS[s.estado] }}</span>
+      {% if not s.activa %}<span class="tag oculta">Oculta</span>{% endif %}{% if s.vencida %}<span class="tag oculta">Vencida: ya no se ve</span>{% endif %}</div></div>
+  <div class="acc">
+    {% if not s.vencida %}<form method="post" action="{{ url_for('salida_estado', sid=s.id) }}" class="estado-rapido"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <select name="estado" onchange="this.form.submit()" aria-label="Estado de {{ s.destino }}">{% for k, v in ESTADOS.items() %}<option value="{{ k }}" {{ 'selected' if s.estado == k }}>{{ v }}</option>{% endfor %}</select></form>{% endif %}
+    <a class="btn sec chico" href="{{ url_for('salida_editar', sid=s.id) }}">Editar</a>
+  </div>
+</div>
+{% endmacro %}
+{% block c %}
+<div class="row" style="justify-content:space-between"><h1>Salidas</h1>
+  <div class="row"><a class="btn" href="{{ url_for('salida_nueva') }}">+ Nueva salida</a><a class="btn sec" href="{{ url_for('salida_nueva', empresa='trekia') }}">+ Salida de Trekia</a></div></div>
+{% if nuevas %}<div class="flash ok">Tenés <b>{{ nuevas }}</b> consulta{{ 's' if nuevas != 1 }} nueva{{ 's' if nuevas != 1 }}. <a href="{{ url_for('consultas', filtro='nueva') }}">Verlas</a></div>{% endif %}
+<p class="muted small">Lo que cargues acá aparece solo en la web. Las salidas con fecha pasada dejan de mostrarse solas (acá quedan abajo, por si querés copiarlas para la próxima).</p>
+<div class="lista">{% for s in proximas %}{{ tarjeta(s) }}{% else %}<div class="card muted">No hay salidas próximas. Cargá la primera con «Nueva salida».</div>{% endfor %}</div>
+{% if vencidas %}<h2>Vencidas</h2><div class="lista">{% for s in vencidas %}{{ tarjeta(s) }}{% endfor %}</div>{% endif %}
+{% endblock %}

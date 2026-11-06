@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ 'Nueva salida' if nueva else s.destino }}{% endblock %}
+{% block c %}
+<div class="row" style="justify-content:space-between"><h1>{{ 'Nueva salida' if nueva else 'Editar: ' ~ s.destino }}</h1><a class="btn sec chico" href="{{ url_for('salidas') }}">← Volver</a></div>
+<form method="post" enctype="multipart/form-data" class="card">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="g2">
+    <div class="campo"><label>Empresa</label><select name="empresa" style="width:100%">{% for k, v in EMPRESAS.items() %}<option value="{{ k }}" {{ 'selected' if s.empresa == k }}>{{ v }}</option>{% endfor %}</select></div>
+    <div class="campo"><label>Estado</label><select name="estado" style="width:100%">{% for k, v in ESTADOS.items() %}<option value="{{ k }}" {{ 'selected' if s.estado == k }}>{{ v }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="campo"><label>Destino (el título)</label><input name="destino" value="{{ s.destino or '' }}" required maxlength="120" style="width:100%" placeholder="Ej: Termas de San Luis y La Carolina"></div>
+  <div class="g2">
+    <div class="campo"><label>Fecha de salida</label><input type="date" name="fecha" value="{{ s.fecha.isoformat() }}" required style="width:100%"><div class="small muted">Cuando pasa esta fecha, la salida deja de verse sola.</div></div>
+    <div class="campo"><label>Cómo se muestra la fecha (opcional)</label><input name="dia" value="{{ s.dia or '' }}" maxlength="40" style="width:100%" placeholder="Ej: 8 al 11 nov. Vacío = se arma con la fecha"></div>
+  </div>
+  <div class="g2">
+    <div class="campo"><label>Lugar</label><input name="lugar" value="{{ s.lugar or '' }}" maxlength="120" style="width:100%" placeholder="Ej: San Luis"></div>
+    <div class="campo"><label>Región (para el buscador)</label><select name="region" style="width:100%">{% for k, v in REGIONES.items() %}<option value="{{ k }}" {{ 'selected' if s.region == k }}>{{ v }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="campo"><label>Descripción corta</label><input name="detalle" value="{{ s.detalle or '' }}" maxlength="300" style="width:100%" placeholder="Ej: 2 días y 1 noche en hotel 3 estrellas con media pensión"></div>
+  <div class="campo"><label>Qué incluye (uno por línea)</label><textarea name="incluye" placeholder="Bus semi cama&#10;Hotel&#10;Media pensión">{{ s.incluye or '' }}</textarea></div>
+  <div class="g2">
+    <div class="campo"><label>Precio (tal cual se muestra)</label><input name="precio" value="{{ s.precio or '' }}" maxlength="40" style="width:100%" placeholder="$255.000 · USD 889 · Consultá"></div>
+    <div class="campo"><label>Aclaración del precio</label><input name="nota" value="{{ s.nota or '' }}" maxlength="80" style="width:100%" placeholder="3 cuotas sin interés · por persona · desde, base doble"></div>
+  </div>
+  <div class="campo"><label>Tipo de viaje</label><div class="checks">{% for k, v in TIPOS.items() %}<label><input type="checkbox" name="tipos" value="{{ k }}" {{ 'checked' if k in s.lista_tipos }}> {{ v }}</label>{% endfor %}</div></div>
+  <div class="g3">
+    <div class="campo"><label>Dificultad (Trekia)</label><select name="dificultad" style="width:100%">{% for d in DIFICULTADES %}<option value="{{ d }}" {{ 'selected' if s.dificultad == d }}>{{ d or '—' }}</option>{% endfor %}</select></div>
+    <div class="campo"><label>Distancia (Trekia)</label><input name="km" value="{{ s.km or '' }}" maxlength="20" style="width:100%" placeholder="10 km"></div>
+    <div class="campo"><label>&nbsp;</label><div class="checks"><label><input type="checkbox" name="destacado" value="1" {{ 'checked' if s.destacado }}> Destacada</label></div></div>
+  </div>
+  <div class="campo"><label>Foto</label>
+    <div class="fotos">{% for f in fotos %}<label><input type="radio" name="foto_web" value="{{ f }}" {{ 'checked' if s.img == 'img/' ~ f }}><img src="/img/{{ f }}" alt="{{ f }}" loading="lazy"></label>{% endfor %}</div>
+    {% if s.img and s.img.startswith('/media/') %}<div class="small muted" style="margin-top:6px">Foto actual (subida por vos): <img src="{{ s.img }}" alt="" style="height:50px;vertical-align:middle;border-radius:6px"> Si no subís otra, se queda.</div>{% endif %}
+    <div style="margin-top:8px"><label>…o subí una foto propia (JPG o PNG)</label><input type="file" name="foto" accept="image/*"></div></div>
+  <div class="campo"><div class="checks"><label><input type="checkbox" name="activa" value="1" {{ 'checked' if s.activa }}> Mostrar en la web</label></div></div>
+  <div class="row"><button class="btn">{{ 'Cargar salida' if nueva else 'Guardar cambios' }}</button><a class="btn sec" href="{{ url_for('salidas') }}">Cancelar</a></div>
+</form>
+{% if not nueva %}
+<h2>Link para anuncios y para mandar por WhatsApp</h2>
+<div class="card"><p class="small muted" style="margin-top:0">Esta página es solo de este viaje. Sirve para el botón de tus anuncios de Meta o para mandar por WhatsApp (sale con foto y título).</p>
+  <div class="link" id="lnk">{{ base }}/viaje.html?id={{ s.slug }}</div>
+  <div class="row" style="margin-top:8px"><button type="button" class="btn sec chico" onclick="navigator.clipboard.writeText(document.getElementById('lnk').textContent).then(()=>this.textContent='¡Copiado!')">Copiar link</button>
+    <a class="btn sec chico" href="/viaje.html?id={{ s.slug }}" target="_blank" rel="noopener">Ver la página ↗</a></div></div>
+<h2>Otras acciones</h2>
+<div class="row">
+  <form method="post" action="{{ url_for('salida_duplicar', sid=s.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn sec">Copiar para otra fecha</button></form>
+  <form method="post" action="{{ url_for('salida_visible', sid=s.id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn sec">{{ 'Ocultar de la web' if s.activa else 'Volver a mostrar' }}</button></form>
+  <form method="post" action="{{ url_for('salida_borrar', sid=s.id) }}" onsubmit="return confirm('¿Borrar esta salida para siempre?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn peli">Borrar</button></form>
+</div>
+{% endif %}
+{% endblock %}

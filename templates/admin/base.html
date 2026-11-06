@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="es-AR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>{% block titulo %}Panel{% endblock %} · Virgen del Valle</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}"></head>
+<body>
+{% if session.admin %}<header class="top"><div class="in"><b>Panel · Virgen del Valle</b>
+  <a href="{{ url_for('salidas') }}" class="{{ 'on' if request.endpoint in ('salidas','salida_nueva','salida_editar') }}">Salidas</a>
+  <a href="{{ url_for('consultas') }}" class="{{ 'on' if request.endpoint == 'consultas' }}">Consultas</a>
+  <a href="{{ url_for('contacto') }}" class="{{ 'on' if request.endpoint == 'contacto' }}">Contacto</a>
+  <span class="sp"></span><a href="/" target="_blank" rel="noopener">Ver la web ↗</a>
+  <form method="post" action="{{ url_for('salir') }}" style="margin:0"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button>Salir</button></form></div></header>{% endif %}
+<main>
+{% with m = get_flashed_messages(with_categories=true) %}{% for cat, txt in m %}<div class="flash {{ cat }}">{{ txt }}</div>{% endfor %}{% endwith %}
+{% block c %}{% endblock %}
+</main>
+{% block js %}{% endblock %}
+</body></html>

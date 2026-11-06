@@ -1,0 +1,116 @@
+{
+ "nombre": "Virgen del Valle",
+ "legajo": "EVT Legajo 15772",
+ "direccion": "Obispo Trejo 110",
+ "ciudad": "Río Tercero, Córdoba",
+ "telefono": "03571 15-59-3669",
+ "whatsapp": "5493571593669",
+ "instagram": "virgendelvalleagencia",
+ "seguidores": "4.500+",
+ "empresas": {
+  "vdv": {
+   "nombre": "Virgen del Valle",
+   "rubro": "Agencia de viajes y turismo",
+   "url": "index.html"
+  },
+  "trekia": {
+   "nombre": "Trekia",
+   "rubro": "Trekking y naturaleza",
+   "url": "trekia.html"
+  },
+  "aula": {
+   "nombre": "Aula Viajera",
+   "rubro": "Viajes educativos y de egresados",
+   "url": "aula-viajera.html"
+  }
+ },
+ "tipos": [
+  {
+   "id": "todos",
+   "nombre": "Todos"
+  },
+  {
+   "id": "grupal",
+   "nombre": "Grupales en bus"
+  },
+  {
+   "id": "religioso",
+   "nombre": "Religiosos"
+  },
+  {
+   "id": "naturaleza",
+   "nombre": "Trekking y naturaleza"
+  },
+  {
+   "id": "internacional",
+   "nombre": "Internacionales"
+  }
+ ],
+ "destinos": [
+  {
+   "nombre": "Buzios",
+   "lugar": "Brasil",
+   "desde": "USD 889",
+   "img": "img/buzios.jpg",
+   "q": "brasil"
+  },
+  {
+   "nombre": "Patagonia",
+   "lugar": "Argentina",
+   "desde": "$1.425.000",
+   "img": "img/perito-moreno.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Italia",
+   "lugar": "Europa",
+   "desde": "USD 3.680",
+   "img": "img/venecia.jpg",
+   "q": "europa"
+  },
+  {
+   "nombre": "Cruceros",
+   "lugar": "Brasil y Caribe",
+   "desde": "Consultá",
+   "img": "img/crucero.jpg",
+   "q": "crucero"
+  },
+  {
+   "nombre": "Mendoza",
+   "lugar": "Argentina",
+   "desde": "Consultá",
+   "img": "img/mendoza.jpg",
+   "q": "argentina"
+  }
+ ],
+ "programas": [
+  {
+   "id": "egresados",
+   "nombre": "Viaje de egresados",
+   "lugar": "Bariloche, Brasil y más",
+   "detalle": "Salidas para cursos completos, con coordinadores y seguro de viaje.",
+   "img": "img/floripa.jpg"
+  },
+  {
+   "id": "educativo",
+   "nombre": "Viajes educativos",
+   "lugar": "Córdoba, Buenos Aires, Mendoza",
+   "detalle": "Recorridos con contenido curricular para primaria y secundaria.",
+   "img": "img/mendoza.jpg"
+  },
+  {
+   "id": "contingentes",
+   "nombre": "Contingentes escolares",
+   "lugar": "Desde Río Tercero y zona",
+   "detalle": "Bus, coordinación permanente y asistencia médica a bordo.",
+   "img": "img/grupo-escalada.jpg"
+  },
+  {
+   "id": "familias",
+   "nombre": "Escapadas de fin de curso",
+   "lugar": "Sierras y termas",
+   "detalle": "Salidas de 1 o 2 días para cerrar el año con el grupo.",
+   "img": "img/sierras.jpg"
+  }
+ ]
+}

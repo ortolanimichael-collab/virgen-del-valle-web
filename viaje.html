@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Viaje — Virgen del Valle</title>
+<meta name="description" content="Salida con fecha, precio, qué incluye y consulta directa por WhatsApp.">
+<meta name="theme-color" content="#2A1220">
+<!-- Meta Pixel: se instala en la Etapa 3 (evento ViewContent con el id del viaje) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/vdv.css">
+</head>
+<body>
+<div class="sw"><div class="wrap"><small>Nuestras empresas</small>
+  <a class="on" href="index.html">Virgen del Valle</a><a href="trekia.html">Trekia</a><a href="aula-viajera.html">Aula Viajera</a></div></div>
+<header class="top"><div class="wrap">
+  <a class="brand" href="index.html"><img src="img/logo-vdv.jpg" alt="Virgen del Valle"></a>
+  <nav class="nav"><a href="index.html#paquetes">Todos los viajes</a><a class="btn pink" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos</a></nav>
+</div></header>
+<main id="main"></main>
+<a class="wa-float" data-wa="Hola! Quiero consultar por un viaje" href="#" aria-label="Escribinos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.52.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.18 2.095 3.195 5.076 4.483.709.3 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+<script src="js/data.js"></script>
+<script src="js/site.js"></script>
+<script>
+(function(){
+  var V=VDV, id=new URLSearchParams(location.search).get("id"), s=V.porId(id), m=document.getElementById("main");
+  if(!s){m.innerHTML='<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><h1 class="h2">No encontramos ese viaje</h1><p class="lead">Puede que la salida ya haya pasado. Escribinos y te contamos qué hay disponible.</p><p style="margin-top:18px"><a class="btn" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos por WhatsApp</a></p></div></section>';VDVapp.reveal();document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa)});return;}
+  document.title=s.destino+" — Virgen del Valle";
+  var vencida=V.diasHasta(s.fecha)<0, sold=s.estado==="agotado"||vencida, dias=V.diasHasta(s.fecha);
+  var estado=vencida?"Salida finalizada":(V.estadoTxt[s.estado]||"Cupos disponibles");
+  var msg='Hola! Quiero consultar por la salida a '+s.destino+' ('+s.dia+')';
+  m.innerHTML=
+  '<section class="vj-hero"><img src="'+s.img+'" alt=""><div class="wrap"><span class="kicker" style="color:#F1779E">'+V.esc(s.lugar)+' · '+V.esc(s.dia)+'</span><h1>'+V.esc(s.destino)+'</h1></div></section>'+
+  '<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><div class="vj">'+
+  '<div class="rv"><span class="kicker">El viaje</span><h2 class="h2">'+V.esc(s.destino)+'</h2><p class="lead" style="max-width:60ch">'+V.esc(s.detalle)+'.</p>'+
+  '<h3 style="margin:30px 0 12px;font-weight:800">Qué incluye</h3><div class="tags" style="gap:10px">'+s.incluye.map(function(i){return '<span style="font-size:14px;padding:7px 14px">'+V.esc(i)+'</span>'}).join('')+'</div>'+
+  '<h3 style="margin:30px 0 12px;font-weight:800">Cómo reservar</h3><p class="lead">Escribinos por WhatsApp con el viaje elegido y la cantidad de pasajeros. Te confirmamos cupos, formas de pago y seña. La misma persona te acompaña hasta la salida.</p></div>'+
+  '<aside class="box rv"><span class="badge '+s.estado+'" style="position:static;display:inline-block;margin-bottom:12px">'+estado+'</span>'+
+  '<div class="pr">'+V.esc(s.precio)+'</div><p class="price"><small>'+V.esc(s.nota)+'</small></p>'+
+  '<ul style="margin:18px 0"><li>Salida: '+V.esc(s.dia)+(dias>=0?' (faltan '+dias+' días)':'')+'</li><li>Destino: '+V.esc(s.lugar)+'</li>'+s.incluye.map(function(i){return '<li>'+V.esc(i)+'</li>'}).join('')+'</ul>'+
+  (sold?'<a class="btn out" style="width:100%" data-wa="Hola! La salida a '+V.esc(s.destino)+' figura agotada. ¿Me avisan si se libera un lugar?" href="#">Avisame si se libera un lugar</a>':'<a class="btn" style="width:100%" data-wa="'+V.esc(msg)+'" href="#">Consultar por WhatsApp</a>')+
+  '</aside></div></div></section>';
+  VDVapp.reveal();
+  document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa);a.target="_blank";a.rel="noopener"});
+})();
+</script>
+</body>
+</html>

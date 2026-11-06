@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Ingresar{% endblock %}
+{% block c %}<div class="login"><div class="card">
+  <h1 style="margin-top:0">Panel de Virgen del Valle</h1>
+  {% if sin_clave %}<div class="flash error">Falta configurar la contraseña del panel (variable ADMIN_PASSWORD en el servidor).</div>{% endif %}
+  <form method="post"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="campo"><label>Usuario</label><input name="usuario" autocomplete="username" required style="width:100%" autofocus></div>
+    <div class="campo"><label>Contraseña</label><input name="password" type="password" autocomplete="current-password" required style="width:100%"></div>
+    <button class="btn" style="width:100%">Entrar</button></form></div></div>{% endblock %}

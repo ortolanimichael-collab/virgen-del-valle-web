@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Consultas{% endblock %}
+{% block c %}
+<h1>Consultas</h1>
+<p class="muted small">Cada vez que alguien completa un formulario de la web, queda anotado acá (además de abrirse su WhatsApp). Marcá en qué quedó y poné una fecha para volver a escribirle.</p>
+<div class="chips"><a href="{{ url_for('consultas') }}" class="{{ 'on' if not filtro }}">Todas</a>
+  {% for k, v in ESTADOS_CONSULTA.items() %}<a href="{{ url_for('consultas', filtro=k) }}" class="{{ 'on' if filtro == k }}">{{ v }} ({{ cuentas[k] }})</a>{% endfor %}
+  <a href="{{ url_for('consultas', filtro='recordar') }}" class="{{ 'on' if filtro == 'recordar' }}">⏰ Para escribirles hoy ({{ por_recordar }})</a></div>
+{% for c in lista %}
+<div class="cons" id="c{{ c.id }}">
+  <div class="row" style="justify-content:space-between"><b>{{ c.nombre or 'Sin nombre' }}</b><span class="small muted">{{ c.creada.strftime('%d/%m/%Y %H:%M') }} · {{ c.origen or 'web' }}</span></div>
+  <dl>{% for k, v in c.dict_datos.items() if k != 'nombre' %}<dt>{{ k|capitalize }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+  {% set tel = c.dict_datos.get('telefono') or c.dict_datos.get('whatsapp') %}
+  <form method="post" action="{{ url_for('consultas', filtro=filtro) }}" class="row" style="align-items:flex-end">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ c.id }}">
+    <div><label>Estado</label><select name="estado">{% for k, v in ESTADOS_CONSULTA.items() %}<option value="{{ k }}" {{ 'selected' if c.estado == k }}>{{ v }}</option>{% endfor %}</select></div>
+    <div><label>Recordarme el</label><input type="date" name="recordar" value="{{ c.recordar.isoformat() if c.recordar }}"></div>
+    <div style="flex:1;min-width:160px"><label>Nota</label><input name="nota" value="{{ c.nota }}" maxlength="300" style="width:100%"></div>
+    <button class="btn chico">Guardar</button>
+    {% if tel %}<a class="btn sec chico" target="_blank" rel="noopener" href="https://wa.me/{{ tel|replace('+','')|replace(' ','')|replace('-','') }}">WhatsApp ↗</a>{% endif %}
+  </form>
+  {% if c.recordar and c.recordar <= hoy() and c.estado in ('nueva','contactada','senia') %}<div class="small" style="color:var(--warn);margin-top:6px">⏰ Había que escribirle el {{ c.recordar.strftime('%d/%m') }}</div>{% endif %}
+</div>
+{% else %}<div class="card muted">No hay consultas con este filtro.</div>{% endfor %}
+{% endblock %}
