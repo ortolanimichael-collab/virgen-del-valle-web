@@ -50,7 +50,7 @@ def ahora():
 # ====================================================================== modelos
 
 class Salida(db.Model):
-    __tablename__ = "salida"
+    __tablename__ = "vdv_salida"
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(80), unique=True, nullable=False, index=True)      # va en el link: viaje.html?id=<slug>
     empresa = db.Column(db.String(12), nullable=False, default="vdv")
@@ -100,7 +100,7 @@ class Salida(db.Model):
 
 class Imagen(db.Model):
     """Fotos subidas desde el panel. Se guardan en la base (el disco de Render no es permanente)."""
-    __tablename__ = "imagen"
+    __tablename__ = "vdv_imagen"
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(120))
     datos = db.Column(db.LargeBinary, nullable=False)
@@ -108,7 +108,7 @@ class Imagen(db.Model):
 
 
 class Consulta(db.Model):
-    __tablename__ = "consulta"
+    __tablename__ = "vdv_consulta"
     id = db.Column(db.Integer, primary_key=True)
     creada = db.Column(db.DateTime, default=ahora, index=True)
     origen = db.Column(db.String(60), default="")
@@ -129,7 +129,7 @@ class Consulta(db.Model):
 
 
 class Ajuste(db.Model):
-    __tablename__ = "ajuste"
+    __tablename__ = "vdv_ajuste"
     clave = db.Column(db.String(40), primary_key=True)
     valor = db.Column(db.String(300), default="")
 
