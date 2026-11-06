@@ -6,6 +6,10 @@
 {% if session.admin %}<header class="top"><div class="in"><b>Panel · Virgen del Valle</b>
   <a href="{{ url_for('salidas') }}" class="{{ 'on' if request.endpoint in ('salidas','salida_nueva','salida_editar') }}">Salidas</a>
   <a href="{{ url_for('consultas') }}" class="{{ 'on' if request.endpoint == 'consultas' }}">Consultas</a>
+  <a href="{{ url_for('clientes') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('cliente') }}">Clientes</a>
+  <a href="{{ url_for('sorteos') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('sorteo') }}">Sorteos</a>
+  <a href="{{ url_for('flyers') }}" class="{{ 'on' if request.endpoint == 'flyers' }}">Flyers</a>
+  <a href="{{ url_for('reporte') }}" class="{{ 'on' if request.endpoint == 'reporte' }}">Reporte</a>
   <a href="{{ url_for('contacto') }}" class="{{ 'on' if request.endpoint == 'contacto' }}">Contacto</a>
   <span class="sp"></span><a href="/" target="_blank" rel="noopener">Ver la web ↗</a>
   <form method="post" action="{{ url_for('salir') }}" style="margin:0"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button>Salir</button></form></div></header>{% endif %}

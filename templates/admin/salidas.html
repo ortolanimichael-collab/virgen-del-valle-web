@@ -10,6 +10,7 @@
   <div class="acc">
     {% if not s.vencida %}<form method="post" action="{{ url_for('salida_estado', sid=s.id) }}" class="estado-rapido"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
       <select name="estado" onchange="this.form.submit()" aria-label="Estado de {{ s.destino }}">{% for k, v in ESTADOS.items() %}<option value="{{ k }}" {{ 'selected' if s.estado == k }}>{{ v }}</option>{% endfor %}</select></form>{% endif %}
+    <a class="btn sec chico" href="{{ url_for('pasajeros', sid=s.id) }}">Pasajeros ({{ ocup.get(s.id, 0) }}{{ '/' ~ s.cupos if s.cupos }})</a>
     <a class="btn sec chico" href="{{ url_for('salida_editar', sid=s.id) }}">Editar</a>
   </div>
 </div>

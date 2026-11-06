@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Flyers{% endblock %}
+{% block c %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<h1>Generador de flyers</h1>
+<p class="muted small">Elegí una salida y el formato: el flyer se arma solo con la foto, la fecha, el precio y el estado. Descargalo y subilo a Instagram o Facebook.</p>
+{% if not salidas %}<div class="card muted">No hay salidas próximas. Cargá una en <a href="{{ url_for('salidas') }}">Salidas</a>.</div>{% else %}
+<div class="g2" style="align-items:start">
+  <div class="card">
+    <div class="campo"><label>Salida</label><select id="sal" style="width:100%">{% for s in salidas %}<option value="{{ loop.index0 }}" {{ 'selected' if elegida == s.id }}>{{ s.destino }} · {{ s.dia }}</option>{% endfor %}</select></div>
+    <div class="campo"><label>Formato</label><select id="fmt" style="width:100%"><option value="1080x1350">Publicación de Instagram / Facebook (4:5)</option><option value="1080x1920">Historia o reel (9:16)</option><option value="1080x1080">Cuadrado (1:1)</option></select></div>
+    <div class="campo"><label>Texto extra (opcional)</label><input id="extra" maxlength="60" style="width:100%" placeholder="Ej: Reservá con seña"></div>
+    <div class="row"><button class="btn" id="bajar" type="button">Descargar imagen (PNG)</button></div>
+    <h3 style="margin-bottom:6px">Texto para acompañar el posteo</h3>
+    <textarea id="txt" style="min-height:150px"></textarea><div style="margin-top:6px"><button class="btn sec chico" id="copiar" type="button">Copiar texto</button></div>
+  </div>
+  <div class="card" style="text-align:center"><canvas id="cv" style="max-width:100%;max-height:78vh;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.18)"></canvas></div>
+</div>
+<script>
+(function(){
+var S={{ salidas|tojson }}, C={{ {'wa': c.whatsapp, 'tel': c.telefono, 'legajo': c.legajo, 'ig': c.instagram}|tojson }};
+var $=function(i){return document.getElementById(i)}, cv=$('cv'), ctx=cv.getContext('2d');
+var T={vdv:{a:'#A53F6E',b:'#F1779E',n:'#2A1220',logo:'/img/logo-vdv.jpg',nombre:'Virgen del Valle'},trekia:{a:'#6B1D35',b:'#EE8A24',n:'#2b0d17',logo:'/img/logo-trekia-c.jpg',nombre:'Trekia'}};
+var cache={}; function img(src){return cache[src]||(cache[src]=new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=src}))}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function lineas(t,max){var w=t.split(' '),l='',ls=[];w.forEach(function(p){var p2=l?l+' '+p:p;if(ctx.measureText(p2).width>max&&l){ls.push(l);l=p}else l=p2});ls.push(l);return ls}
+function wrap(t,x,y,max,lh){var w=t.split(' '),l='',ls=[];w.forEach(function(p){var p2=l?l+' '+p:p;if(ctx.measureText(p2).width>max&&l){ls.push(l);l=p}else l=p2});ls.push(l);ls.forEach(function(s,i){ctx.fillText(s,x,y+i*lh)});return ls.length}
+var EST={ultimos:'ÚLTIMOS CUPOS',agotado:'AGOTADO',preventa:'PREVENTA'};
+async function dibujar(){
+  var s=S[+$('sal').value], p=$('fmt').value.split('x'), W=+p[0], H=+p[1], th=T[s.empresa]||T.vdv, M=70;
+  cv.width=W;cv.height=H;
+  await Promise.all([document.fonts.load('700 80px "Playfair Display"'),document.fonts.load('800 40px "Plus Jakarta Sans"'),document.fonts.load('500 30px "Plus Jakarta Sans"')]).catch(function(){});
+  var f=await img(s.img).catch(function(){return null}), lg=await img(th.logo).catch(function(){return null});
+  ctx.fillStyle=th.n;ctx.fillRect(0,0,W,H);
+  if(f){var r=Math.max(W/f.width,H/f.height),w=f.width*r,h=f.height*r;ctx.drawImage(f,(W-w)/2,(H-h)/2,w,h)}
+  var g=ctx.createLinearGradient(0,H*.25,0,H);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.55,th.n+'cc');g.addColorStop(1,th.n+'f2');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  var g2=ctx.createLinearGradient(0,0,0,H*.22);g2.addColorStop(0,'rgba(0,0,0,.45)');g2.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H*.22);
+  if(lg){var lh=H>1500?150:130,lw=lg.width*lh/lg.height;ctx.fillStyle='#fff';rr(M-14,M-14,lw+28,lh+28,26);ctx.fill();ctx.drawImage(lg,M,M,lw,lh)}
+  var est=EST[s.estado];
+  if(est){ctx.font='800 38px "Plus Jakarta Sans",sans-serif';var tw=ctx.measureText(est).width+60;ctx.fillStyle=s.estado==='agotado'?'#c0392b':th.b;rr(W-M-tw,M,tw,74,37);ctx.fill();ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillText(est,W-M-tw/2,M+39);ctx.textAlign='left'}
+  ctx.textBaseline='alphabetic';
+  var yb=H-M-130, ex=$('extra').value.trim();
+  if(ex){ctx.font='700 40px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='#fff';ctx.fillText(ex,M,yb);yb-=66}
+  if(s.precio){ctx.font='800 64px "Plus Jakarta Sans",sans-serif';var pw=ctx.measureText(s.precio).width+70,py=yb-104;ctx.fillStyle=th.b;rr(M,py,pw,104,52);ctx.fill();ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(s.precio,M+35,py+54);ctx.textBaseline='alphabetic';
+    if(s.nota){ctx.font='500 34px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='#fff';ctx.fillText(s.nota,M+pw+24,py+66)}
+    yb=py-36}
+  ctx.font='800 54px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='#fff';ctx.fillText(s.dia.toUpperCase(),M,yb);yb-=78;
+  var fs=W>1000?(H>1500?116:100):90, lh=fs*1.08;ctx.font='700 '+fs+'px "Playfair Display",Georgia,serif';
+  var ls=lineas(s.destino,W-2*M);ls.forEach(function(t,i){ctx.fillText(t,M,yb-(ls.length-1-i)*lh)});
+  ctx.fillStyle=th.b;ctx.font='800 40px "Plus Jakarta Sans",sans-serif';ctx.fillText((s.lugar||'Salida grupal').toUpperCase(),M,yb-(ls.length-1)*lh-fs-8);
+  ctx.fillStyle='rgba(255,255,255,.92)';ctx.font='700 40px "Plus Jakarta Sans",sans-serif';
+  var wa=C.tel||C.wa;ctx.fillText('Consultá por WhatsApp: '+wa,M,H-M-48);
+  ctx.font='500 30px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='rgba(255,255,255,.75)';ctx.fillText(th.nombre+(C.legajo?' · '+C.legajo:'')+(C.ig?' · @'+C.ig:''),M,H-M);
+  var L=['✈️ '+s.destino+(s.lugar?' · '+s.lugar:''),'📅 '+s.dia];
+  if(s.precio)L.push('💰 '+s.precio+(s.nota?' ('+s.nota+')':''));
+  if(est)L.push('⚠️ '+est);
+  L.push('','Reservá tu lugar por WhatsApp 👉 '+(C.tel||C.wa));
+  if(C.ig)L.push('Seguinos en @'+C.ig);
+  $('txt').value=L.join('\n');
+}
+['sal','fmt'].forEach(function(i){$(i).addEventListener('change',dibujar)});$('extra').addEventListener('input',function(){clearTimeout(window.__t);window.__t=setTimeout(dibujar,250)});
+$('bajar').addEventListener('click',function(){var s=S[+$('sal').value];cv.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='flyer-'+s.destino.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+$('fmt').value+'.png';a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)},'image/png')});
+$('copiar').addEventListener('click',function(){var b=this;navigator.clipboard.writeText($('txt').value).then(function(){b.textContent='¡Copiado!'},function(){$('txt').select()})});
+dibujar();
+})();
+</script>{% endif %}
+{% endblock %}

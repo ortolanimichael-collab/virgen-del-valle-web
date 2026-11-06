@@ -51,3 +51,5 @@ label{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
 .link{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f6eef2;border-radius:8px;padding:6px 8px}
 .login{max-width:380px;margin:12vh auto;padding:0 16px}
 @media(max-width:640px){.item{grid-template-columns:64px 1fr}.item img{width:64px;height:54px}.acc{grid-column:1/-1;justify-content:flex-start}.g2,.g3{grid-template-columns:1fr}}
+
+@media print{.top,.noprint,form.noprint,.acc{display:none!important}body{background:#fff}.card,.item{border-color:#ccc;break-inside:avoid}main{padding:0}}

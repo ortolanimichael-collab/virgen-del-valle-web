@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ p.nombre }}{% endblock %}
+{% block c %}
+<div class="row" style="justify-content:space-between"><h1>{{ p.nombre }}</h1><a class="btn sec chico" href="{{ url_for('pasajeros', sid=p.salida_id) }}">← {{ p.salida.destino }}</a></div>
+<form method="post" class="card"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="g3"><div class="campo"><label>Nombre y apellido</label><input name="nombre" value="{{ p.nombre }}" required maxlength="120" style="width:100%"></div>
+    <div class="campo"><label>WhatsApp</label><input name="telefono" value="{{ p.telefono or '' }}" maxlength="40" style="width:100%"></div>
+    <div class="campo"><label>DNI</label><input name="dni" value="{{ p.dni or '' }}" maxlength="20" style="width:100%"></div></div>
+  <div class="g3"><div class="campo"><label>Precio total ($)</label><input name="total" value="{{ p.total|int }}" inputmode="decimal" style="width:100%"></div>
+    <div class="campo"><label>Pagó en total ($)</label><input name="pagado" value="{{ p.pagado|int }}" inputmode="decimal" style="width:100%"></div>
+    <div class="campo"><label>Estado</label><select name="estado" style="width:100%">{% for k, v in ESTADOS_PASAJERO.items() %}<option value="{{ k }}" {{ 'selected' if p.estado == k }}>{{ v }}</option>{% endfor %}</select><div class="small muted">«Cancelado» libera el lugar y no suma a los cobros.</div></div></div>
+  <div class="campo"><label>Nota</label><input name="nota" value="{{ p.nota or '' }}" maxlength="300" style="width:100%"></div>
+  <div class="row"><button class="btn">Guardar</button>{% if p.cliente_id %}<a class="btn sec" href="{{ url_for('cliente_editar', cid=p.cliente_id) }}">Ver ficha del cliente</a>{% endif %}</div>
+</form>
+<h2>Sacar de la lista</h2>
+<form method="post" action="{{ url_for('pasajero_borrar', pid=p.id) }}" onsubmit="return confirm('¿Sacar a este pasajero de la lista? Si solo canceló, mejor marcalo como Cancelado.')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn peli">Borrar de la lista</button></form>
+{% endblock %}

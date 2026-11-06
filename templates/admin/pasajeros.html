@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Pasajeros · {{ s.destino }}{% endblock %}
+{% block c %}
+<div class="row noprint" style="justify-content:space-between"><div><h1 style="margin-bottom:0">{{ s.destino }}</h1><div class="muted small">{{ s.dia or s.fecha.strftime('%d/%m/%Y') }} · lista de pasajeros</div></div>
+  <div class="row"><a class="btn sec chico" href="{{ url_for('salidas') }}">← Salidas</a><a class="btn sec chico" href="{{ url_for('pasajeros_csv', sid=s.id) }}">Descargar Excel</a><button class="btn sec chico" type="button" onclick="window.print()">Imprimir lista</button></div></div>
+<div class="g3" style="margin:14px 0">
+  <div class="card"><div class="muted small">Lugares</div><div style="font-size:26px;font-weight:800">{{ r.ocupados }}{% if s.cupos %} <span class="muted" style="font-size:16px">de {{ s.cupos }}</span>{% endif %}</div>
+    <div class="small muted">{% if r.libres is not none %}{% if r.libres > 0 %}Quedan {{ r.libres }} libres{% elif r.libres == 0 %}Completo{% else %}Pasado por {{ -r.libres }}{% endif %}{% else %}Sin cupos cargados (se cargan al editar la salida){% endif %}</div></div>
+  <div class="card"><div class="muted small">Cobrado</div><div style="font-size:26px;font-weight:800">{{ pesos(r.pagado) }}</div><div class="small muted">de {{ pesos(r.total) }}</div></div>
+  <div class="card"><div class="muted small">Falta cobrar</div><div style="font-size:26px;font-weight:800;color:{{ 'var(--warn)' if r.saldo > 0 else 'var(--ok)' }}">{{ pesos(r.saldo) }}</div></div>
+</div>
+<div class="lista">
+{% for p in r.pas %}
+  <div class="item {{ 'apagada' if p.estado == 'cancelado' }}" id="p{{ p.id }}" style="grid-template-columns:1fr auto">
+    <div><h3>{{ p.nombre }} <span class="tag {{ 'disponible' if p.estado == 'confirmado' else ('agotado' if p.estado == 'cancelado' else 'ultimos') }}">{{ ESTADOS_PASAJERO[p.estado] }}</span></h3>
+      <div class="small muted">{{ p.telefono or 'sin teléfono' }}{% if p.dni %} · DNI {{ p.dni }}{% endif %}{% if p.nota %} · {{ p.nota }}{% endif %}</div>
+      <div class="small">Total {{ pesos(p.total) }} · pagó {{ pesos(p.pagado) }}{% if p.saldo > 0 and p.estado != 'cancelado' %} · <b style="color:var(--warn)">debe {{ pesos(p.saldo) }}</b>{% endif %}</div></div>
+    <div class="acc noprint">
+      {% if p.estado != 'cancelado' and p.saldo > 0 %}<form method="post" action="{{ url_for('pasajero_pago', pid=p.id) }}" class="row" style="gap:4px"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input name="monto" inputmode="decimal" placeholder="Pagó $" style="width:100px;padding:6px 8px"><button class="btn chico">Sumar</button></form>{% endif %}
+      <a class="btn sec chico" href="{{ url_for('pasajero_editar', pid=p.id) }}">Editar</a></div>
+  </div>
+{% else %}<div class="card muted">Todavía no anotaste pasajeros en esta salida.</div>{% endfor %}
+</div>
+<h2 class="noprint">Anotar un pasajero</h2>
+<form method="post" action="{{ url_for('pasajero_alta', sid=s.id) }}" class="card noprint"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="g3"><div class="campo"><label>Nombre y apellido</label><input name="nombre" required maxlength="120" style="width:100%"></div>
+    <div class="campo"><label>WhatsApp</label><input name="telefono" maxlength="40" style="width:100%"></div>
+    <div class="campo"><label>DNI</label><input name="dni" maxlength="20" style="width:100%"></div></div>
+  <div class="g3"><div class="campo"><label>Precio total ($)</label><input name="total" inputmode="decimal" style="width:100%" placeholder="145000"></div>
+    <div class="campo"><label>Seña / pagó ($)</label><input name="pagado" inputmode="decimal" style="width:100%" placeholder="50000"></div>
+    <div class="campo"><label>Estado</label><select name="estado" style="width:100%">{% for k, v in ESTADOS_PASAJERO.items() if k != 'cancelado' %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div></div>
+  <div class="campo"><label>Nota</label><input name="nota" maxlength="300" style="width:100%" placeholder="Ej: habitación doble, celíaco, viaja con un menor"></div>
+  <button class="btn">Anotar pasajero</button> <span class="small muted">Si ya está en tus clientes (mismo teléfono o DNI) se vincula solo.</span>
+</form>
+{% endblock %}

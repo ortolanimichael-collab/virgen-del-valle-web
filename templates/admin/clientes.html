@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block c %}
+<div class="row" style="justify-content:space-between"><h1>Clientes <span class="muted small">({{ total }})</span></h1>
+  <div class="row"><a class="btn" href="{{ url_for('cliente_nuevo') }}">+ Nuevo cliente</a><a class="btn sec" href="{{ url_for('clientes_csv') }}">Descargar Excel</a></div></div>
+<form method="get" class="row" style="margin-bottom:12px"><input name="q" value="{{ q }}" placeholder="Buscar por nombre, teléfono, DNI o localidad" style="flex:1;min-width:220px">{% if et %}<input type="hidden" name="etiqueta" value="{{ et }}">{% endif %}<button class="btn sec">Buscar</button></form>
+{% if todas %}<div class="chips"><a href="{{ url_for('clientes', q=q) }}" class="{{ 'on' if not et }}">Todos</a>{% for e in todas %}<a href="{{ url_for('clientes', etiqueta=e, q=q) }}" class="{{ 'on' if et == e }}">{{ e }}</a>{% endfor %}</div>{% endif %}
+<div class="lista">
+{% for c in lista %}
+  <a class="item" style="grid-template-columns:1fr auto;text-decoration:none;color:inherit" href="{{ url_for('cliente_editar', cid=c.id) }}">
+    <div><h3>{{ c.nombre }}</h3><div class="small muted">{{ c.telefono or 'sin teléfono' }}{% if c.localidad %} · {{ c.localidad }}{% endif %}{% if viajes.get(c.id) %} · {{ viajes[c.id] }} viaje{{ 's' if viajes[c.id] != 1 }}{% endif %}</div>
+      <div class="row" style="margin-top:4px">{% for e in c.lista_etiquetas %}<span class="tag">{{ e }}</span>{% endfor %}</div></div>
+    <span class="btn sec chico">Ver</span></a>
+{% else %}<div class="card muted">No hay clientes{% if q or et %} con ese filtro{% endif %}. Se cargan solos cuando anotás pasajeros, o con «Nuevo cliente».</div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ 'Nuevo cliente' if nuevo else c.nombre }}{% endblock %}
+{% block c %}
+<div class="row" style="justify-content:space-between"><h1>{{ 'Nuevo cliente' if nuevo else c.nombre }}</h1><a class="btn sec chico" href="{{ url_for('clientes') }}">← Clientes</a></div>
+<form method="post" class="card"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="g2"><div class="campo"><label>Nombre y apellido</label><input name="nombre" value="{{ c.nombre or '' }}" required maxlength="120" style="width:100%"></div>
+    <div class="campo"><label>WhatsApp / teléfono</label><input name="telefono" value="{{ c.telefono or '' }}" maxlength="40" style="width:100%"></div></div>
+  <div class="g3"><div class="campo"><label>DNI</label><input name="dni" value="{{ c.dni or '' }}" maxlength="20" style="width:100%"></div>
+    <div class="campo"><label>Mail</label><input name="email" value="{{ c.email or '' }}" maxlength="120" style="width:100%"></div>
+    <div class="campo"><label>Localidad</label><input name="localidad" value="{{ c.localidad or '' }}" maxlength="80" style="width:100%"></div></div>
+  <div class="campo"><label>Etiquetas (separadas por coma)</label><input name="etiquetas" value="{{ c.lista_etiquetas|join(', ') }}" maxlength="200" style="width:100%" placeholder="vip, escuelas, religioso, brasil">
+    {% if etiquetas_usadas %}<div class="small muted" style="margin-top:4px">Ya usadas: {{ etiquetas_usadas|join(', ') }}</div>{% endif %}</div>
+  <div class="campo"><label>Notas</label><textarea name="notas" maxlength="500" style="min-height:70px">{{ c.notas or '' }}</textarea></div>
+  <div class="row"><button class="btn">{{ 'Guardar cliente' if nuevo else 'Guardar cambios' }}</button>
+    {% if not nuevo and c.telefono %}<a class="btn sec" target="_blank" rel="noopener" href="https://wa.me/{{ c.tel_norm and ('549' ~ c.tel_norm) }}">WhatsApp ↗</a>{% endif %}</div>
+</form>
+{% if not nuevo %}
+<h2>Viajes</h2>
+{% for p in viajes %}<div class="card" style="margin-bottom:8px"><b>{{ p.salida.destino }}</b> · {{ p.salida.dia or p.salida.fecha.strftime('%d/%m/%Y') }}
+  <span class="tag">{{ ESTADOS_PASAJERO[p.estado] }}</span> <span class="small muted">Total {{ pesos(p.total) }} · pagó {{ pesos(p.pagado) }}{% if p.saldo > 0 and p.estado != 'cancelado' %} · debe {{ pesos(p.saldo) }}{% endif %}</span></div>
+{% else %}<div class="card muted">Todavía no viajó con nosotros.</div>{% endfor %}
+{% if consultas %}<h2>Consultas de la web</h2>{% for k in consultas %}<div class="card small" style="margin-bottom:8px">{{ k.creada.strftime('%d/%m/%Y') }} · {{ k.origen or 'web' }} · {{ ESTADOS_CONSULTA[k.estado] }}<br><span class="muted">{{ k.texto }}</span></div>{% endfor %}{% endif %}
+<h2>Borrar</h2>
+<form method="post" action="{{ url_for('cliente_borrar', cid=c.id) }}" onsubmit="return confirm('¿Borrar a este cliente de la base? Sus viajes anotados se conservan con su nombre.')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn peli">Borrar cliente</button></form>
+{% endif %}
+{% endblock %}

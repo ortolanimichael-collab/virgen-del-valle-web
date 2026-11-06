@@ -29,6 +29,7 @@
     <div class="campo"><label>Distancia (Trekia)</label><input name="km" value="{{ s.km or '' }}" maxlength="20" style="width:100%" placeholder="10 km"></div>
     <div class="campo"><label>&nbsp;</label><div class="checks"><label><input type="checkbox" name="destacado" value="1" {{ 'checked' if s.destacado }}> Destacada</label></div></div>
   </div>
+  <div class="campo" style="max-width:260px"><label>Lugares totales (cupos)</label><input type="number" name="cupos" min="1" max="5000" value="{{ s.cupos or '' }}" style="width:100%" placeholder="Ej: 45"><div class="small muted">Si lo cargás, la lista de pasajeros cuenta los lugares y pasa sola a «Últimos cupos» y «Agotado».</div></div>
   <div class="campo"><label>Foto</label>
     <div class="fotos">{% for f in fotos %}<label><input type="radio" name="foto_web" value="{{ f }}" {{ 'checked' if s.img == 'img/' ~ f }}><img src="/img/{{ f }}" alt="{{ f }}" loading="lazy"></label>{% endfor %}</div>
     {% if s.img and s.img.startswith('/media/') %}<div class="small muted" style="margin-top:6px">Foto actual (subida por vos): <img src="{{ s.img }}" alt="" style="height:50px;vertical-align:middle;border-radius:6px"> Si no subís otra, se queda.</div>{% endif %}

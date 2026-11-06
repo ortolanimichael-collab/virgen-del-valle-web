@@ -190,3 +190,155 @@ def test_pixel_politica_y_aviso_de_cookies(cli):
     post(c, "/admin/contacto", whatsapp="5493571593669", pixel_id="  1234-5678 90abc", razon_social="Virgen del Valle S.R.L.", cuit="30-11111111-1", email="hola@vdv.com.ar")
     d = datos()
     assert d["pixel_id"] == "1234567890" and d["razon_social"] == "Virgen del Valle S.R.L." and d["email"] == "hola@vdv.com.ar"
+
+
+# ====================================================================== Etapa 4
+def _salida_con_cupos(ap, c, cupos=5, nombre="Salida Cupos"):
+    post(c, "/admin/salidas/nueva", empresa="vdv", destino=nombre, fecha=(A.hoy() + timedelta(days=15)).isoformat(), estado="disponible", activa="1", cupos=str(cupos))
+    with ap.app_context():
+        return A.Salida.query.filter_by(destino=nombre).one().id
+
+
+def test_pasajeros_cupos_senia_y_estado_automatico(cli):
+    ap, c = cli
+    entrar(c)
+    sid = _salida_con_cupos(ap, c, cupos=5)
+    assert "Pasajeros (0/5)" in c.get("/admin/salidas").get_data(as_text=True)
+    for i in range(1, 3):
+        post(c, f"/admin/salidas/{sid}/pasajeros", nombre=f"Pasajero {i}", telefono=f"3571 10000{i}", total="145.000", pagado="50000", estado="reservado")
+    with ap.app_context():
+        assert A.db.session.get(A.Salida, sid).estado == "ultimos"                 # quedan 3 lugares: pasa sola a «últimos cupos»
+    h = c.get(f"/admin/salidas/{sid}/pasajeros").get_data(as_text=True)
+    assert "Pasajero 1" in h and "$ 290.000" in h and "$ 100.000" in h and "debe $ 95.000" in h and "Quedan 3 libres" in h
+    pid = None
+    with ap.app_context():
+        pid = A.modelos4.Pasajero.query.filter_by(nombre="Pasajero 1").one().id
+    post(c, f"/admin/pasajeros/{pid}/pago", monto="95.000")
+    with ap.app_context():
+        assert A.modelos4.Pasajero.query.get(pid).pagado == 145000
+    for i in range(3, 6):
+        post(c, f"/admin/salidas/{sid}/pasajeros", nombre=f"Pasajero {i}", total="1000", pagado="0")
+    with ap.app_context():
+        assert A.db.session.get(A.Salida, sid).estado == "agotado"
+    d = json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    assert [x for x in d["salidas"] if x["destino"] == "Salida Cupos"][0]["estado"] == "agotado"        # la web se entera sola
+    # cancelar libera el lugar y no suma a los cobros
+    post(c, f"/admin/pasajeros/{pid}", nombre="Pasajero 1", total="145000", pagado="145000", estado="cancelado")
+    assert "Quedan 1 libres" in c.get(f"/admin/salidas/{sid}/pasajeros").get_data(as_text=True)
+    r = c.get(f"/admin/salidas/{sid}/pasajeros.csv")
+    assert r.status_code == 200 and "attachment" in r.headers["Content-Disposition"] and r.get_data(as_text=True).startswith("﻿Nombre;DNI")
+    assert "Cancelado" in r.get_data(as_text=True)
+    assert post(c, f"/admin/pasajeros/99999/borrar").status_code == 404
+    # no se borra una salida con pasajeros
+    post(c, f"/admin/salidas/{sid}/borrar")
+    with ap.app_context():
+        assert A.db.session.get(A.Salida, sid) is not None
+
+
+def test_montos_invalidos_no_se_guardan(cli):
+    ap, c = cli
+    entrar(c)
+    sid = _salida_con_cupos(ap, c)
+    post(c, f"/admin/salidas/{sid}/pasajeros", nombre="Mal Monto", total="abc", pagado="10")
+    post(c, f"/admin/salidas/{sid}/pasajeros", nombre="Negativo", total="-5", pagado="0")
+    with ap.app_context():
+        assert A.modelos4.Pasajero.query.count() == 0
+
+
+def test_clientes_se_reconocen_por_telefono_y_tienen_etiquetas(cli):
+    ap, c = cli
+    entrar(c)
+    s1, s2 = _salida_con_cupos(ap, c, nombre="Viaje Uno"), _salida_con_cupos(ap, c, nombre="Viaje Dos")
+    post(c, f"/admin/salidas/{s1}/pasajeros", nombre="Laura Gómez", telefono="+54 9 3571 12-3456", total="1000", pagado="0")
+    post(c, f"/admin/salidas/{s2}/pasajeros", nombre="Laura G.", telefono="3571123456", total="2000", pagado="0")
+    with ap.app_context():
+        assert A.modelos4.Cliente.query.count() == 1                                 # la misma persona, aunque escriba distinto el teléfono
+        cid = A.modelos4.Cliente.query.one().id
+    post(c, f"/admin/clientes/{cid}", nombre="Laura Gómez", telefono="3571123456", etiquetas="VIP, Escuelas, vip; ", localidad="Río Tercero")
+    h = c.get("/admin/clientes?etiqueta=vip").get_data(as_text=True)
+    assert "Laura Gómez" in h and "2 viajes" in h and "escuelas" in h
+    assert "Laura" not in c.get("/admin/clientes?etiqueta=brasil").get_data(as_text=True)
+    assert "Laura" in c.get("/admin/clientes?q=rio+ter").get_data(as_text=True) or "Laura" in c.get("/admin/clientes?q=3571").get_data(as_text=True)
+    h = c.get(f"/admin/clientes/{cid}").get_data(as_text=True)
+    assert "Viaje Uno" in h and "Viaje Dos" in h
+    assert c.get("/admin/clientes.csv").get_data(as_text=True).startswith("﻿Nombre;")
+    post(c, f"/admin/clientes/{cid}/borrar")
+    with ap.app_context():
+        assert A.modelos4.Cliente.query.count() == 0 and A.modelos4.Pasajero.query.filter(A.modelos4.Pasajero.cliente_id.isnot(None)).count() == 0
+        assert A.modelos4.Pasajero.query.count() == 2                                # los viajes anotados se conservan
+
+
+def test_consulta_pasa_a_clientes(cli):
+    ap, c = cli
+    c.post("/api/consulta", json={"origen": "promos", "datos": {"nombre": "Marta", "telefono": "3571 777888"}, "texto": "Hola"})
+    entrar(c)
+    with ap.app_context():
+        kid = A.Consulta.query.one().id
+    r = post(c, f"/admin/consultas/{kid}/a-cliente")
+    assert r.status_code == 302
+    post(c, f"/admin/consultas/{kid}/a-cliente")                                     # dos veces no duplica
+    with ap.app_context():
+        assert A.modelos4.Cliente.query.count() == 1 and "consulta" in A.modelos4.Cliente.query.one().lista_etiquetas
+
+
+def test_sorteo_numeros_ganador_y_pagina_publica(cli):
+    ap, c = cli
+    entrar(c)
+    assert post(c, "/admin/sorteos", nombre="Rifa", cantidad="1").status_code == 200           # muy pocos números
+    r = post(c, "/admin/sorteos", nombre="Rifa Beneficio", premio="Fin de semana en San Luis", cantidad="20", precio="$2.000")
+    assert r.status_code == 302
+    with ap.app_context():
+        s = A.modelos4.Sorteo.query.one()
+        sid, token = s.id, s.token
+    post(c, f"/admin/sorteos/{sid}/sortear")                                         # sin pagados no hay sorteo
+    with ap.app_context():
+        assert A.modelos4.Sorteo.query.get(sid).ganador_numero is None
+    post(c, f"/admin/sorteos/{sid}/numeros", numeros="3, 5-7, 99", nombre="Laura", telefono="3571 111", estado="pagado")
+    post(c, f"/admin/sorteos/{sid}/numeros", numeros="10", nombre="Pedro", estado="reservado")
+    with ap.app_context():
+        nums = {n.numero: n.estado for n in A.modelos4.SorteoNumero.query.all()}
+        assert nums == {3: "pagado", 5: "pagado", 6: "pagado", 7: "pagado", 10: "reservado"}          # el 99 queda afuera
+    pub = app_pub = c.get(f"/sorteo/{token}").get_data(as_text=True)
+    assert "Rifa Beneficio" in pub and "Laura" not in pub and "3571 111" not in pub and "<b>15</b> números libres" in pub
+    assert c.get("/sorteo/token-falso").status_code == 404
+    post(c, f"/admin/sorteos/{sid}/sortear")
+    with ap.app_context():
+        g = A.modelos4.Sorteo.query.get(sid).ganador_numero
+    assert g in (3, 5, 6, 7)                                                         # solo entre los pagados, nunca el reservado
+    post(c, f"/admin/sorteos/{sid}/sortear")
+    with ap.app_context():
+        assert A.modelos4.Sorteo.query.get(sid).ganador_numero == g                  # no se sortea dos veces
+    assert "Ganó el número" in c.get(f"/admin/sorteos/{sid}").get_data(as_text=True) or "Ganó" in c.get(f"/admin/sorteos/{sid}").get_data(as_text=True)
+    post(c, f"/admin/sorteos/{sid}/anular")
+    post(c, f"/admin/sorteos/{sid}/numeros", numeros="5-6", estado="libre")
+    with ap.app_context():
+        assert A.modelos4.SorteoNumero.query.count() == 3
+    post(c, f"/admin/sorteos/{sid}/borrar")
+    with ap.app_context():
+        assert A.modelos4.Sorteo.query.count() == 0 and A.modelos4.SorteoNumero.query.count() == 0
+
+
+def test_flyers_y_reporte(cli):
+    ap, c = cli
+    assert c.get("/admin/flyers").status_code == 302 and c.get("/admin/reporte").status_code == 302
+    entrar(c)
+    h = c.get("/admin/flyers").get_data(as_text=True)
+    assert "Generador de flyers" in h and "Papa León XIV" in h or "Charter a Buzios" in h
+    sid = _salida_con_cupos(ap, c, nombre="Salida Reporte")
+    post(c, f"/admin/salidas/{sid}/pasajeros", nombre="Ana", total="100000", pagado="30000")
+    c.post("/api/consulta", json={"origen": "promos", "datos": {"nombre": "X", "telefono": "1"}})
+    h = c.get("/admin/reporte").get_data(as_text=True)
+    assert "Reporte de " in h and "$ 100.000" in h and "$ 30.000" in h and "$ 70.000" in h and "Resumen de" in h
+    assert c.get("/admin/reporte?mes=2024-01").status_code == 200 and c.get("/admin/reporte?mes=basura").status_code == 200
+
+
+def test_migracion_agrega_cupos_a_una_base_vieja(tmp_path):
+    import sqlite3
+    ruta = tmp_path / "vieja.db"
+    cx = sqlite3.connect(ruta)
+    cx.execute("CREATE TABLE vdv_salida (id INTEGER PRIMARY KEY, slug VARCHAR(80), empresa VARCHAR(12), destino VARCHAR(120), lugar VARCHAR(120), fecha DATE, dia VARCHAR(40), detalle VARCHAR(300), incluye TEXT, precio VARCHAR(40), nota VARCHAR(80), img VARCHAR(200), region VARCHAR(12), tipos VARCHAR(120), estado VARCHAR(12), dificultad VARCHAR(10), km VARCHAR(20), destacado BOOLEAN, activa BOOLEAN, creada DATETIME, actualizada DATETIME)")
+    cx.execute("INSERT INTO vdv_salida (id, slug, empresa, destino, fecha, estado, activa) VALUES (1, 'x-202701', 'vdv', 'Vieja', '2027-01-10', 'disponible', 1)")
+    cx.commit(); cx.close()
+    ap = A.crear_app({"SQLALCHEMY_DATABASE_URI": f"sqlite:///{ruta}", "ADMIN_PASSWORD": "x"})
+    with ap.app_context():
+        assert A.Salida.query.filter_by(destino="Vieja").one().cupos is None

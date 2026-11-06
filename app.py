@@ -20,7 +20,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from flask import (Flask, Response, abort, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for)
-from flask_sqlalchemy import SQLAlchemy
+from extensiones import db
+import modelos4
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -37,9 +38,6 @@ CONTACTO = {"whatsapp": "WhatsApp (solo números, con 549 y código de área)", 
             "ciudad": "Ciudad", "instagram": "Instagram (sin @)", "legajo": "Legajo EVT",
             "razon_social": "Razón social (para la política de privacidad)", "cuit": "CUIT", "email": "Mail de contacto (para pedidos de datos)",
             "pixel_id": "ID del Meta Pixel (solo números; vacío = sin pixel)"}
-
-db = SQLAlchemy()
-
 
 def hoy():
     return datetime.now(TZ).date()
@@ -72,6 +70,7 @@ class Salida(db.Model):
     km = db.Column(db.String(20), default="")
     destacado = db.Column(db.Boolean, default=False)
     activa = db.Column(db.Boolean, nullable=False, default=True)
+    cupos = db.Column(db.Integer)                                                 # lugares totales (vacío = sin control de cupos)
     creada = db.Column(db.DateTime, default=ahora)
     actualizada = db.Column(db.DateTime, default=ahora, onupdate=ahora)
 
@@ -203,6 +202,7 @@ def crear_app(config=None):
     db.init_app(app)
     with app.app_context():
         db.create_all()
+        migrar()
         sembrar()
 
     # ------------------------------------------------------------------ seguridad básica
@@ -336,7 +336,10 @@ def crear_app(config=None):
         proximas = [s for s in q if not s.vencida]
         vencidas = [s for s in q if s.vencida][::-1]
         nuevas = Consulta.query.filter_by(estado="nueva").count()
-        return render_template("admin/salidas.html", proximas=proximas, vencidas=vencidas, nuevas=nuevas, base=request.url_root.rstrip("/"))
+        from sqlalchemy import func
+        ocup = dict(db.session.query(modelos4.Pasajero.salida_id, func.count(modelos4.Pasajero.id))
+                    .filter(modelos4.Pasajero.estado != "cancelado").group_by(modelos4.Pasajero.salida_id).all())
+        return render_template("admin/salidas.html", proximas=proximas, vencidas=vencidas, nuevas=nuevas, ocup=ocup, base=request.url_root.rstrip("/"))
 
     def _leer_salida(s, f):
         """Pasa el formulario a la salida. Devuelve un mensaje de error o None."""
@@ -361,6 +364,11 @@ def crear_app(config=None):
         s.dificultad = f.get("dificultad") if f.get("dificultad") in DIFICULTADES else ""
         s.km = " ".join((f.get("km") or "").split())[:20]
         s.destacado = bool(f.get("destacado"))
+        try:
+            c = int((f.get("cupos") or "").strip())
+            s.cupos = c if 0 < c <= 5000 else None
+        except ValueError:
+            s.cupos = None
         s.activa = bool(f.get("activa"))
         archivo = request.files.get("foto")
         if archivo and archivo.filename:
@@ -452,6 +460,9 @@ def crear_app(config=None):
     @admin
     def salida_borrar(sid):
         s = db.session.get(Salida, sid) or abort(404)
+        if modelos4.Pasajero.query.filter_by(salida_id=sid).count():
+            flash("Esa salida tiene pasajeros anotados, así que no la borro para no perder la lista. Podés ocultarla de la web.", "error")
+            return redirect(url_for("salida_editar", sid=sid))
         nombre = s.destino
         db.session.delete(s)
         db.session.commit()
@@ -503,7 +514,19 @@ def crear_app(config=None):
             return redirect(url_for("contacto"))
         return render_template("admin/contacto.html", valores=ajustes(), CONTACTO=CONTACTO)
 
+    import gestion
+    gestion.montar(app, admin, dict(Salida=Salida, Consulta=Consulta, hoy=hoy, ahora=ahora, ajustes=ajustes, dia_corto=dia_corto, EMPRESAS=EMPRESAS,
+                                    ESTADOS=ESTADOS, ESTADOS_CONSULTA=ESTADOS_CONSULTA, MESES=MESES))
     return app
+
+
+def migrar():
+    """Agrega columnas nuevas a tablas que ya existían (create_all no toca tablas existentes)."""
+    from sqlalchemy import inspect, text
+    cols = {c["name"] for c in inspect(db.engine).get_columns("vdv_salida")}
+    if "cupos" not in cols:
+        db.session.execute(text("ALTER TABLE vdv_salida ADD COLUMN cupos INTEGER"))
+        db.session.commit()
 
 
 def sembrar():

@@ -19,6 +19,7 @@
     <button class="btn chico">Guardar</button>
     {% if tel %}<a class="btn sec chico" target="_blank" rel="noopener" href="https://wa.me/{{ tel|replace('+','')|replace(' ','')|replace('-','') }}">WhatsApp ↗</a>{% endif %}
   </form>
+  <form method="post" action="{{ url_for('consulta_a_cliente', kid=c.id) }}" style="margin-top:8px"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn sec chico">Pasar a mis clientes</button></form>
   {% if c.recordar and c.recordar <= hoy() and c.estado in ('nueva','contactada','senia') %}<div class="small" style="color:var(--warn);margin-top:6px">⏰ Había que escribirle el {{ c.recordar.strftime('%d/%m') }}</div>{% endif %}
 </div>
 {% else %}<div class="card muted">No hay consultas con este filtro.</div>{% endfor %}

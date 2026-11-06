@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Reporte {{ mes_txt }}{% endblock %}
+{% block c %}
+<div class="row noprint" style="justify-content:space-between"><h1 style="margin-bottom:0">Reporte de {{ mes_txt }}</h1>
+  <div class="row"><a class="btn sec chico" href="{{ url_for('reporte', mes=ant) }}">← Mes anterior</a>{% if not es_actual %}<a class="btn sec chico" href="{{ url_for('reporte', mes=sig) }}">Mes siguiente →</a>{% endif %}<button class="btn sec chico" type="button" onclick="window.print()">Imprimir</button></div></div>
+<div class="g3" style="margin:14px 0">
+  <div class="card"><div class="muted small">Consultas de la web</div><b style="font-size:28px">{{ cons }}</b><div class="small muted">{{ ventas }} terminaron en seña o venta ({{ conv }}%)</div></div>
+  <div class="card"><div class="muted small">Pasajeros anotados</div><b style="font-size:28px">{{ res }}</b><div class="small muted">{{ canceladas }} cancelado{{ 's' if canceladas != 1 }}</div></div>
+  <div class="card"><div class="muted small">Clientes nuevos</div><b style="font-size:28px">{{ nuevos }}</b></div>
+</div>
+<div class="g3" style="margin-bottom:14px">
+  <div class="card"><div class="muted small">Reservas del mes (total)</div><b style="font-size:24px">{{ pesos(total) }}</b></div>
+  <div class="card"><div class="muted small">Cobrado de esas reservas</div><b style="font-size:24px">{{ pesos(pagado) }}</b></div>
+  <div class="card"><div class="muted small">Falta cobrar (salidas futuras)</div><b style="font-size:24px;color:var(--warn)">{{ pesos(por_cobrar) }}</b></div>
+</div>
+<div class="g2">
+  <div class="card"><h3 style="margin-top:0">Consultas por formulario</h3>{% for o, n in por_origen %}<div class="row" style="justify-content:space-between"><span>{{ o }}</span><b>{{ n }}</b></div>{% else %}<span class="muted">Sin consultas este mes.</span>{% endfor %}</div>
+  <div class="card"><h3 style="margin-top:0">En qué quedaron</h3>{% for k, v in ESTADOS_CONSULTA.items() %}{% if por_estado.get(k) %}<div class="row" style="justify-content:space-between"><span>{{ v }}</span><b>{{ por_estado[k] }}</b></div>{% endif %}{% else %}{% endfor %}{% if not por_estado %}<span class="muted">—</span>{% endif %}</div>
+</div>
+<h2>Salidas del mes</h2>
+<div class="lista">{% for x in filas_sal %}<div class="card"><b>{{ x.s.destino }}</b> <span class="muted small">· {{ x.s.dia or x.s.fecha.strftime('%d/%m') }}</span><div class="small">{{ x.ocupados }}{% if x.s.cupos %} / {{ x.s.cupos }}{% endif %} pasajeros · cobrado {{ pesos(x.pagado) }} de {{ pesos(x.total) }}{% if x.saldo > 0 %} · <b style="color:var(--warn)">falta {{ pesos(x.saldo) }}</b>{% endif %}</div></div>
+{% else %}<div class="card muted">No hubo salidas con fecha en este mes.</div>{% endfor %}</div>
+<h2 class="noprint">Para mandar por WhatsApp</h2>
+<div class="card noprint"><pre id="resumen" style="white-space:pre-wrap;font:inherit;margin:0 0 10px">{{ resumen }}</pre><button class="btn sec chico" type="button" onclick="navigator.clipboard.writeText(document.getElementById('resumen').textContent).then(()=>this.textContent='¡Copiado!')">Copiar resumen</button></div>
+<p class="small muted noprint">Las visitas a la web y el rendimiento de los anuncios se ven en Meta (Administrador de eventos). Acá está lo que pasa dentro de la agencia.</p>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ s.nombre }}{% endblock %}
+{% block c %}
+<style>.num{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}.num button{padding:10px 0;border-radius:10px;border:1.5px solid var(--line);background:#fff;font:700 14px inherit;cursor:pointer;color:var(--tx)}
+.num .reservado{background:#fff3da;border-color:#e6b04a}.num .pagado{background:#e6f5ec;border-color:#4aa876}.num .gan{outline:3px solid var(--pl)}.num button.sel{box-shadow:0 0 0 3px var(--pk)}</style>
+<div class="row" style="justify-content:space-between"><div><h1 style="margin-bottom:0">{{ s.nombre }}</h1><div class="muted small">{{ s.premio }}{% if s.precio %} · {{ s.precio }} cada número{% endif %}{% if s.fecha %} · sorteo el {{ s.fecha.strftime('%d/%m/%Y') }}{% endif %}</div></div><a class="btn sec chico" href="{{ url_for('sorteos') }}">← Sorteos</a></div>
+{% if s.ganador_numero %}<div class="flash ok" style="margin-top:12px;font-size:18px">🏆 Ganó el número <b>{{ s.ganador_numero }}</b>{% if ganador and ganador.nombre %}: <b>{{ ganador.nombre }}</b>{% if ganador.telefono %} · {{ ganador.telefono }}{% endif %}{% endif %} <span class="small">(sorteado el {{ s.sorteado_en.strftime('%d/%m/%Y %H:%M') }})</span></div>{% endif %}
+<div class="g3" style="margin:14px 0"><div class="card"><div class="muted small">Pagados</div><b style="font-size:24px">{{ st.pagados }}</b></div><div class="card"><div class="muted small">Reservados (sin pagar)</div><b style="font-size:24px">{{ st.reservados }}</b></div><div class="card"><div class="muted small">Libres</div><b style="font-size:24px">{{ st.libres }}</b></div></div>
+<div class="card"><div class="num" id="grid">{% for n in range(1, s.cantidad + 1) %}{% set x = nums.get(n) %}<button type="button" data-n="{{ n }}" class="{{ x.estado if x }} {{ 'gan' if s.ganador_numero == n }}" title="{{ (x.nombre ~ ' · ' ~ x.estado) if x else 'Libre' }}">{{ n }}</button>{% endfor %}</div>
+  <p class="small muted" style="margin-bottom:0">Blanco: libre · Amarillo: reservado · Verde: pagado. Tocá los números para elegirlos y completá el formulario de abajo.</p></div>
+<h2>Anotar números</h2>
+<form method="post" action="{{ url_for('sorteo_numeros', sid=s.id) }}" class="card"><input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="campo"><label>Números (podés poner varios: 5, 7-10, 22)</label><input name="numeros" id="numeros" required style="width:100%" placeholder="Tocalos arriba o escribilos acá"></div>
+  <div class="g3"><div class="campo"><label>Comprador</label><input name="nombre" maxlength="120" style="width:100%"></div><div class="campo"><label>WhatsApp</label><input name="telefono" maxlength="40" style="width:100%"></div>
+    <div class="campo"><label>Pasan a</label><select name="estado" style="width:100%"><option value="pagado">Pagado</option><option value="reservado">Reservado (sin pagar)</option><option value="libre">Libre (liberar)</option></select></div></div>
+  <button class="btn">Guardar</button></form>
+<h2>Sortear</h2>
+<div class="card row">
+  {% if not s.ganador_numero %}<form method="post" action="{{ url_for('sorteo_sortear', sid=s.id) }}" onsubmit="return confirm('Se sortea entre los {{ st.pagados }} números pagados. ¿Sortear ahora?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn" {{ 'disabled' if not st.pagados }}>🎲 Sortear entre los pagados</button></form>
+  {% else %}<form method="post" action="{{ url_for('sorteo_anular', sid=s.id) }}" onsubmit="return confirm('¿Anular el resultado?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn sec">Anular el sorteo</button></form>{% endif %}</div>
+<h2>Link para compartir</h2>
+<div class="card"><p class="small muted" style="margin-top:0">Muestra qué números están libres y cuáles ya se vendieron, sin nombres ni teléfonos.</p><div class="link" id="lnk">{{ base }}/sorteo/{{ s.token }}</div>
+  <div class="row" style="margin-top:8px"><button type="button" class="btn sec chico" onclick="navigator.clipboard.writeText(document.getElementById('lnk').textContent).then(()=>this.textContent='¡Copiado!')">Copiar link</button><a class="btn sec chico" href="/sorteo/{{ s.token }}" target="_blank" rel="noopener">Ver la página ↗</a></div></div>
+<h2>Borrar</h2>
+<form method="post" action="{{ url_for('sorteo_borrar', sid=s.id) }}" onsubmit="return confirm('¿Borrar el sorteo y todos sus números?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn peli">Borrar sorteo</button></form>
+<script>
+(function(){var g=document.getElementById('grid'),i=document.getElementById('numeros'),sel=new Set();
+g.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var n=b.dataset.n;if(sel.has(n)){sel.delete(n);b.classList.remove('sel')}else{sel.add(n);b.classList.add('sel')}
+ i.value=Array.from(sel).sort(function(a,b){return a-b}).join(', ');});})();
+</script>
+{% endblock %}
