@@ -401,3 +401,16 @@ def test_editor_de_portada(cli):
     post(c, "/admin/portada/destinos/restaurar")
     assert len(datos()["destinos"]) == n and datos()["destinos"][0]["nombre"] == "Buzios"
     assert c.post("/admin/portada/otra", data={"_csrf": "tok"}).status_code == 404
+
+
+def test_boton_de_resenas(cli):
+    ap, c = cli
+    entrar(c)
+    def datos(): return json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    assert not datos().get("resenas_url")
+    base = {k: "" for k in A.CONTACTO}
+    post(c, "/admin/contacto", **{**base, "whatsapp": "5493571593669", "resenas_url": "javascript:alert(1)"})
+    assert not datos().get("resenas_url")
+    post(c, "/admin/contacto", **{**base, "whatsapp": "5493571593669", "resenas_url": "https://g.page/r/ABC123/review"})
+    assert datos()["resenas_url"] == "https://g.page/r/ABC123/review"
+    assert "resenas_url" in c.get("/admin/contacto").get_data(as_text=True)

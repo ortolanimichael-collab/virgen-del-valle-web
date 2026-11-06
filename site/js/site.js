@@ -52,6 +52,15 @@
     });
   });
 
+  /* Botón de reseñas de Google: solo si en el panel cargaron el link */
+  if (V.resenas_url && /^https:\/\//.test(V.resenas_url)) {
+    var cols = d.querySelectorAll(".pie .wrap > div");
+    var col = cols.length > 1 ? cols[cols.length - 2] : null;
+    if (col) {
+      col.insertAdjacentHTML("beforeend", '<p style="margin-top:14px;opacity:.85">¿Viajaste con nosotros? Contanos cómo te fue.</p><p style="margin-top:8px"><a class="btn pink" href="' + V.esc(V.resenas_url) + '" target="_blank" rel="noopener">⭐ Dejanos tu reseña</a></p>');
+    }
+  }
+
   /* Tarjetas de salidas.  VDVapp.salidas(contenedor, lista, funciónQueDevuelveHTML) */
   window.VDVapp = {
     reveal: reveal,

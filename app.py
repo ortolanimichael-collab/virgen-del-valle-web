@@ -38,7 +38,8 @@ ESTADOS_CONSULTA = {"nueva": "Nueva", "contactada": "Contactada", "senia": "Dej�
 CONTACTO = {"whatsapp": "WhatsApp (solo números, con 549 y código de área)", "telefono": "Teléfono que se muestra", "direccion": "Dirección",
             "ciudad": "Ciudad", "instagram": "Instagram (sin @)", "legajo": "Legajo EVT",
             "razon_social": "Razón social (para la política de privacidad)", "cuit": "CUIT", "email": "Mail de contacto (para pedidos de datos)",
-            "pixel_id": "ID del Meta Pixel (solo números; vacío = sin pixel)"}
+            "pixel_id": "ID del Meta Pixel (solo números; vacío = sin pixel)",
+            "resenas_url": "Link para dejar reseñas en Google (vacío = no se muestra el botón)"}
 
 def hoy():
     return datetime.now(TZ).date()
@@ -508,6 +509,9 @@ def crear_app(config=None):
                 v = " ".join((request.form.get(k) or "").split())[:300]
                 if k in ("whatsapp", "pixel_id"):
                     v = re.sub(r"\D", "", v)[:20]
+                if k == "resenas_url" and v and not re.match(r"https://\S+$", v):
+                    flash("El link de reseñas tiene que empezar con https:// (copialo entero desde Google). No se guardó ese dato.", "error")
+                    continue
                 a = db.session.get(Ajuste, k) or Ajuste(clave=k)
                 a.valor = v
                 db.session.add(a)
