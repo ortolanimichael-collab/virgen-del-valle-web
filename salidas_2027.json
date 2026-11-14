@@ -1,0 +1,346 @@
+[
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Mar del Plata",
+  "lugar": "Costa Atlántica, Buenos Aires",
+  "fecha": "2027-01-10",
+  "dia": "ene 2027",
+  "detalle": "Una semana de playa con salida desde Río Tercero y zonas",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel con desayuno",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/mar-del-plata.jpg",
+  "tipo": [
+   "grupal"
+  ],
+  "destacado": true
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Las Grutas",
+  "lugar": "Río Negro",
+  "fecha": "2027-01-24",
+  "dia": "ene 2027",
+  "detalle": "Las playas de agua más cálida de la Patagonia, sobre el golfo San Matías",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/las-grutas.jpg",
+  "tipo": [
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Puerto Madryn y Península Valdés",
+  "lugar": "Chubut, Patagonia",
+  "fecha": "2027-02-14",
+  "dia": "feb 2027",
+  "detalle": "Lobos marinos, fauna patagónica y costa con excursiones incluidas",
+  "incluye": [
+   "Bus coche cama",
+   "Hotel",
+   "Excursiones",
+   "Asistencia médica"
+  ],
+  "img": "img/lobos-marinos-2.jpg",
+  "tipo": [
+   "grupal",
+   "naturaleza"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "El Calafate y Glaciar Perito Moreno",
+  "lugar": "Santa Cruz, Patagonia",
+  "fecha": "2027-03-20",
+  "dia": "mar 2027",
+  "detalle": "Glaciares, lagos y paisajes del sur argentino",
+  "incluye": [
+   "Traslados",
+   "Hotel",
+   "Excursión al glaciar",
+   "Asistencia médica"
+  ],
+  "img": "img/costa-argentina.jpg",
+  "tipo": [
+   "grupal",
+   "naturaleza"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Valle de Punilla",
+  "lugar": "Sierras de Córdoba",
+  "fecha": "2027-04-10",
+  "dia": "abr 2027",
+  "detalle": "Escapada de fin de semana por los pueblos y ríos del valle",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/punilla-2.jpg",
+  "tipo": [
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Valle de Calamuchita",
+  "lugar": "Sierras de Córdoba",
+  "fecha": "2027-05-15",
+  "dia": "may 2027",
+  "detalle": "Lagos, sierras y pueblos alpinos a un paso de casa",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/calamuchita.jpg",
+  "tipo": [
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Bariloche y Circuito Chico",
+  "lugar": "Río Negro, Patagonia",
+  "fecha": "2027-07-10",
+  "dia": "vacaciones de invierno",
+  "detalle": "Lagos, cerros y nieve en las vacaciones de invierno",
+  "incluye": [
+   "Bus coche cama",
+   "Hotel",
+   "Excursiones",
+   "Asistencia médica"
+  ],
+  "img": "img/montanas.jpg",
+  "tipo": [
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "crucero",
+  "estado": "disponible",
+  "destino": "Crucero por Brasil",
+  "lugar": "Brasil",
+  "fecha": "2027-02-20",
+  "dia": "feb 2027",
+  "detalle": "Navegación por la costa brasileña con pensión completa a bordo",
+  "incluye": [
+   "Crucero",
+   "Pensión completa",
+   "Asistencia médica"
+  ],
+  "img": "img/crucero-atardecer.jpg",
+  "tipo": [
+   "internacional"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "region": "america",
+  "estado": "disponible",
+  "destino": "Caribe todo incluido",
+  "lugar": "Caribe",
+  "fecha": "2027-03-06",
+  "dia": "mar 2027",
+  "detalle": "Playas de arena blanca y mar turquesa con hotel todo incluido",
+  "incluye": [
+   "Aéreo",
+   "Hotel all inclusive",
+   "Traslados",
+   "Asistencia médica"
+  ],
+  "img": "img/caribe.jpg",
+  "tipo": [
+   "internacional"
+  ]
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Valle de Uco",
+  "lugar": "Mendoza",
+  "fecha": "2027-04-17",
+  "dia": "abr 2027",
+  "detalle": "Caminatas entre viñedos al pie de la cordillera de los Andes",
+  "incluye": [
+   "Traslado",
+   "Guía",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/valle-de-uco.jpg",
+  "tipo": [
+   "naturaleza",
+   "grupal"
+  ],
+  "dificultad": "Baja"
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "El Chaltén",
+  "lugar": "Santa Cruz, Patagonia",
+  "fecha": "2027-03-01",
+  "dia": "mar 2027",
+  "detalle": "Trekking a la Laguna de los Tres frente al cerro Fitz Roy",
+  "incluye": [
+   "Traslados",
+   "Guía de montaña",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/el-chalten.jpg",
+  "tipo": [
+   "naturaleza",
+   "grupal"
+  ],
+  "dificultad": "Alta"
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Capilla del Monte y Cerro Uritorco",
+  "lugar": "Capilla del Monte, Córdoba",
+  "fecha": "2027-02-07",
+  "dia": "feb 2027",
+  "detalle": "Ascenso guiado al Uritorco y recorrida por el pueblo",
+  "incluye": [
+   "Traslado",
+   "Guía",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/capilla-del-monte.jpg",
+  "tipo": [
+   "naturaleza",
+   "grupal"
+  ],
+  "dificultad": "Media"
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Miramar",
+  "lugar": "Costa Atlántica, Buenos Aires",
+  "fecha": "2027-01-17",
+  "dia": "ene 2027",
+  "detalle": "Caminatas por la costa, médanos y el Vivero Dunícola",
+  "incluye": [
+   "Traslado",
+   "Guía",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/miramar.jpg",
+  "tipo": [
+   "naturaleza",
+   "grupal"
+  ],
+  "dificultad": "Baja"
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Capilla Buffo",
+  "lugar": "Valle de Calamuchita, Córdoba",
+  "fecha": "2027-02-21",
+  "dia": "feb 2027",
+  "detalle": "Escapada de un día a la capilla entre los árboles",
+  "incluye": [
+   "Traslado",
+   "Guía",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/buffo.jpg",
+  "tipo": [
+   "escapada",
+   "naturaleza"
+  ],
+  "dificultad": "Baja"
+ },
+ {
+  "empresa": "trekia",
+  "precio": "Consultá",
+  "nota": "por persona",
+  "region": "argentina",
+  "estado": "disponible",
+  "destino": "Río Bamba",
+  "lugar": "Sierras de Córdoba",
+  "fecha": "2027-03-14",
+  "dia": "mar 2027",
+  "detalle": "Escapada de un día al río, con caminata suave y tarde de descanso",
+  "incluye": [
+   "Traslado",
+   "Guía",
+   "Refrigerio y snacks",
+   "Asistencia médica"
+  ],
+  "img": "img/rio-bamba.jpg",
+  "tipo": [
+   "escapada",
+   "naturaleza"
+  ],
+  "dificultad": "Baja"
+ }
+]

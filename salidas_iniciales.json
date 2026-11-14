@@ -75,7 +75,7 @@
   "dia": "15 nov",
   "destino": "Capilla Buffo y Los Quebrachitos",
   "lugar": "Sierras de Córdoba",
-  "detalle": "Trekking de dificultad media, 10 km ida y vuelta",
+  "detalle": "Trekking de dificultad media",
   "incluye": [
    "Bus grupal",
    "Guía",
@@ -91,7 +91,7 @@
   ],
   "estado": "disponible",
   "dificultad": "Media",
-  "km": "10 km"
+  "km": ""
  },
  {
   "id": "sanluis",

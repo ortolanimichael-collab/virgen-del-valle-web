@@ -33,8 +33,9 @@ MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "
 
 EMPRESAS = {"vdv": "Virgen del Valle", "trekia": "Trekia"}
 ESTADOS = {"disponible": "Disponible", "ultimos": "Últimos cupos", "agotado": "Agotado", "preventa": "Preventa"}
-TIPOS = {"grupal": "Grupal en bus", "religioso": "Religioso", "naturaleza": "Trekking y naturaleza", "internacional": "Internacional"}
-REGIONES = {"argentina": "Argentina", "brasil": "Brasil", "europa": "Europa", "crucero": "Cruceros", "otro": "Otro"}
+TIPOS = {"grupal": "Grupal en bus nacional", "religioso": "Religioso", "naturaleza": "Trekking y naturaleza", "internacional": "Internacional",
+         "escapada": "Escapada cerca de casa (Trekia)"}
+REGIONES = {"argentina": "Argentina", "brasil": "Brasil", "america": "América (Caribe y otros)", "europa": "Europa", "crucero": "Cruceros", "otro": "Otro"}
 DIFICULTADES = ["", "Baja", "Media", "Alta"]
 ESTADOS_CONSULTA = {"nueva": "Nueva", "contactada": "Contactada", "senia": "Dejó seña", "vendida": "Vendida", "descartada": "Descartada"}
 CONTACTO = {"whatsapp": "WhatsApp (solo números, con 549 y código de área)", "telefono": "Teléfono que se muestra", "direccion": "Dirección",
@@ -209,6 +210,7 @@ def crear_app(config=None):
         db.create_all()
         migrar()
         sembrar()
+        sembrar_temporada_2027()
 
     # ------------------------------------------------------------------ seguridad básica
     intentos = {}
@@ -562,6 +564,36 @@ def sembrar():
                               img=x.get("img", ""), region=x.get("region", "argentina"), tipos=",".join(x.get("tipo", [])), estado=x.get("estado", "disponible"),
                               dificultad=x.get("dificultad", ""), km=x.get("km", ""), destacado=bool(x.get("destacado"))))
         db.session.flush()
+    db.session.commit()
+
+
+def sembrar_temporada_2027():
+    """Una sola vez: suma los viajes de la temporada 2027 (como si Miriam los hubiera cargado en el panel),
+    agrega los destinos nuevos a la portada si ya la había editado y saca los «10 km» de Capilla Buffo.
+    Queda marcado en vdv_ajuste, así que si después borra o cambia algo no vuelve a aparecer."""
+    marca = "semilla_2027"
+    if db.session.get(Ajuste, marca):
+        return
+    for x in json.loads((AQUI / "salidas_2027.json").read_text(encoding="utf-8")):
+        f = date.fromisoformat(x["fecha"])
+        db.session.add(Salida(slug=slug_unico(x["destino"], f), empresa=x["empresa"], destino=x["destino"], lugar=x.get("lugar", ""), fecha=f, dia=x.get("dia", ""),
+                              detalle=x.get("detalle", ""), incluye="\n".join(x.get("incluye", [])), precio=x.get("precio", "Consultá"), nota=x.get("nota", ""),
+                              img=x.get("img", ""), region=x.get("region", "argentina"), tipos=",".join(x.get("tipo", [])), estado=x.get("estado", "disponible"),
+                              dificultad=x.get("dificultad", ""), km=x.get("km", ""), destacado=bool(x.get("destacado")), activa=True))
+        db.session.flush()
+    for s in Salida.query.filter(Salida.km == "10 km").all():
+        s.km = ""
+        s.detalle = (s.detalle or "").replace(", 10 km ida y vuelta", "").replace("10 km ida y vuelta", "").strip(" ,")
+    guardados = portada.guardado("destinos")
+    if guardados is not None:
+        fabrica = json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")).get("destinos", [])
+        nombres = {(d.get("nombre") or "").strip().lower() for d in guardados}
+        for d in fabrica:
+            if d["nombre"].strip().lower() not in nombres and len(guardados) < portada.SECCIONES["destinos"]["maximo"]:
+                guardados.append(d)
+        b = db.session.get(portada.Bloque, "destinos")
+        b.datos = json.dumps(guardados, ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 
 

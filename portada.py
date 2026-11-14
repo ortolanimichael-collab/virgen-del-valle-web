@@ -11,13 +11,14 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from extensiones import db
 
 SECCIONES = {
-    "destinos": dict(titulo="Destinos de la portada", maximo=12, campos=("nombre", "lugar", "desde", "q", "img"),
+    "destinos": dict(titulo="Destinos de la portada (Argentina = nacionales, el resto = internacionales)", maximo=16, campos=("nombre", "lugar", "desde", "q", "img"),
                      nuevo=dict(nombre="Nuevo destino", lugar="", desde="Consultá", q="", img="img/sierras.jpg")),
     "programas": dict(titulo="Programas de Aula Viajera", maximo=8, campos=("nombre", "lugar", "detalle", "img"),
                       nuevo=dict(nombre="Nuevo programa", lugar="", detalle="", img="img/sierras.jpg")),
 }
 LARGOS = dict(nombre=60, lugar=80, desde=40, q=20, detalle=200, img=200)
-FILTROS = {"": "No filtra (va a todos los viajes)", "argentina": "Viajes por Argentina", "brasil": "Viajes a Brasil", "europa": "Viajes a Europa"}
+FILTROS = {"": "No filtra (va a todos los viajes)", "argentina": "Viajes por Argentina (sale en nacionales)", "brasil": "Viajes a Brasil",
+           "america": "Viajes por América / Caribe", "europa": "Viajes a Europa", "crucero": "Cruceros"}
 
 
 class Bloque(db.Model):

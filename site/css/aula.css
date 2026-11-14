@@ -127,3 +127,9 @@ footer.pie img{height:70px;border-radius:14px}
   .cta form{grid-template-columns:1fr}
   footer.pie .wrap{grid-template-columns:1fr}
 }
+
+/* Beneficios y pasos (ahora son 3) */
+.benef-s{--bf:var(--glow);--bf-t:#10302d}
+.steps.tres{grid-template-columns:repeat(3,1fr)}
+@media (max-width:1020px){.steps.tres{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.steps.tres{grid-template-columns:1fr}}

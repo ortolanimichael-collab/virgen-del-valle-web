@@ -48,7 +48,10 @@
       } catch (e) {}
       var url = V.waLink(msg), gracias = f.querySelector(".gracias");
       if (gracias) { gracias.innerHTML = '¡Listo! Si no se abrió WhatsApp, <a href="' + url + '" target="_blank" rel="noopener" style="font-weight:800">tocá acá para enviar tu consulta</a>.'; gracias.hidden = false; }
-      try { window.open(url, "_blank", "noopener"); } catch (e) {}
+      /* Si el navegador bloquea la ventana nueva (Instagram, Facebook, algunos celulares), se abre WhatsApp en la misma pestaña */
+      var w = null;
+      try { w = window.open(url, "_blank"); } catch (e) {}
+      if (w) { try { w.opener = null; } catch (e) {} } else { location.href = url; }
     });
   });
 

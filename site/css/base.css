@@ -46,3 +46,12 @@ ul{margin:0;padding:0;list-style:none}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   .js .rv:not(.in){opacity:1;translate:none}
 }
+
+/* Beneficios (las 3 webs): facilidades de pago, cuotas y asistencia médica. Cada web pone su color en --bf */
+.benef-s{padding-block:34px 0}
+.benef{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;list-style:none;margin:0;padding:0}
+.benef li{display:flex;gap:14px;align-items:center;background:#fff;border-radius:20px;padding:18px 20px;box-shadow:0 8px 24px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.05)}
+.benef i{flex:none;width:48px;height:48px;border-radius:50%;background:var(--bf,#333);color:var(--bf-t,#fff);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:18px}
+.benef b{display:block;font-size:15.5px;line-height:1.2}
+.benef span{display:block;font-size:13.5px;opacity:.75;margin-top:2px;line-height:1.35}
+@media (max-width:860px){.benef{grid-template-columns:1fr}}

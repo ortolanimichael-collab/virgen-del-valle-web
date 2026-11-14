@@ -31,11 +31,7 @@
   },
   {
    "id": "grupal",
-   "nombre": "Grupales en bus"
-  },
-  {
-   "id": "religioso",
-   "nombre": "Religiosos"
+   "nombre": "Grupales en bus nacionales"
   },
   {
    "id": "naturaleza",
@@ -72,7 +68,7 @@
    "nombre": "Cruceros",
    "lugar": "Brasil y Caribe",
    "desde": "Consultá",
-   "img": "img/crucero.jpg",
+   "img": "img/crucero-atardecer.jpg",
    "q": "crucero"
   },
   {
@@ -81,6 +77,55 @@
    "desde": "Consultá",
    "img": "img/mendoza.jpg",
    "q": "argentina"
+  },
+  {
+   "nombre": "Bariloche",
+   "lugar": "Patagonia",
+   "desde": "Consultá",
+   "img": "img/montanas.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Mar del Plata",
+   "lugar": "Costa Atlántica",
+   "desde": "Consultá",
+   "img": "img/mar-del-plata-2.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Las Grutas",
+   "lugar": "Río Negro",
+   "desde": "Consultá",
+   "img": "img/las-grutas.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Puerto Madryn",
+   "lugar": "Chubut",
+   "desde": "Consultá",
+   "img": "img/lobos-marinos.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Sierras",
+   "lugar": "Punilla y Calamuchita",
+   "desde": "Consultá",
+   "img": "img/calamuchita-2.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "El Chaltén",
+   "lugar": "Santa Cruz",
+   "desde": "Consultá",
+   "img": "img/el-chalten.jpg",
+   "q": "argentina"
+  },
+  {
+   "nombre": "Caribe",
+   "lugar": "América",
+   "desde": "Consultá",
+   "img": "img/caribe-2.jpg",
+   "q": "america"
   }
  ],
  "programas": [
@@ -101,7 +146,7 @@
   {
    "id": "contingentes",
    "nombre": "Contingentes escolares",
-   "lugar": "Desde Río Tercero y zona",
+   "lugar": "Desde Río Tercero y zonas",
    "detalle": "Bus, coordinación permanente y asistencia médica a bordo.",
    "img": "img/grupo-escalada.jpg"
   },
