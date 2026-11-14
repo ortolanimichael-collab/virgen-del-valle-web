@@ -1,0 +1,114 @@
+[
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "estado": "disponible",
+  "destino": "Chile: Viña del Mar y Valparaíso",
+  "lugar": "Chile",
+  "fecha": "2027-02-06",
+  "dia": "feb 2027",
+  "detalle": "Cruzamos la cordillera en bus para disfrutar las playas de Viña y los cerros de Valparaíso",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel con desayuno",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/ejemplo-chile.jpg",
+  "region": "america",
+  "tipo": [
+   "bus_internacional",
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "estado": "disponible",
+  "destino": "Perú: Cusco y Machu Picchu",
+  "lugar": "Perú",
+  "fecha": "2027-05-08",
+  "dia": "may 2027",
+  "detalle": "Aéreo, Valle Sagrado y la ciudadela de Machu Picchu con guía",
+  "incluye": [
+   "Aéreo",
+   "Hotel",
+   "Excursiones con guía",
+   "Asistencia médica"
+  ],
+  "img": "img/ejemplo-peru.jpg",
+  "region": "america",
+  "tipo": [
+   "aereo"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "estado": "disponible",
+  "destino": "Uruguay: Punta del Este",
+  "lugar": "Uruguay",
+  "fecha": "2027-01-30",
+  "dia": "ene 2027",
+  "detalle": "Playas, la Barra y el puerto, con salida en bus desde Río Tercero y zonas",
+  "incluye": [
+   "Bus semi cama",
+   "Hotel",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/ejemplo-uruguay.jpg",
+  "region": "america",
+  "tipo": [
+   "bus_internacional",
+   "grupal"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "estado": "disponible",
+  "destino": "Brasil: el Caribe brasileño",
+  "lugar": "Brasil",
+  "fecha": "2027-02-27",
+  "dia": "feb 2027",
+  "detalle": "Aguas turquesa y piletas naturales en el nordeste de Brasil",
+  "incluye": [
+   "Aéreo",
+   "Hotel",
+   "Traslados",
+   "Asistencia médica"
+  ],
+  "img": "img/caribe-2.jpg",
+  "region": "brasil",
+  "tipo": [
+   "aereo"
+  ]
+ },
+ {
+  "empresa": "vdv",
+  "precio": "Consultá",
+  "nota": "Hasta 12 cuotas",
+  "estado": "disponible",
+  "destino": "Europa clásica",
+  "lugar": "Europa",
+  "fecha": "2027-09-11",
+  "dia": "sep 2027",
+  "detalle": "España, Francia e Italia con salida acompañada desde Córdoba",
+  "incluye": [
+   "Aéreo",
+   "Hoteles",
+   "Coordinador",
+   "Asistencia médica"
+  ],
+  "img": "img/coliseo.jpg",
+  "region": "europa",
+  "tipo": [
+   "aereo"
+  ]
+ }
+]

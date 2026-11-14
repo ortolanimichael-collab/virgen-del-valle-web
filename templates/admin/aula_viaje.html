@@ -1,0 +1,133 @@
+{% extends "admin/base.html" %}
+{% block titulo %}{{ v.destino }} · {{ e.nombre }}{% endblock %}
+{% block c %}
+<p class="small"><a href="{{ url_for('aula_inicio') }}#e{{ e.id }}">← Volver a las escuelas</a></p>
+<h1>{{ e.nombre }} · {{ v.destino }}{% if v.anio %} {{ v.anio }}{% endif %}</h1>
+
+<form method="post" class="card" style="margin-bottom:18px">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="g3">
+    <div class="campo"><label>¿A dónde fueron?</label><input name="destino" value="{{ v.destino }}" maxlength="120" style="width:100%"></div>
+    <div class="campo"><label>Año</label><input name="anio" value="{{ v.anio }}" maxlength="20" style="width:100%"></div>
+    <div class="campo"><label>Tipo de viaje</label><input name="tipo" value="{{ v.tipo }}" maxlength="60" list="tiposAula" placeholder="Egresados, educativo, fin de curso…" style="width:100%">
+      <datalist id="tiposAula"><option>Viaje de egresados</option><option>Viaje educativo</option><option>Contingente escolar</option><option>Escapada de fin de curso</option></datalist></div>
+  </div>
+  <div class="campo"><label>Contanos el viaje (opcional)</label><textarea name="texto" maxlength="600" placeholder="Ej: 5 días en Bariloche con 6to grado: Cerro Catedral, Circuito Chico y chocolatería.">{{ v.texto }}</textarea></div>
+  <div class="row" style="justify-content:space-between">
+    <label class="small" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" name="activo" value="1" {{ 'checked' if v.activo }} style="width:auto"> Se ve en la web</label>
+    <div class="row">
+      <button class="btn" name="accion" value="guardar">Guardar</button>
+      <button class="btn peli chico" name="accion" value="borrar_viaje" onclick="return confirm('¿Borrar este viaje con todas sus fotos, flyers y videos?')">Borrar viaje</button>
+    </div>
+  </div>
+</form>
+
+{% for clase in ['foto', 'flyer'] %}
+<section class="card" id="{{ clase }}" style="margin-bottom:18px">
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">{{ CLASES[clase] }} <span class="small muted">({{ grupos[clase]|length }})</span></h2></div>
+  <p class="small muted">{% if clase == 'foto' %}Elegí todas las fotos juntas desde el celu o la compu: se achican solas y se suben de a una. La primera es la portada del viaje.{% else %}Los flyers o afiches del viaje (JPG o PNG).{% endif %}</p>
+  <div class="row subir" data-clase="{{ clase }}" data-url="{{ url_for('aula_subir_imagen', vid=v.id) }}">
+    <input type="file" accept="image/*" multiple>
+    <span class="small muted estado"></span>
+  </div>
+  <form method="post" class="galeria" style="margin-top:12px">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="{{ clase }}">
+    {% for m in grupos[clase] %}
+    <figure>
+      <img src="/media/{{ m.imagen_id }}" alt="" loading="lazy">
+      {% if clase == 'foto' and loop.first %}<span class="tag disponible" style="position:absolute;top:6px;left:6px">Portada</span>{% endif %}
+      <div class="row" style="gap:4px;justify-content:center">
+        <button class="btn sec chico" name="accion" value="izq:{{ m.id }}" title="Mover antes" {{ 'disabled' if loop.first }}>←</button>
+        <button class="btn sec chico" name="accion" value="der:{{ m.id }}" title="Mover después" {{ 'disabled' if loop.last }}>→</button>
+        {% if clase == 'foto' and not loop.first %}<button class="btn sec chico" name="accion" value="portada:{{ m.id }}" title="Usar de portada">★</button>{% endif %}
+        <button class="btn peli chico" name="accion" value="borrar:{{ m.id }}" onclick="return confirm('¿Borrar?')">✕</button>
+      </div>
+    </figure>
+    {% else %}<div class="small muted">Todavía no hay {{ CLASES[clase]|lower }}.</div>{% endfor %}
+  </form>
+</section>
+{% endfor %}
+
+<section class="card" id="video">
+  <h2 style="margin-top:0">Videos <span class="small muted">({{ grupos['video']|length }})</span></h2>
+  <div class="g2">
+    <form method="post" class="card" style="background:#fbf7f9">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="video">
+      <b>Pegar un link</b> <span class="small muted">(recomendado)</span>
+      <p class="small muted" style="margin:4px 0 8px">YouTube (podés subirlo como «no listado»), Google Drive (compartido con «cualquier persona con el link»), Instagram, Facebook o TikTok.</p>
+      <div class="campo"><input name="url" placeholder="https://..." style="width:100%" required></div>
+      <div class="campo"><input name="titulo" maxlength="120" placeholder="Título (opcional)" style="width:100%"></div>
+      <button class="btn chico" name="accion" value="link">Agregar video</button>
+    </form>
+    <form method="post" enctype="multipart/form-data" class="card" style="background:#fbf7f9" onsubmit="this.querySelector('button').textContent='Subiendo… no cierres la página'">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="video">
+      <b>Subir un video corto</b>
+      <p class="small muted" style="margin:4px 0 8px">MP4 de hasta {{ MAX_VIDEO_MB }} MB (un reel o un video corto). Para videos más largos, usá un link de YouTube.</p>
+      <div class="campo"><input type="file" name="archivo" accept="video/mp4,video/*" required></div>
+      <div class="campo"><input name="titulo" maxlength="120" placeholder="Título (opcional)" style="width:100%"></div>
+      <button class="btn chico" name="accion" value="video">Subir video</button>
+    </form>
+  </div>
+  <form method="post" class="lista" style="margin-top:12px">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="video">
+    {% for m in grupos['video'] %}{% set l = links.get(m.id) %}
+    <div class="item" style="grid-template-columns:120px 1fr auto">
+      {% if m.video_id %}<video src="/media/video/{{ m.video_id }}" preload="metadata" muted style="width:120px;height:68px;object-fit:cover;border-radius:10px;background:#000"></video>
+      {% elif l and l.thumb %}<img src="{{ l.thumb }}" alt="" style="width:120px;height:68px">
+      {% else %}<span style="width:120px;height:68px;border-radius:10px;background:#2a1220;color:#fff;display:grid;place-items:center" class="small">{{ (l.red if l else 'link')|capitalize }}</span>{% endif %}
+      <div><h3>{{ m.titulo or ('Video subido' if m.video_id else 'Video de ' ~ ((l.red if l else 'link')|capitalize)) }}</h3>
+        {% if m.url %}<a class="small" href="{{ m.url }}" target="_blank" rel="noopener">{{ m.url[:70] }}</a>{% endif %}</div>
+      <div class="acc">
+        <button class="btn sec chico" name="accion" value="izq:{{ m.id }}" {{ 'disabled' if loop.first }}>↑</button>
+        <button class="btn sec chico" name="accion" value="der:{{ m.id }}" {{ 'disabled' if loop.last }}>↓</button>
+        <button class="btn peli chico" name="accion" value="borrar:{{ m.id }}" onclick="return confirm('¿Borrar este video?')">Borrar</button>
+      </div>
+    </div>
+    {% else %}<div class="small muted">Todavía no hay videos.</div>{% endfor %}
+  </form>
+</section>
+<style>
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.galeria figure{margin:0;position:relative;background:#fbf7f9;border:1px solid var(--line);border-radius:12px;padding:6px}
+.galeria img{width:100%;height:120px;object-fit:cover;border-radius:8px;display:block;margin-bottom:6px}
+</style>
+{% endblock %}
+{% block js %}
+<script>
+/* Achica cada foto en el navegador (1600 px, JPG) y la sube de a una, así no importa cuántas elijas ni cuánto pesen. */
+(function(){
+  var csrf={{ csrf_token()|tojson }};
+  function achicar(file){
+    return new Promise(function(ok){
+      var url=URL.createObjectURL(file), img=new Image();
+      img.onload=function(){
+        var max=1600, w=img.naturalWidth, h=img.naturalHeight, k=Math.min(1, max/Math.max(w,h));
+        var c=document.createElement("canvas"); c.width=Math.round(w*k); c.height=Math.round(h*k);
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+        c.toBlob(function(b){ok(b||file);},"image/jpeg",0.85);
+      };
+      img.onerror=function(){URL.revokeObjectURL(url);ok(file);};
+      img.src=url;
+    });
+  }
+  document.querySelectorAll(".subir").forEach(function(box){
+    var inp=box.querySelector("input"), est=box.querySelector(".estado");
+    inp.addEventListener("change",async function(){
+      var files=[].slice.call(inp.files), mal=[];
+      inp.disabled=true;
+      for(var i=0;i<files.length;i++){
+        est.textContent="Subiendo "+(i+1)+" de "+files.length+"… no cierres la página";
+        try{
+          var b=await achicar(files[i]), fd=new FormData();
+          fd.append("_csrf",csrf); fd.append("clase",box.dataset.clase); fd.append("archivo",b,(files[i].name||"foto").replace(/\.\w+$/,"")+".jpg");
+          var r=await fetch(box.dataset.url,{method:"POST",body:fd,credentials:"same-origin"});
+          if(!r.ok) mal.push(files[i].name);
+        }catch(e){mal.push(files[i].name);}
+      }
+      if(mal.length) alert("No se pudieron subir: "+mal.join(", "));
+      location.hash=box.dataset.clase; location.reload();
+    });
+  });
+})();
+</script>
+{% endblock %}

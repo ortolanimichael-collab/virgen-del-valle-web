@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Viajes de escuelas{% endblock %}
+{% block c %}
+<h1>Aula Viajera · Viajes que ya hicimos</h1>
+<p class="muted small">Cargá cada escuela, sumale los viajes que hizo (a dónde y en qué año) y a cada viaje subile fotos, flyers y videos.
+Todo aparece ordenado en la web de Aula Viajera, en la sección «Viajes que ya hicimos». Con ↑ ↓ cambiás el orden en que se muestran.</p>
+
+{% for e in escuelas %}
+<section class="card" id="e{{ e.id }}" style="margin-bottom:14px{{ ';opacity:.6' if not e.activa }}">
+  <form method="post" class="row" style="align-items:flex-end">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ e.id }}">
+    <div class="campo" style="flex:2;min-width:220px;margin:0"><label>Escuela</label><input name="nombre" value="{{ e.nombre }}" maxlength="120" style="width:100%"></div>
+    <div class="campo" style="flex:1;min-width:160px;margin:0"><label>Localidad</label><input name="localidad" value="{{ e.localidad }}" maxlength="80" style="width:100%"></div>
+    <label class="small" style="display:flex;gap:6px;align-items:center;margin:0 0 10px"><input type="checkbox" name="activa" value="1" {{ 'checked' if e.activa }} style="width:auto"> Se ve en la web</label>
+    <button class="btn chico" name="accion" value="guardar">Guardar</button>
+    <button class="btn sec chico" name="accion" value="subir" {{ 'disabled' if loop.first }}>↑</button>
+    <button class="btn sec chico" name="accion" value="bajar" {{ 'disabled' if loop.last }}>↓</button>
+    <button class="btn peli chico" name="accion" value="borrar" onclick="return confirm('¿Borrar «{{ e.nombre|e }}» con TODOS sus viajes, fotos y videos? No se puede deshacer.')">Borrar</button>
+  </form>
+
+  <div class="lista" style="margin-top:12px">
+  {% for v in viajes if v.escuela_id == e.id %}{% set c = cuenta.get(v.id, {}) %}
+    <a class="item{{ ' apagada' if not v.activo }}" href="{{ url_for('aula_viaje', vid=v.id) }}" style="text-decoration:none;color:inherit">
+      {% if portadas.get(v.id) %}<img src="{{ portadas[v.id] }}" alt="">{% else %}<span style="width:84px;height:64px;border-radius:10px;background:#f1e7ec;display:grid;place-items:center" class="small muted">Sin fotos</span>{% endif %}
+      <div><h3>{{ v.destino }}{% if v.anio %} · {{ v.anio }}{% endif %}</h3>
+        <div class="small muted">{{ c.get('foto', 0) }} fotos · {{ c.get('flyer', 0) }} flyers · {{ c.get('video', 0) }} videos{% if not v.activo %} · oculto{% endif %}</div></div>
+      <span class="btn sec chico">Abrir →</span>
+    </a>
+  {% else %}<div class="small muted">Todavía no tiene viajes cargados.</div>{% endfor %}
+  </div>
+
+  <form method="post" action="{{ url_for('aula_viaje_nuevo', eid=e.id) }}" class="row" style="margin-top:12px;align-items:flex-end">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="campo" style="flex:2;min-width:200px;margin:0"><label>Nuevo viaje: ¿a dónde fueron?</label><input name="destino" maxlength="120" placeholder="Ej: Bariloche, San Luis, Mendoza" style="width:100%"></div>
+    <div class="campo" style="width:120px;margin:0"><label>Año</label><input name="anio" maxlength="20" placeholder="2025" style="width:100%"></div>
+    <button class="btn chico">+ Agregar viaje</button>
+  </form>
+</section>
+{% endfor %}
+
+<section class="card">
+  <h2 style="margin-top:0">Agregar una escuela</h2>
+  <form method="post" class="row" style="align-items:flex-end">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="campo" style="flex:2;min-width:220px;margin:0"><label>Nombre de la escuela</label><input name="nombre" maxlength="120" style="width:100%" required></div>
+    <div class="campo" style="flex:1;min-width:160px;margin:0"><label>Localidad</label><input name="localidad" maxlength="80" style="width:100%"></div>
+    <button class="btn" name="accion" value="nueva">+ Agregar escuela</button>
+  </form>
+</section>
+{% endblock %}

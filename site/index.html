@@ -33,17 +33,19 @@
 <section class="hero" style="padding:0">
   <div class="slides" id="slides" aria-roledescription="carrusel" aria-label="Fotos de nuestros destinos">
     <div class="track">
-      <figure class="sl"><img src="img/caribe-2.jpg" alt="Playa del Caribe con palmeras" fetchpriority="high"><figcaption>Caribe</figcaption></figure>
-      <figure class="sl"><img src="img/crucero-atardecer.jpg" alt="Crucero navegando al atardecer" decoding="async"><figcaption>Cruceros</figcaption></figure>
-      <figure class="sl"><img src="img/el-chalten.jpg" alt="Laguna de los Tres frente al Fitz Roy" decoding="async"><figcaption>El Chaltén · Patagonia</figcaption></figure>
-      <figure class="sl"><img src="img/mar-del-plata.jpg" alt="Costa de Mar del Plata al atardecer" decoding="async"><figcaption>Mar del Plata</figcaption></figure>
-      <figure class="sl"><img src="img/buzios.jpg" alt="Costa de Buzios, Brasil" decoding="async"><figcaption>Brasil · Buzios</figcaption></figure>
-      <figure class="sl"><img src="img/costa-argentina.jpg" alt="Glaciar Perito Moreno" decoding="async"><figcaption>Glaciar Perito Moreno</figcaption></figure>
-      <figure class="sl"><img src="img/valle-de-uco.jpg" alt="Valle de Uco, Mendoza" decoding="async"><figcaption>Valle de Uco · Mendoza</figcaption></figure>
+      <figure class="sl" data-sbusca="caribe" data-sq="america"><img src="img/caribe-2.jpg" alt="Playa del Caribe con palmeras" fetchpriority="high"><figcaption>Caribe</figcaption></figure>
+      <figure class="sl" data-sbusca="crucero" data-sq="crucero"><img src="img/crucero-atardecer.jpg" alt="Crucero navegando al atardecer" decoding="async"><figcaption>Cruceros</figcaption></figure>
+      <figure class="sl" data-sbusca="chalten" data-sq="argentina"><img src="img/el-chalten.jpg" alt="Laguna de los Tres frente al Fitz Roy" decoding="async"><figcaption>El Chaltén · Patagonia</figcaption></figure>
+      <figure class="sl" data-sbusca="mar del plata" data-sq="argentina"><img src="img/mar-del-plata.jpg" alt="Costa de Mar del Plata al atardecer" decoding="async"><figcaption>Mar del Plata</figcaption></figure>
+      <figure class="sl" data-sbusca="brasil|buzios" data-sq="brasil"><img src="img/buzios.jpg" alt="Costa de Buzios, Brasil" decoding="async"><figcaption>Brasil · Buzios</figcaption></figure>
+      <figure class="sl" data-sbusca="perito moreno|calafate" data-sq="argentina"><img src="img/costa-argentina.jpg" alt="Glaciar Perito Moreno" decoding="async"><figcaption>Glaciar Perito Moreno</figcaption></figure>
+      <figure class="sl" data-sbusca="valle de uco|mendoza" data-sq="argentina"><img src="img/valle-de-uco.jpg" alt="Valle de Uco, Mendoza" decoding="async"><figcaption>Valle de Uco · Mendoza</figcaption></figure>
     </div>
     <div class="dots" role="group" aria-label="Elegir foto"></div>
   </div>
-  <span class="hlab r" id="slCap" aria-live="polite"></span>
+  <button type="button" class="sl-a sl-p" aria-label="Foto anterior">‹</button>
+  <button type="button" class="sl-a sl-n" aria-label="Foto siguiente">›</button>
+  <div class="sl-info"><span id="slCap" aria-live="polite"></span><a class="sl-ver" id="slVer" href="#paquetes">Ver viajes <span aria-hidden="true">→</span></a></div>
   <span class="hand" aria-hidden="true">Buenos lugares,<br>mejor compañía</span>
   <div class="wrap">
     <h1>Del valle<br>al mundo</h1>
@@ -70,6 +72,13 @@
   </ul>
 </div></section>
 
+<div class="cinta" aria-label="Salidas grupales, acompañadas, individuales, personalizadas, garantizadas y a compartir. Asesoramiento y cotizaciones sin cargo.">
+  <div class="cinta-in" aria-hidden="true">
+    <span>Salidas grupales</span><span>Salidas acompañadas</span><span>Salidas individuales</span><span>Viajes personalizados</span><span>Salidas garantizadas</span><span>Habitación a compartir</span><span>Asesoramiento sin cargo</span><span>Cotizaciones por WhatsApp</span><span>Aéreos nacionales e internacionales</span><span>Hasta 12 cuotas</span>
+    <span>Salidas grupales</span><span>Salidas acompañadas</span><span>Salidas individuales</span><span>Viajes personalizados</span><span>Salidas garantizadas</span><span>Habitación a compartir</span><span>Asesoramiento sin cargo</span><span>Cotizaciones por WhatsApp</span><span>Aéreos nacionales e internacionales</span><span>Hasta 12 cuotas</span>
+  </div>
+</div>
+
 <section id="destinos"><div class="wrap">
   <div class="head rv"><div><span class="kicker">Destinos más pedidos</span><h2 class="h2">Lugares para soñar nacionales</h2><p class="lead">Patagonia, la costa atlántica, Mendoza y las sierras. Tocá un destino para ver sus salidas.</p></div></div>
   <div class="dests" id="dests"></div>
@@ -80,7 +89,22 @@
 <section class="packs" id="paquetes"><div class="wrap">
   <div class="head rv"><div><span class="kicker">Salidas con fecha</span><h2 class="h2">Próxima salida temporada 2027</h2><p class="lead">Consultá precios, cuotas y formas de pago por WhatsApp. Las salidas que ya pasaron se ocultan solas.</p></div></div>
   <div class="filters" id="filtros" role="group" aria-label="Filtrar por tipo de viaje"></div>
+  <div class="ftxt" id="ftxt" hidden><span>Mostrando viajes a <b></b></span><button type="button">Ver todas ✕</button></div>
   <div class="grid" id="salidas"></div>
+</div></section>
+
+<section class="mods" id="modalidades"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Modalidades</span><h2 class="h2">Elegí cómo viajar</h2><p class="lead">Salidas grupales, acompañadas, individuales o a tu medida. Te asesoramos y te cotizamos sin compromiso.</p></div></div>
+  <div class="mods-g">
+    <article class="mod rv"><i aria-hidden="true">01</i><h3>Salidas grupales</h3><p>Viajá en grupo, con coordinador y salida desde Río Tercero y zonas.</p><a href="#" data-wa="Hola! Quiero consultar por salidas grupales">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">02</i><h3>Salidas acompañadas</h3><p>Alguien de la agencia viaja con el grupo de principio a fin.</p><a href="#" data-wa="Hola! Quiero consultar por salidas acompañadas">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">03</i><h3>Salidas individuales</h3><p>Solo, en pareja o en familia, en la fecha que te quede cómoda.</p><a href="#" data-wa="Hola! Quiero consultar por una salida individual">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">04</i><h3>Viajes personalizados</h3><p>Elegís destino, días, hotel y presupuesto: lo armamos a tu medida.</p><a href="#" data-wa="Hola! Quiero consultar por un viaje personalizado">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">05</i><h3>Salidas garantizadas</h3><p>Fechas confirmadas para que organices tus vacaciones con tiempo.</p><a href="#" data-wa="Hola! Quiero consultar por las salidas garantizadas">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">06</i><h3>Habitación a compartir</h3><p>¿Viajás solo o sola? Te sumamos a una habitación compartida y evitás pagar single.</p><a href="#" data-wa="Hola! Quiero consultar por viajar con habitación a compartir">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">07</i><h3>Aéreos nacionales e internacionales</h3><p>Paquetes con vuelo a la Patagonia, Brasil, el Caribe, Europa y más.</p><a href="#" data-wa="Hola! Quiero consultar por un paquete aéreo">Pedir cotización →</a></article>
+    <article class="mod rv"><i aria-hidden="true">08</i><h3>Asesoramiento y cotizaciones</h3><p>Te asesoramos sin cargo y te pasamos la cotización por WhatsApp.</p><a href="#" data-wa="Hola! Quiero consultar por una cotización">Pedir cotización →</a></article>
+  </div>
 </div></section>
 
 <section class="why" id="nosotros"><div class="wrap">
@@ -117,7 +141,7 @@
       <button class="btn pink" type="submit" style="grid-column:1/-1">Planificar mi viaje →</button>
       <p class="gracias" hidden></p>
     </form>
-    <div class="signs" aria-hidden="false"><a class="sign s1" href="#paquetes" data-q="brasil">PLAYAS</a><a class="sign s2" href="#paquetes" data-t="naturaleza">SIERRAS</a><a class="sign s3" href="#paquetes" data-q="america">AMÉRICA</a><a class="sign s4" href="#paquetes" data-q="europa">EUROPA</a></div>
+    <div class="signs" aria-hidden="false"><a class="sign s1" href="#paquetes" data-q="brasil" data-busca="playa|brasil|caribe|mar del plata|grutas|punta del este|miramar|vina del mar" data-nombre="Playas">PLAYAS</a><a class="sign s2" href="#paquetes" data-q="argentina" data-busca="sierras|cordoba|punilla|calamuchita" data-nombre="Sierras">SIERRAS</a><a class="sign s3" href="#paquetes" data-q="america">AMÉRICA</a><a class="sign s4" href="#paquetes" data-q="europa">EUROPA</a></div>
   </div>
 </section>
 
@@ -162,27 +186,51 @@
 <script src="js/privacy.js"></script>
 <script>
 (function(){
-  var V=VDV, A=VDVapp, tipoSel="todos", q={region:"",mes:""};
+  var V=VDV, A=VDVapp, tipoSel="todos", q={region:"",mes:"",texto:"",nombre:""};
+  function norm(x){return (x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();}
+  function coincide(s,busca){
+    var h=norm([s.destino,s.lugar,s.detalle].join(" "));
+    return norm(busca).split("|").some(function(w){w=w.trim();return w&&(h.indexOf(w)>-1||(w.length>4&&/s$/.test(w)&&h.indexOf(w.slice(0,-1))>-1));});
+  }
   document.getElementById("y").textContent=new Date().getFullYear();
   var vig=V.vigentes();
   document.getElementById("nSal").textContent=vig.length;
   /* Destinos */
-  /* Carrusel de la portada: pasa solo cada 5 segundos */
+  /* Carrusel de la portada: se desliza suave cada 6 segundos, en bucle; flechas, puntitos y deslizar con el dedo */
   (function(){
-    var box=document.getElementById("slides"), track=box.querySelector(".track"), sls=track.children, dots=box.querySelector(".dots"), i=0, t;
-    for(var k=0;k<sls.length;k++){dots.insertAdjacentHTML("beforeend",'<button type="button" aria-label="Foto '+(k+1)+'"></button>');}
-    function ir(n){i=(n+sls.length)%sls.length;track.style.transform="translateX(-"+(i*100)+"%)";
-      [].forEach.call(sls,function(s,k){s.classList.toggle("on",k===i);});
-      [].forEach.call(dots.children,function(b,k){b.classList.toggle("on",k===i);});
-      var fc=sls[i].querySelector("figcaption");document.getElementById("slCap").textContent=fc?fc.textContent:"";}
-    function correr(){clearInterval(t);t=setInterval(function(){if(!document.hidden)ir(i+1);},5000);}
-    dots.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;ir([].indexOf.call(dots.children,b));correr();});
-    ir(0);correr();
+    var hero=document.querySelector(".hero"), box=document.getElementById("slides"), track=box.querySelector(".track"),
+        reales=[].slice.call(track.children), N=reales.length, dots=box.querySelector(".dots"), i=0, t, ocupado=false;
+    track.appendChild(reales[0].cloneNode(true)).setAttribute("aria-hidden","true");
+    reales.forEach(function(_,k){dots.insertAdjacentHTML("beforeend",'<button type="button" aria-label="Foto '+(k+1)+'"></button>');});
+    function poner(n,animar){track.style.transition=animar?"":"none";track.style.transform="translateX(-"+(n*100)+"%)";if(!animar){void track.offsetWidth;track.style.transition="";}}
+    function info(){
+      var r=reales[i%N];
+      [].forEach.call(dots.children,function(b,k){b.classList.toggle("on",k===i%N);});
+      document.getElementById("slCap").textContent=r.querySelector("figcaption").textContent;
+      var v=document.getElementById("slVer");v.dataset.busca=r.dataset.sbusca;v.dataset.q=r.dataset.sq;v.dataset.nombre=r.querySelector("figcaption").textContent;
+    }
+    function ir(n){
+      if(ocupado)return;
+      if(n<0){poner(N,false);n=N-1;}
+      ocupado=true;i=n;poner(i,true);info();
+    }
+    track.addEventListener("transitionend",function(e){if(e.target!==track)return;ocupado=false;if(i>=N){i=0;poner(0,false);}});
+    function correr(){clearInterval(t);t=setInterval(function(){if(!document.hidden)ir(i+1);},6000);}
+    dots.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;ocupado=false;ir([].indexOf.call(dots.children,b));correr();});
+    hero.querySelector(".sl-p").addEventListener("click",function(){ir(i-1);correr();});
+    hero.querySelector(".sl-n").addEventListener("click",function(){ir(i+1);correr();});
+    var x0=null,y0=0;
+    hero.addEventListener("touchstart",function(e){if(e.target.closest("form,a,button,select,input")){x0=null;return;}x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+    hero.addEventListener("touchend",function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){ir(dx<0?i+1:i-1);correr();}x0=null;});
+    document.addEventListener("keydown",function(e){if(e.target.closest&&e.target.closest("input,select,textarea"))return;
+      var r=hero.getBoundingClientRect();if(r.bottom<0)return;if(e.key==="ArrowRight"){ir(i+1);correr();}else if(e.key==="ArrowLeft"){ir(i-1);correr();}});
+    poner(0,false);info();correr();
   })();
   /* Destinos: los de Argentina van en nacionales, el resto en internacionales */
   function dest(d){
     var desde=(d.desde||"").trim(), pr=!desde?"":(/^consult/i.test(desde)?desde:"desde "+desde);
-    return '<a class="dest rv" href="#paquetes" data-q="'+V.esc(d.q)+'"><img src="'+d.img+'" alt="'+V.esc(d.nombre)+'" loading="lazy"><span class="tx"><b>'+V.esc(d.nombre)+'</b><small>'+V.esc(d.lugar)+(pr?'<br>'+V.esc(pr):'')+'</small></span></a>';
+    return '<a class="dest rv" href="#paquetes" data-q="'+V.esc(d.q)+'" data-busca="'+V.esc(d.nombre)+'" data-nombre="'+V.esc(d.nombre)+'"><img src="'+d.img+'" alt="'+V.esc(d.nombre)+'" loading="lazy"><span class="tx"><b>'+V.esc(d.nombre)+'</b><small>'+V.esc(d.lugar)+(pr?'<br>'+V.esc(pr):'')+'</small></span></a>';
   }
   document.getElementById("dests").innerHTML=V.destinos.filter(function(d){return d.q==="argentina";}).map(dest).join("");
   document.getElementById("destsInt").innerHTML=V.destinos.filter(function(d){return d.q!=="argentina";}).map(dest).join("");
@@ -195,9 +243,13 @@
   Object.keys(meses).sort().forEach(function(m){fMes.insertAdjacentHTML("beforeend",'<option value="'+m+'">'+NM[+m.slice(5)-1]+" "+m.slice(0,4)+"</option>");});
   fil.innerHTML=V.tipos.map(function(t){return '<button class="chip'+(t.id==="todos"?" on":"")+'" data-t="'+t.id+'">'+t.nombre+'</button>';}).join("");
   function pintar(){
-    var l=A.filtrar(vig,tipoSel);
-    if(q.region==="america") l=l.filter(function(s){return s.region==="america"||s.region==="brasil";});
+    /* «Grupales en bus nacionales» también muestra las salidas individuales */
+    var l=tipoSel==="grupal"?vig.filter(function(s){return s.tipo.indexOf("grupal")>-1||s.tipo.indexOf("individual")>-1;}):A.filtrar(vig,tipoSel);
+    var porTexto=q.texto?l.filter(function(s){return coincide(s,q.texto);}):[];
+    if(porTexto.length) l=porTexto;
+    else if(q.region==="america") l=l.filter(function(s){return s.region==="america"||s.region==="brasil";});
     else if(q.region) l=l.filter(function(s){return s.region===q.region;});
+    var ft=document.getElementById("ftxt");ft.hidden=!(q.texto||q.region);ft.querySelector("b").textContent=q.nombre||q.region;
     if(q.mes) l=l.filter(function(s){return s.fecha.slice(0,7)===q.mes;});
     A.salidas(document.getElementById("salidas"),l,function(s){
       var sold=s.estado==="agotado";
@@ -211,11 +263,12 @@
   }
   function marcar(){fil.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.dataset.t===tipoSel);});fTipo.value=tipoSel;}
   fil.addEventListener("click",function(e){var c=e.target.closest(".chip");if(!c)return;tipoSel=c.dataset.t;marcar();pintar();});
-  document.getElementById("finder").addEventListener("submit",function(e){e.preventDefault();var f=e.target;q.region=f.region.value;q.mes=f.mes.value;tipoSel=f.tipo.value;marcar();pintar();document.getElementById("paquetes").scrollIntoView({behavior:"smooth"});});
+  document.getElementById("ftxt").querySelector("button").addEventListener("click",function(){q.texto="";q.region="";q.nombre="";pintar();});
+  document.getElementById("finder").addEventListener("submit",function(e){e.preventDefault();var f=e.target;q.texto="";q.region=f.region.value;q.nombre=f.region.value?f.region.options[f.region.selectedIndex].text:"";q.mes=f.mes.value;tipoSel=f.tipo.value;marcar();pintar();document.getElementById("paquetes").scrollIntoView({behavior:"smooth"});});
   /* Atajos desde destinos y carteles */
   document.addEventListener("click",function(e){
     var a=e.target.closest("[data-q],[data-t]");if(!a||a.tagName==="OPTION")return;
-    if(a.dataset.q!==undefined){q.region=(a.dataset.q==="crucero"?"":a.dataset.q);}
+    if(a.dataset.q!==undefined){q.region=a.dataset.q;q.texto=a.dataset.busca||"";q.nombre=a.dataset.nombre||a.textContent.trim();}
     if(a.dataset.t){tipoSel=a.dataset.t;} else if(a.dataset.q!==undefined){tipoSel="todos";}
     marcar();pintar();
   });

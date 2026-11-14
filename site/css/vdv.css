@@ -34,15 +34,47 @@ header.top .wrap{display:flex;align-items:center;justify-content:space-between;g
 .hp{position:absolute;inset:0}
 /* Carrusel de fotos grandes de la portada */
 .slides{position:absolute;inset:0;overflow:hidden}
-.slides .track{display:flex;height:100%;transition:transform 1.1s cubic-bezier(.6,.05,.25,1)}
+.slides .track{display:flex;height:100%;transition:transform 1.6s cubic-bezier(.65,0,.35,1);will-change:transform}
 .sl{flex:0 0 100%;height:100%;margin:0;position:relative;overflow:hidden}
-.sl img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform 6s ease-out}
-.sl.on img{transform:scale(1)}
+.sl img{width:100%;height:100%;object-fit:cover;display:block}
 .sl figcaption{display:none}
 .slides .dots{position:absolute;z-index:6;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px}
 .slides .dots button{width:10px;height:10px;border-radius:99px;border:0;padding:0;background:rgba(255,255,255,.5);cursor:pointer;transition:width .3s,background .3s}
 .slides .dots button.on{width:28px;background:#fff}
-@media (prefers-reduced-motion:reduce){.slides .track,.sl img{transition:none}}
+@media (prefers-reduced-motion:reduce){.slides .track{transition-duration:.4s}}
+/* Flechas y botón «Ver viajes» del carrusel */
+.sl-a{position:absolute;z-index:7;top:50%;transform:translateY(-50%);width:50px;height:50px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(20,8,15,.28);backdrop-filter:blur(6px);color:#fff;font-size:30px;line-height:1;cursor:pointer;display:grid;place-items:center;padding-bottom:4px;transition:background .2s,transform .2s}
+.sl-a:hover{background:rgba(20,8,15,.55)}
+.sl-p{left:max(10px,1.4vw)}.sl-n{right:max(10px,1.4vw)}
+.sl-info{position:absolute;z-index:7;right:max(16px,3vw);bottom:64px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.sl-info #slCap{background:rgba(255,255,255,.16);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:8px 15px;font-weight:700;font-size:13.5px;color:#fff}
+.sl-ver{background:#fff;color:var(--plum-d);border-radius:99px;padding:8px 16px;font-weight:800;font-size:13.5px;text-decoration:none;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .2s,background .2s}
+.sl-ver:hover{background:var(--blush);transform:translateY(-2px)}
+/* Cinta con palabras de venta */
+.cinta{margin-top:34px;background:var(--plum);color:#fff;overflow:hidden;padding:13px 0}
+.cinta-in{display:flex;width:max-content;animation:cinta 45s linear infinite}
+.cinta span{white-space:nowrap;font-weight:700;font-size:14.5px;letter-spacing:.02em;padding:0 22px;position:relative}
+.cinta span::after{content:"✦";position:absolute;right:-6px;color:var(--pink)}
+.cinta:hover .cinta-in{animation-play-state:paused}
+@keyframes cinta{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.cinta-in{animation:none;flex-wrap:wrap;width:auto;justify-content:center}.cinta-in span:nth-child(n+11){display:none}}
+/* Modalidades */
+.mods{padding-block:clamp(56px,7vw,96px)}
+.mods-g{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.mod{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s}
+.mod:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(126,44,82,.12)}
+.mod i{font-style:normal;font-weight:800;color:var(--pink);font-size:14px;letter-spacing:.08em}
+.mod h3{margin:0;font-size:18px;line-height:1.2}
+.mod p{margin:0;color:var(--soft);font-size:14px;flex:1}
+.mod a{color:var(--plum);font-weight:800;font-size:14px;text-decoration:none;margin-top:4px}
+.mod a:hover{text-decoration:underline}
+@media (max-width:1020px){.mods-g{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.mods-g{grid-template-columns:1fr}}
+/* Aviso de filtro por destino */
+.ftxt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-6px 0 18px;color:var(--soft);font-size:14.5px}
+.ftxt[hidden]{display:none}
+.ftxt b{color:var(--plum-d)}
+.ftxt button{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 13px;font:600 13px inherit;color:var(--plum);cursor:pointer}
 header.top.sin-logo .wrap{justify-content:flex-end;min-height:90px}
 .benef-s{--bf:var(--plum)}
 .hp img{width:100%;height:100%;object-fit:cover}
@@ -216,4 +248,9 @@ footer.pie img{height:70px;width:auto;background:#fff;border-radius:14px;padding
   .fcard{grid-template-columns:1fr}
   .gcards{grid-template-columns:1fr}.gc{flex-direction:column;align-items:flex-start}
   footer.pie .wrap{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .sl-info{bottom:auto;top:120px;right:12px;left:12px;justify-content:space-between}
+  .sl-a{top:150px;transform:none;width:40px;height:40px;font-size:24px;display:none}
+  .slides .dots{bottom:12px}
 }

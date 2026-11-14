@@ -358,7 +358,7 @@ def test_editor_de_portada(cli):
 
     def datos(): return json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
     antes = datos()
-    assert antes["destinos"][0]["nombre"] == "Buzios"
+    assert antes["destinos"][0]["nombre"] == "Patagonia"
     n = len(antes["destinos"])
     # editar nombre, cambiar foto y subir uno nuevo
     with c.session_transaction() as s:
@@ -399,7 +399,7 @@ def test_editor_de_portada(cli):
     assert c.get("/aula-viajera.html").status_code == 200
     # restaurar
     post(c, "/admin/portada/destinos/restaurar")
-    assert len(datos()["destinos"]) == n and datos()["destinos"][0]["nombre"] == "Buzios"
+    assert len(datos()["destinos"]) == n and datos()["destinos"][0]["nombre"] == "Patagonia"
     assert c.post("/admin/portada/otra", data={"_csrf": "tok"}).status_code == 404
 
 
@@ -467,3 +467,28 @@ def test_catalogo_para_meta(cli):
     entrar(c)
     pag = c.get("/admin/catalogo").get_data(as_text=True)
     assert "/feed/meta.csv" in pag and "Quedaron afuera" in pag
+
+
+def test_galeria_aula_viajera(cli):
+    from PIL import Image
+    ap, c = cli
+    assert c.get("/admin/aula").status_code == 302
+    entrar(c)
+    def datos(): return json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    g = datos()["galeria"]
+    assert len(g) == 5 and g[0]["nombre"].startswith("Instituto Dr. Abraham Molina") and g[0]["viajes"] == []
+    tok = lambda: c.get("/admin/aula").get_data(as_text=True).split('name="_csrf" value="', 1)[1].split('"', 1)[0]
+    t = tok()
+    r = c.post(f"/admin/aula/escuela/{g[1]['id']}/viaje", data={"_csrf": t, "destino": "San Luis", "anio": "2025"})
+    vid = int(r.headers["Location"].rstrip("/").split("/")[-1])
+    b = io.BytesIO(); Image.new("RGB", (40, 30), "red").save(b, "PNG"); b.seek(0)
+    assert c.post(f"/admin/aula/viaje/{vid}/imagen", data={"_csrf": t, "clase": "foto", "archivo": (b, "a.png")}, content_type="multipart/form-data").status_code == 200
+    assert c.post(f"/admin/aula/viaje/{vid}/imagen", data={"_csrf": t, "clase": "foto", "archivo": (io.BytesIO(b"nada"), "a.png")},
+                  content_type="multipart/form-data").status_code == 400
+    c.post(f"/admin/aula/viaje/{vid}", data={"_csrf": t, "accion": "link", "url": "https://youtu.be/dQw4w9WgXcQ"})
+    c.post(f"/admin/aula/viaje/{vid}", data={"_csrf": t, "accion": "link", "url": "javascript:alert(1)"})
+    v = datos()["galeria"][1]["viajes"][0]
+    assert v["destino"] == "San Luis" and len(v["fotos"]) == 1 and len(v["videos"]) == 1
+    assert v["videos"][0]["embed"] == "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
+    c.post(f"/admin/aula/viaje/{vid}", data={"_csrf": t, "accion": "borrar_viaje"})
+    assert datos()["galeria"][1]["viajes"] == []

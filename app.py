@@ -25,6 +25,7 @@ import modelos4
 import portada
 import respaldo
 import catalogo
+import aula
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -33,8 +34,9 @@ MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "
 
 EMPRESAS = {"vdv": "Virgen del Valle", "trekia": "Trekia"}
 ESTADOS = {"disponible": "Disponible", "ultimos": "Últimos cupos", "agotado": "Agotado", "preventa": "Preventa"}
-TIPOS = {"grupal": "Grupal en bus nacional", "religioso": "Religioso", "naturaleza": "Trekking y naturaleza", "internacional": "Internacional",
-         "escapada": "Escapada cerca de casa (Trekia)"}
+TIPOS = {"grupal": "Grupal en bus nacional", "individual": "Salida individual (bus nacional)", "bus_internacional": "Grupal en bus internacional",
+         "aereo": "Aéreo nacional o internacional", "naturaleza": "Trekking y naturaleza", "internacional": "Internacional (otro)",
+         "religioso": "Religioso", "escapada": "Escapada cerca de casa (Trekia)"}
 REGIONES = {"argentina": "Argentina", "brasil": "Brasil", "america": "América (Caribe y otros)", "europa": "Europa", "crucero": "Cruceros", "otro": "Otro"}
 DIFICULTADES = ["", "Baja", "Media", "Alta"]
 ESTADOS_CONSULTA = {"nueva": "Nueva", "contactada": "Contactada", "senia": "Dejó seña", "vendida": "Vendida", "descartada": "Descartada"}
@@ -174,6 +176,7 @@ def datos_publicos():
     portada.aplicar(d, d)
     q = Salida.query.filter(Salida.activa.is_(True), Salida.fecha >= hoy()).order_by(Salida.fecha, Salida.id)
     d["salidas"] = [s.a_json() for s in q.all()]
+    d["galeria"] = aula.galeria_publica()
     return d
 
 
@@ -200,7 +203,7 @@ def crear_app(config=None):
     app.config.update(
         SQLALCHEMY_DATABASE_URI=url or f"sqlite:///{AQUI / 'vdv.db'}", SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True}, SECRET_KEY=os.environ.get("SECRET_KEY") or secrets.token_hex(32),
-        MAX_CONTENT_LENGTH=12 * 1024 * 1024, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
+        MAX_CONTENT_LENGTH=(aula.MAX_VIDEO_MB + 2) * 1024 * 1024, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=bool(os.environ.get("RENDER")), PERMANENT_SESSION_LIFETIME=timedelta(days=14),
         ADMIN_USER=os.environ.get("ADMIN_USER", "miriam"), ADMIN_PASSWORD=os.environ.get("ADMIN_PASSWORD", ""))
     if config:
@@ -211,6 +214,8 @@ def crear_app(config=None):
         migrar()
         sembrar()
         sembrar_temporada_2027()
+        sembrar_temporada_2027b()
+        aula.sembrar_escuelas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
     intentos = {}
@@ -524,6 +529,7 @@ def crear_app(config=None):
             return redirect(url_for("contacto"))
         return render_template("admin/contacto.html", valores=ajustes(), CONTACTO=CONTACTO)
 
+    aula.montar(app, admin, Imagen, reducir_imagen)
     portada.montar(app, admin, lambda: json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")), imagenes_de_la_web, reducir_imagen, Imagen)
     @app.route("/admin/respaldo")
     @admin
@@ -593,6 +599,42 @@ def sembrar_temporada_2027():
                 guardados.append(d)
         b = db.session.get(portada.Bloque, "destinos")
         b.datos = json.dumps(guardados, ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+def sembrar_temporada_2027b():
+    """Una sola vez: paquetes internacionales (Chile, Perú, Uruguay, Brasil, Europa), nuevas categorías
+    (aéreos, bus internacional, individuales) para las salidas que ya estaban y destinos internacionales nuevos en la portada."""
+    marca = "semilla_2027b"
+    if db.session.get(Ajuste, marca):
+        return
+    for x in json.loads((AQUI / "salidas_2027b.json").read_text(encoding="utf-8")):
+        f = date.fromisoformat(x["fecha"])
+        db.session.add(Salida(slug=slug_unico(x["destino"], f), empresa=x["empresa"], destino=x["destino"], lugar=x.get("lugar", ""), fecha=f, dia=x.get("dia", ""),
+                              detalle=x.get("detalle", ""), incluye="\n".join(x.get("incluye", [])), precio=x.get("precio", "Consultá"), nota=x.get("nota", ""),
+                              img=x.get("img", ""), region=x.get("region", "argentina"), tipos=",".join(x.get("tipo", [])), estado=x.get("estado", "disponible"),
+                              activa=True))
+        db.session.flush()
+    for s in Salida.query.filter(Salida.empresa == "vdv").all():
+        tipos = s.lista_tipos
+        texto = " ".join([s.destino or "", s.detalle or "", s.incluye or ""]).lower()
+        if "internacional" in tipos or s.region in ("brasil", "europa", "america"):
+            if re.search(r"a[eé]reo|vuelo", texto):
+                tipos.append("aereo")
+            elif re.search(r"\bbus\b", texto):
+                tipos.append("bus_internacional")
+        if s.destino in ("Mar del Plata", "Las Grutas", "Bariloche y Circuito Chico") and "grupal" in tipos:
+            tipos.append("individual")
+        s.tipos = ",".join(dict.fromkeys(tipos))
+    guardados = portada.guardado("destinos")
+    if guardados is not None:
+        fabrica = json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")).get("destinos", [])
+        nombres = {(d.get("nombre") or "").strip().lower() for d in guardados}
+        for d in fabrica:
+            if d["q"] != "argentina" and d["nombre"].strip().lower() not in nombres and len(guardados) < portada.SECCIONES["destinos"]["maximo"]:
+                guardados.append(d)
+        db.session.get(portada.Bloque, "destinos").datos = json.dumps(guardados, ensure_ascii=False)
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 

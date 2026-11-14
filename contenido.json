@@ -31,45 +31,24 @@
   },
   {
    "id": "grupal",
-   "nombre": "Grupales en bus nacionales"
+   "nombre": "Grupales e individuales en bus nacionales"
   },
   {
-   "id": "naturaleza",
-   "nombre": "Trekking y naturaleza"
+   "id": "bus_internacional",
+   "nombre": "Grupales en bus internacional"
   },
   {
-   "id": "internacional",
-   "nombre": "Internacionales"
+   "id": "aereo",
+   "nombre": "Aéreos nacionales e internacionales"
   }
  ],
  "destinos": [
-  {
-   "nombre": "Buzios",
-   "lugar": "Brasil",
-   "desde": "USD 889",
-   "img": "img/buzios.jpg",
-   "q": "brasil"
-  },
   {
    "nombre": "Patagonia",
    "lugar": "Argentina",
    "desde": "$1.425.000",
    "img": "img/perito-moreno.jpg",
    "q": "argentina"
-  },
-  {
-   "nombre": "Italia",
-   "lugar": "Europa",
-   "desde": "USD 3.680",
-   "img": "img/venecia.jpg",
-   "q": "europa"
-  },
-  {
-   "nombre": "Cruceros",
-   "lugar": "Brasil y Caribe",
-   "desde": "Consultá",
-   "img": "img/crucero-atardecer.jpg",
-   "q": "crucero"
   },
   {
    "nombre": "Mendoza",
@@ -121,11 +100,53 @@
    "q": "argentina"
   },
   {
+   "nombre": "Chile",
+   "lugar": "Viña del Mar",
+   "desde": "Consultá",
+   "img": "img/ejemplo-chile.jpg",
+   "q": "america"
+  },
+  {
+   "nombre": "Perú",
+   "lugar": "Cusco y Machu Picchu",
+   "desde": "Consultá",
+   "img": "img/ejemplo-peru.jpg",
+   "q": "america"
+  },
+  {
+   "nombre": "Uruguay",
+   "lugar": "Punta del Este",
+   "desde": "Consultá",
+   "img": "img/ejemplo-uruguay.jpg",
+   "q": "america"
+  },
+  {
+   "nombre": "Brasil",
+   "lugar": "Buzios y el Caribe brasileño",
+   "desde": "USD 889",
+   "img": "img/buzios.jpg",
+   "q": "brasil"
+  },
+  {
    "nombre": "Caribe",
    "lugar": "América",
    "desde": "Consultá",
    "img": "img/caribe-2.jpg",
    "q": "america"
+  },
+  {
+   "nombre": "Europa",
+   "lugar": "España, Francia e Italia",
+   "desde": "USD 3.680",
+   "img": "img/venecia.jpg",
+   "q": "europa"
+  },
+  {
+   "nombre": "Cruceros",
+   "lugar": "Brasil y Caribe",
+   "desde": "Consultá",
+   "img": "img/crucero-atardecer.jpg",
+   "q": "crucero"
   }
  ],
  "programas": [

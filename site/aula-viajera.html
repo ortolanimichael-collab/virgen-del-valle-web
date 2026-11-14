@@ -22,7 +22,7 @@
 <header class="top"><div class="wrap">
   <a class="brand" href="aula-viajera.html" aria-label="Aula Viajera, inicio"><img src="img/logo-aula.jpg" alt="Aula Viajera Travel"></a>
   <nav class="nav" aria-label="Principal">
-    <a href="#programas">Programas</a><a href="#como">Cómo trabajamos</a><a href="#escuelas">Escuelas</a><a href="#presupuesto">Presupuesto</a>
+    <a href="#programas">Programas</a><a href="#como">Cómo trabajamos</a><a href="#viajes">Viajes realizados</a><a href="#presupuesto">Presupuesto</a>
     <a href="index.html" class="only-m">Virgen del Valle</a><a href="trekia.html" class="only-m">Trekia turismo aventura</a>
     <a class="btn" data-wa="Hola! Quiero consultar por un viaje con Aula Viajera" href="#">Escribinos</a>
   </nav>
@@ -105,6 +105,29 @@
   </div>
 </div></section>
 
+<section class="s" id="viajes"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Nuestros viajes</span><h2 class="h2">Viajes que ya <em>hicimos</em></h2>
+    <p class="lead">Fotos, videos y flyers de los viajes con cada escuela. Elegí una escuela o mirá todas las fotos juntas.</p></div>
+    <button class="btn dk" type="button" id="verTodas">Ver todas las fotos</button></div>
+  <div class="esc-chips" id="escChips" role="tablist" aria-label="Escuelas"></div>
+  <div class="esc-grid" id="escGrid"></div>
+</div></section>
+
+<div class="gx" id="gx" hidden role="dialog" aria-modal="true" aria-labelledby="gxTit">
+  <div class="gx-in">
+    <header class="gx-h"><div><small id="gxSub"></small><h3 id="gxTit"></h3></div><button type="button" class="gx-x" aria-label="Cerrar">✕</button></header>
+    <p class="gx-tx" id="gxTx"></p>
+    <div class="gx-tabs" id="gxTabs" role="tablist"></div>
+    <div class="gx-body" id="gxBody"></div>
+  </div>
+</div>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada">
+  <button type="button" class="lb-x" aria-label="Cerrar">✕</button>
+  <button type="button" class="lb-a lb-p" aria-label="Anterior">‹</button>
+  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
+  <button type="button" class="lb-a lb-n" aria-label="Siguiente">›</button>
+</div>
+
 <section class="s" id="presupuesto"><div class="wrap">
   <div class="cta rv">
     <div><span class="kicker">Presupuesto sin compromiso</span><h2 class="h2">Armemos el viaje de tu curso</h2><p style="margin-top:12px;opacity:.9">Completá los datos y se abre WhatsApp con tu consulta lista para enviar.</p></div>
@@ -144,6 +167,100 @@
   }).join("");
   VDVapp.reveal();
   document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa);a.target="_blank";a.rel="noopener";});
+})();
+
+/* ===== Viajes que ya hicimos: escuelas → viajes → fotos, flyers y videos (se cargan en el panel: Escuelas) ===== */
+(function(){
+  var V=VDV, G=(V.galeria||[]), esc=V.esc, sel="todas";
+  var chips=document.getElementById("escChips"), grid=document.getElementById("escGrid");
+  var gx=document.getElementById("gx"), lb=document.getElementById("lb"), lista=[], pos=0, ultimoFoco=null;
+  function viajes(){var r=[];G.forEach(function(e){e.viajes.forEach(function(v){r.push({e:e,v:v});});});return r;}
+  function n(x,s,p){return x+" "+(x===1?s:p);}
+  chips.innerHTML='<button class="chip on" data-e="todas" role="tab">Todas las escuelas</button>'+G.map(function(e){
+    return '<button class="chip" role="tab" data-e="'+e.id+'">'+esc(e.nombre)+(e.localidad?' <small>· '+esc(e.localidad)+'</small>':'')+'</button>';}).join("");
+  function pintar(){
+    var es=G.filter(function(e){return sel==="todas"||String(e.id)===sel;});
+    grid.innerHTML=es.map(function(e){
+      var cab='<header class="esc-h"><h3>'+esc(e.nombre)+'</h3><span>'+esc(e.localidad||"")+(e.viajes.length?' · '+n(e.viajes.length,"viaje","viajes"):'')+'</span></header>';
+      if(!e.viajes.length) return '<article class="esc rv in">'+cab+'<div class="esc-vacio"><b>Muy pronto</b> las fotos y videos de sus viajes.</div></article>';
+      return '<article class="esc rv in">'+cab+'<div class="esc-vs">'+e.viajes.map(function(v){
+        var tapa=v.fotos[0]||v.flyers[0]||"", cnt=[v.fotos.length?n(v.fotos.length,"foto","fotos"):"",v.videos.length?n(v.videos.length,"video","videos"):"",v.flyers.length?n(v.flyers.length,"flyer","flyers"):""].filter(Boolean).join(" · ");
+        return '<button type="button" class="vj" data-v="'+v.id+'">'+(tapa?'<img src="'+tapa+'" alt="" loading="lazy">':'<span class="vj-sin">✈</span>')+
+          '<span class="vj-tx"><b>'+esc(v.destino)+(v.anio?' '+esc(v.anio):'')+'</b><small>'+esc(v.tipo||"")+(v.tipo&&cnt?' · ':'')+cnt+'</small></span></button>';
+      }).join("")+'</div></article>';
+    }).join("") || '<p class="lead">Pronto vas a ver acá los viajes que hicimos con cada escuela.</p>';
+    var hay=viajes().some(function(x){return x.v.fotos.length||x.v.flyers.length;});
+    document.getElementById("verTodas").hidden=!hay;
+  }
+  chips.addEventListener("click",function(ev){var c=ev.target.closest(".chip");if(!c)return;sel=c.dataset.e;
+    chips.querySelectorAll(".chip").forEach(function(x){x.classList.toggle("on",x===c);});pintar();});
+  /* --- ventana de un viaje o de todas las fotos --- */
+  function abrir(el){ultimoFoco=document.activeElement;el.hidden=false;document.body.style.overflow="hidden";var x=el.querySelector("button");x&&x.focus();}
+  function cerrar(el){el.hidden=true;if(gx.hidden&&lb.hidden)document.body.style.overflow="";ultimoFoco&&ultimoFoco.focus&&ultimoFoco.focus();}
+  function mosaico(items){
+    return '<div class="gx-fotos">'+items.map(function(it,i){return '<button type="button" class="gx-f" data-i="'+i+'"><img src="'+it.src+'" alt="'+esc(it.cap)+'" loading="lazy"></button>';}).join("")+'</div>';
+  }
+  function video(vd){
+    var t=vd.titulo?'<b>'+esc(vd.titulo)+'</b>':'';
+    if(vd.red==="archivo") return '<div class="gx-v"><video src="'+vd.src+'" controls preload="metadata" playsinline></video>'+t+'</div>';
+    if(vd.embed) return '<div class="gx-v"><div class="gx-ifr"><iframe src="'+vd.embed+'" title="'+esc(vd.titulo||"Video del viaje")+'" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>'+t+'</div>';
+    var red={instagram:"Instagram",facebook:"Facebook",tiktok:"TikTok"}[vd.red]||"el video";
+    return '<div class="gx-v"><a class="gx-link" href="'+esc(vd.url)+'" target="_blank" rel="noopener">▶ Ver en '+red+'</a>'+t+'</div>';
+  }
+  var tabsData={};
+  function tab(k){
+    document.querySelectorAll("#gxTabs button").forEach(function(b){b.classList.toggle("on",b.dataset.k===k);b.setAttribute("aria-selected",b.dataset.k===k);});
+    var d=tabsData[k], body=document.getElementById("gxBody");
+    if(k==="videos") body.innerHTML='<div class="gx-vs">'+d.map(video).join("")+'</div>';
+    else {lista=d;body.innerHTML=mosaico(d);}
+  }
+  function ventana(sub,tit,tx,data){
+    tabsData=data;
+    document.getElementById("gxSub").textContent=sub;document.getElementById("gxTit").textContent=tit;
+    var t=document.getElementById("gxTx");t.textContent=tx||"";t.hidden=!tx;
+    var nombres={fotos:"Fotos",videos:"Videos",flyers:"Flyers"}, ks=Object.keys(data).filter(function(k){return data[k].length;});
+    document.getElementById("gxTabs").innerHTML=ks.map(function(k){return '<button type="button" role="tab" data-k="'+k+'">'+nombres[k]+' <small>'+data[k].length+'</small></button>';}).join("");
+    document.getElementById("gxTabs").hidden=ks.length<2;
+    if(ks.length) tab(ks[0]); else document.getElementById("gxBody").innerHTML='<p>Todavía no hay fotos de este viaje.</p>';
+    abrir(gx);
+  }
+  grid.addEventListener("click",function(ev){
+    var b=ev.target.closest(".vj");if(!b)return;
+    var x=viajes().filter(function(x){return String(x.v.id)===b.dataset.v;})[0];if(!x)return;
+    var cap=x.e.nombre+" · "+x.v.destino+(x.v.anio?" "+x.v.anio:"");
+    ventana(x.e.nombre+(x.e.localidad?" · "+x.e.localidad:""), x.v.destino+(x.v.anio?" "+x.v.anio:""), x.v.texto, {
+      fotos:x.v.fotos.map(function(s){return {src:s,cap:cap};}), videos:x.v.videos, flyers:x.v.flyers.map(function(s){return {src:s,cap:"Flyer · "+cap};})});
+  });
+  document.getElementById("verTodas").addEventListener("click",function(){
+    var fotos=[],flyers=[],vids=[];
+    viajes().filter(function(x){return sel==="todas"||String(x.e.id)===sel;}).forEach(function(x){
+      var cap=x.e.nombre+" · "+x.v.destino+(x.v.anio?" "+x.v.anio:"");
+      x.v.fotos.forEach(function(s){fotos.push({src:s,cap:cap});});x.v.flyers.forEach(function(s){flyers.push({src:s,cap:"Flyer · "+cap});});
+      x.v.videos.forEach(function(v){vids.push(Object.assign({},v,{titulo:v.titulo||cap}));});
+    });
+    var e=G.filter(function(e){return String(e.id)===sel;})[0];
+    ventana(e?e.nombre:"Aula Viajera", e?"Todas las fotos":"Todas las fotos de nuestros viajes", "", {fotos:fotos,videos:vids,flyers:flyers});
+  });
+  document.getElementById("gxTabs").addEventListener("click",function(ev){var b=ev.target.closest("button");if(b)tab(b.dataset.k);});
+  gx.addEventListener("click",function(ev){
+    if(ev.target===gx||ev.target.closest(".gx-x")){gx.querySelectorAll("video").forEach(function(v){v.pause();});document.getElementById("gxBody").innerHTML="";cerrar(gx);return;}
+    var f=ev.target.closest(".gx-f");if(f){pos=+f.dataset.i;verFoto();lb.hidden=false;lb.querySelector(".lb-x").focus();}
+  });
+  /* --- foto ampliada con anterior / siguiente (teclado y deslizar en el celu) --- */
+  function verFoto(){var it=lista[pos];document.getElementById("lbImg").src=it.src;document.getElementById("lbImg").alt=it.cap;document.getElementById("lbCap").textContent=it.cap+"  ·  "+(pos+1)+" de "+lista.length;}
+  function paso(d){pos=(pos+d+lista.length)%lista.length;verFoto();}
+  lb.addEventListener("click",function(ev){
+    if(ev.target.closest(".lb-p"))paso(-1);else if(ev.target.closest(".lb-n"))paso(1);
+    else if(ev.target===lb||ev.target.closest(".lb-x")){lb.hidden=true;}
+  });
+  var x0=null;
+  lb.addEventListener("touchstart",function(e){x0=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener("touchend",function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)paso(dx<0?1:-1);x0=null;});
+  document.addEventListener("keydown",function(e){
+    if(!lb.hidden){if(e.key==="ArrowRight")paso(1);else if(e.key==="ArrowLeft")paso(-1);else if(e.key==="Escape")lb.hidden=true;}
+    else if(!gx.hidden&&e.key==="Escape"){gx.querySelector(".gx-x").click();}
+  });
+  pintar();
 })();
 </script>
 </body>
