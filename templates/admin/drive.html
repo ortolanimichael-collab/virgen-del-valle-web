@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Google Drive{% endblock %}
+{% block c %}
+<h1>Google Drive</h1>
+<p class="muted small">Con Drive conectado, las fotos y videos que subís desde el panel se guardan en una carpeta «Virgen del Valle - Web» de esa cuenta,
+ordenados por sección, escuela y viaje. En la web se siguen viendo igual: el visitante nunca ve un link de Drive.
+La web solo puede ver y tocar los archivos que ella misma subió, nada más de ese Drive.</p>
+
+{% if not configurado %}
+<section class="card">
+  <h2 style="margin-top:0">Falta un paso en Render</h2>
+  <p>Para conectar Drive hay que cargar en Render (servicio → Environment) estas dos variables, que salen de Google Cloud:</p>
+  <ul><li><code>GOOGLE_CLIENT_ID</code></li><li><code>GOOGLE_CLIENT_SECRET</code></li></ul>
+  <p class="small muted">En Google Cloud, en el ID de cliente OAuth, la «URI de redirección autorizada» tiene que ser exactamente:<br><code>{{ vuelta }}</code></p>
+</section>
+{% elif cuenta %}
+<section class="card" style="margin-bottom:16px">
+  <h2 style="margin-top:0">✅ Conectado{% if cuenta.email %} con {{ cuenta.email }}{% endif %}</h2>
+  <p class="small muted">Desde {{ cuenta.conectada.strftime('%d/%m/%Y') }}. Fotos guardadas en Drive: <b>{{ en_drive }}</b> · todavía en la base: <b>{{ en_base }}</b>.</p>
+  <div class="row">
+    {% if en_base %}
+    <form method="post" action="{{ url_for('drive_pasar') }}" onsubmit="this.querySelector('button').textContent='Pasando… esperá'">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <button class="btn">Pasar a Drive las fotos que están en la base (de a 25)</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('drive_desconectar') }}" onsubmit="return confirm('¿Desconectar Google Drive? Lo nuevo se va a guardar en la base.')">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <button class="btn peli">Desconectar</button>
+    </form>
+  </div>
+  <p class="small muted" style="margin-top:12px">Importante: no borres ni muevas a la papelera la carpeta «Virgen del Valle - Web» en Drive; si lo hacés, esas fotos dejan de verse en la web.
+  Renombrar las subcarpetas o archivos no hace nada malo.</p>
+</section>
+{% else %}
+<section class="card">
+  <h2 style="margin-top:0">Conectar Google Drive</h2>
+  <p>Vas a ir a Google, elegís la cuenta de la agencia y aceptás. Es una sola vez.</p>
+  <form method="post" action="{{ url_for('drive_conectar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <button class="btn">Conectar Google Drive</button>
+  </form>
+  {% if en_base %}<p class="small muted" style="margin-top:12px">Hay {{ en_base }} fotos guardadas en la base. Después de conectar, las podés pasar a Drive con un botón.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

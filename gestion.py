@@ -406,8 +406,8 @@ def montar(app, admin, C):
     @app.get("/admin/flyers", endpoint="flyers")
     @admin
     def flyers():
-        q = Salida.query.filter(Salida.activa.is_(True), Salida.fecha >= hoy()).order_by(Salida.fecha).all()
-        datos = [dict(id=x.id, destino=x.destino, dia=x.dia or C["dia_corto"](x.fecha), lugar=x.lugar or "", precio=x.precio or "", nota=x.nota or "",
+        q = Salida.query.filter(Salida.activa.is_(True), (Salida.fecha >= hoy()) | Salida.a_confirmar.is_(True)).order_by(Salida.fecha).all()
+        datos = [dict(id=x.id, destino=x.destino, dia=x.dia_txt, lugar=x.lugar or "", precio=x.precio or "", nota=x.nota or "",
                       estado=x.estado, empresa=x.empresa, img=(x.img if x.img.startswith(("/", "http")) else "/" + x.img)) for x in q]
         return render_template("admin/flyers.html", salidas=datos, c=ajustes(), elegida=request.args.get("salida", type=int))
 

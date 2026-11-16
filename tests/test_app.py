@@ -492,3 +492,66 @@ def test_galeria_aula_viajera(cli):
     assert v["videos"][0]["embed"] == "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
     c.post(f"/admin/aula/viaje/{vid}", data={"_csrf": t, "accion": "borrar_viaje"})
     assert datos()["galeria"][1]["viajes"] == []
+
+
+def test_fecha_a_confirmar(cli):
+    ap, c = cli
+    entrar(c)
+    with ap.app_context():
+        s = A.Salida(slug="viejo-202501", empresa="vdv", destino="Viaje del flyer", fecha=A.date(2025, 1, 10), a_confirmar=True, activa=True, estado="disponible")
+        A.db.session.add(s); A.db.session.commit()
+        assert not s.vencida and s.dia_txt == "Fecha a confirmar"
+    d = json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    x = [s for s in d["salidas"] if s["id"] == "viejo-202501"][0]
+    assert x["confirmar"] and x["dia"] == "Fecha a confirmar"
+    # columnas nuevas en una base vieja
+    from sqlalchemy import text
+    with ap.app_context():
+        A.db.session.execute(text("ALTER TABLE vdv_imagen DROP COLUMN drive_id")); A.db.session.commit()
+        A.migrar()
+        from sqlalchemy import inspect
+        assert "drive_id" in {c["name"] for c in inspect(A.db.engine).get_columns("vdv_imagen")}
+
+
+def test_drive_fotos_y_videos(cli, monkeypatch):
+    from PIL import Image
+    ap, c = cli
+    entrar(c)
+    guardado = {}
+    monkeypatch.setattr(A.drive, "conectado", lambda: True)
+    monkeypatch.setattr(A.drive, "subir", lambda datos, nombre, mime, partes: guardado.setdefault("f1", (datos, partes)) and "f1")
+    monkeypatch.setattr(A.drive, "bajar", lambda fid: guardado[fid][0])
+    tok = c.get("/admin/aula").get_data(as_text=True).split('name="_csrf" value="', 1)[1].split('"', 1)[0]
+    r = c.post("/admin/aula/escuela/1/viaje", data={"_csrf": tok, "destino": "Bariloche", "anio": "2024"})
+    vid = int(r.headers["Location"].rstrip("/").split("/")[-1])
+    b = io.BytesIO(); Image.new("RGB", (40, 30), "red").save(b, "PNG"); b.seek(0)
+    assert c.post(f"/admin/aula/viaje/{vid}/imagen", data={"_csrf": tok, "clase": "foto", "archivo": (b, "a.png")}, content_type="multipart/form-data").status_code == 200
+    assert guardado["f1"][1][0] == "Aula Viajera" and guardado["f1"][1][-1] == "Fotos"
+    with ap.app_context():
+        im = A.Imagen.query.order_by(A.Imagen.id.desc()).first()
+        assert im.drive_id == "f1" and im.datos == b""
+        iid = im.id
+    r = c.get(f"/media/{iid}")
+    assert r.status_code == 200 and r.data[:2] == b"\xff\xd8"
+    # video en trozos
+    trozos = []
+    monkeypatch.setattr(A.drive, "iniciar_subida", lambda nombre, mime, tamano, partes: "https://subida")
+    def mandar(url, desde, datos, total):
+        trozos.append((desde, len(datos)))
+        return (True, {"id": "v1", "size": str(total)}) if desde + len(datos) >= total else (False, desde + len(datos))
+    monkeypatch.setattr(A.drive, "mandar_trozo", mandar)
+    monkeypatch.setattr(A.aula, "TROZO", 10)
+    r = c.post(f"/admin/aula/viaje/{vid}/video/iniciar", data={"nombre": "v.mp4", "tipo": "video/mp4", "tamano": "25", "titulo": "Llegada"}, headers={"X-CSRF": tok})
+    clave = r.get_json()["clave"]
+    assert c.post(f"/admin/aula/subida/{clave}", data=b"x" * 10, headers={"X-CSRF": "malo", "X-Desde": "0"}).status_code == 400
+    desde, fin = 0, False
+    while not fin:
+        j = c.post(f"/admin/aula/subida/{clave}", data=b"x" * min(10, 25 - desde), headers={"X-CSRF": tok, "X-Desde": str(desde)}).get_json()
+        fin = j["listo"]; desde = j.get("siguiente", desde)
+    assert trozos == [(0, 10), (10, 10), (20, 5)]
+    d = json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
+    v = [v for e in d["galeria"] for v in e["viajes"] if v["id"] == vid][0]
+    assert v["videos"][0]["red"] == "archivo" and v["videos"][0]["titulo"] == "Llegada"
+    monkeypatch.setattr(A.drive, "trozo_video", lambda fid, tamano, rango: (206, {"Content-Range": "bytes 0-4/25", "Content-Length": "5", "Accept-Ranges": "bytes"}, iter([b"xxxxx"])))
+    r = c.get(v["videos"][0]["src"], headers={"Range": "bytes=0-"})
+    assert r.status_code == 206 and r.data == b"xxxxx"

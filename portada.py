@@ -54,7 +54,7 @@ def aplicar(d, base_fabrica):
     return d
 
 
-def montar(app, admin, fabrica, imagenes_de_la_web, reducir_imagen, Imagen):
+def montar(app, admin, fabrica, imagenes_de_la_web, reducir_imagen, Imagen, guardar_imagen=None):
     def filas(clave):
         g = guardado(clave)
         return g if g is not None else fabrica().get(clave, [])
@@ -91,12 +91,15 @@ def montar(app, admin, fabrica, imagenes_de_la_web, reducir_imagen, Imagen):
             arch = archivos[i] if i < len(archivos) else None
             if arch and arch.filename:
                 try:
-                    im = Imagen(nombre=arch.filename[:120], datos=reducir_imagen(arch.stream))
+                    if guardar_imagen:
+                        im = guardar_imagen(arch.filename, arch.stream, ("Portada",))
+                    else:
+                        im = Imagen(nombre=arch.filename[:120], datos=reducir_imagen(arch.stream))
+                        db.session.add(im)
+                        db.session.flush()
                 except Exception:
                     flash(f"No pude leer la foto de «{it['nombre'] or 'una fila'}». Probá con un JPG o PNG.", "error")
                     return redirect(url_for("portada") + f"#{clave}")
-                db.session.add(im)
-                db.session.flush()
                 it["img"] = f"/media/{im.id}"
             elif elegida and elegida != "__actual__" and elegida in imagenes_de_la_web():
                 it["img"] = f"img/{elegida}"

@@ -4,8 +4,9 @@
   V.diasHasta = function (iso) { return Math.round((new Date(iso + "T00:00:00") - V.hoy()) / 86400000); };
   /* Salidas vigentes: las vencidas desaparecen solas. */
   V.vigentes = function (empresa) {
-    return V.salidas.filter(function (s) { return V.diasHasta(s.fecha) >= 0 && (!empresa || s.empresa === empresa); })
-      .sort(function (a, b) { return a.fecha < b.fecha ? -1 : 1; });
+    /* Las de «Fecha a confirmar» (s.confirmar) siempre se ven y van al final */
+    return V.salidas.filter(function (s) { return (s.confirmar || V.diasHasta(s.fecha) >= 0) && (!empresa || s.empresa === empresa); })
+      .sort(function (a, b) { if (!!a.confirmar !== !!b.confirmar) return a.confirmar ? 1 : -1; return a.fecha < b.fecha ? -1 : 1; });
   };
   V.porId = function (id) { return V.salidas.filter(function (s) { return s.id === id; })[0]; };
   V.waLink = function (texto) { return "https://wa.me/" + V.whatsapp + "?text=" + encodeURIComponent(texto || "Hola! Quiero consultar por un viaje"); };

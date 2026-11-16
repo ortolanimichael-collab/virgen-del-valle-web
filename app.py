@@ -19,6 +19,7 @@ from html import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from sqlalchemy import or_
 from flask import (Flask, Response, abort, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for)
 from extensiones import db
 import modelos4
@@ -26,6 +27,7 @@ import portada
 import respaldo
 import catalogo
 import aula
+import drive
 
 AQUI = Path(__file__).resolve().parent
 SITE = AQUI / "site"
@@ -78,12 +80,19 @@ class Salida(db.Model):
     destacado = db.Column(db.Boolean, default=False)
     activa = db.Column(db.Boolean, nullable=False, default=True)
     cupos = db.Column(db.Integer)                                                 # lugares totales (vacío = sin control de cupos)
+    a_confirmar = db.Column(db.Boolean, default=False)                            # «Fecha a confirmar»: se muestra aunque la fecha haya pasado
     creada = db.Column(db.DateTime, default=ahora)
     actualizada = db.Column(db.DateTime, default=ahora, onupdate=ahora)
 
     @property
     def vencida(self):
-        return self.fecha < hoy()
+        return not self.a_confirmar and self.fecha < hoy()
+
+    @property
+    def dia_txt(self):
+        if self.a_confirmar:
+            return self.dia or "Fecha a confirmar"
+        return self.dia or dia_corto(self.fecha)
 
     @property
     def lista_incluye(self):
@@ -94,7 +103,7 @@ class Salida(db.Model):
         return [t for t in (self.tipos or "").split(",") if t]
 
     def a_json(self):
-        d = dict(id=self.slug, empresa=self.empresa, fecha=self.fecha.isoformat(), dia=self.dia or dia_corto(self.fecha), destino=self.destino,
+        d = dict(id=self.slug, empresa=self.empresa, fecha=self.fecha.isoformat(), dia=self.dia_txt, destino=self.destino,
                  lugar=self.lugar or "", detalle=self.detalle or "", incluye=self.lista_incluye, precio=self.precio or "Consultá",
                  nota=self.nota or "", img=self.img or "img/sierras.jpg", region=self.region or "argentina", tipo=self.lista_tipos, estado=self.estado)
         if self.dificultad:
@@ -103,6 +112,8 @@ class Salida(db.Model):
             d["km"] = self.km
         if self.destacado:
             d["destacado"] = True
+        if self.a_confirmar:
+            d["confirmar"] = True
         return d
 
 
@@ -111,7 +122,8 @@ class Imagen(db.Model):
     __tablename__ = "vdv_imagen"
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(120))
-    datos = db.Column(db.LargeBinary, nullable=False)
+    datos = db.Column(db.LargeBinary, nullable=False)                             # vacío si la foto está en Google Drive
+    drive_id = db.Column(db.String(80))                                           # id del archivo en Drive
     creada = db.Column(db.DateTime, default=ahora)
 
 
@@ -174,7 +186,7 @@ def datos_publicos():
     d = json.loads((AQUI / "contenido.json").read_text(encoding="utf-8"))
     d.update(ajustes())
     portada.aplicar(d, d)
-    q = Salida.query.filter(Salida.activa.is_(True), Salida.fecha >= hoy()).order_by(Salida.fecha, Salida.id)
+    q = Salida.query.filter(Salida.activa.is_(True), or_(Salida.fecha >= hoy(), Salida.a_confirmar.is_(True))).order_by(Salida.fecha, Salida.id)
     d["salidas"] = [s.a_json() for s in q.all()]
     d["galeria"] = aula.galeria_publica()
     return d
@@ -191,6 +203,104 @@ def reducir_imagen(archivo):
     b = io.BytesIO()
     im.save(b, format="JPEG", quality=82, optimize=True)
     return b.getvalue()
+
+
+def guardar_imagen(nombre, archivo, carpeta=("Varios",)):
+    """Achica la foto y la guarda en Google Drive si está conectado; si no (o si Drive falla), en la base.
+    Devuelve el objeto Imagen ya agregado a la sesión (con id). Lanza ValueError si no es una imagen."""
+    try:
+        datos = reducir_imagen(archivo)
+    except Exception as e:
+        raise ValueError("No es una imagen") from e
+    nombre = (nombre or "foto").rsplit(".", 1)[0][:110] + ".jpg"
+    im = Imagen(nombre=nombre[:120], datos=datos)
+    if drive.conectado():
+        try:
+            im.drive_id = drive.subir(datos, nombre, "image/jpeg", carpeta)
+            im.datos = b""
+        except Exception as e:
+            print(f"[drive] no se pudo subir {nombre}: {e}", flush=True)
+    db.session.add(im)
+    db.session.flush()
+    return im
+
+
+def borrar_imagen(im):
+    if im.drive_id and drive.conectado():
+        drive.borrar(im.drive_id)
+    db.session.delete(im)
+
+
+def montar_drive(app, admin, Imagen):
+    def vuelta_url():
+        base = os.environ.get("PUBLIC_URL", "").rstrip("/") or request.url_root.rstrip("/")
+        if os.environ.get("RENDER") and base.startswith("http://"):
+            base = "https://" + base[7:]
+        return base + "/admin/drive/vuelta"
+
+    @app.get("/admin/drive")
+    @admin
+    def drive_panel():
+        from sqlalchemy import func
+        en_base = db.session.query(func.count(Imagen.id)).filter(Imagen.drive_id.is_(None)).scalar()
+        en_drive = db.session.query(func.count(Imagen.id)).filter(Imagen.drive_id.isnot(None)).scalar()
+        return render_template("admin/drive.html", configurado=drive.configurado(), cuenta=drive.cuenta(), vuelta=vuelta_url(),
+                               en_base=en_base, en_drive=en_drive)
+
+    @app.post("/admin/drive/conectar")
+    @admin
+    def drive_conectar():
+        if not drive.configurado():
+            flash("Faltan GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en Render.", "error")
+            return redirect(url_for("drive_panel"))
+        session["drive_estado"] = secrets.token_urlsafe(24)
+        return redirect(drive.url_autorizar(vuelta_url(), session["drive_estado"]))
+
+    @app.get("/admin/drive/vuelta")
+    @admin
+    def drive_vuelta():
+        estado = session.pop("drive_estado", None)
+        if request.args.get("error"):
+            flash("Cancelaste la conexión con Google Drive.", "error")
+        elif not estado or not hmac.compare_digest(estado, request.args.get("state", "")):
+            flash("La conexión venció. Probá de nuevo.", "error")
+        else:
+            try:
+                email = drive.terminar_autorizacion(request.args.get("code", ""), vuelta_url())
+                drive.carpeta()
+                flash(f"Google Drive conectado{' (' + email + ')' if email else ''}. Desde ahora las fotos y videos se guardan ahí.", "ok")
+            except Exception as e:
+                db.session.rollback()
+                flash(str(e) if isinstance(e, drive.DriveError) else "No se pudo conectar con Google Drive.", "error")
+        return redirect(url_for("drive_panel"))
+
+    @app.post("/admin/drive/desconectar")
+    @admin
+    def drive_desconectar():
+        drive.desconectar()
+        flash("Google Drive desconectado. Lo que ya estaba en Drive se sigue viendo hasta que lo vuelvas a conectar; lo nuevo va a la base.", "ok")
+        return redirect(url_for("drive_panel"))
+
+    @app.post("/admin/drive/pasar")
+    @admin
+    def drive_pasar():
+        """Pasa a Drive las fotos que están en la base, de a 25 por vez (para no cortar por tiempo)."""
+        if not drive.conectado():
+            abort(400)
+        pasadas = 0
+        for im in Imagen.query.filter(Imagen.drive_id.is_(None)).order_by(Imagen.id).limit(25).all():
+            try:
+                im.drive_id = drive.subir(im.datos, im.nombre or f"foto-{im.id}.jpg", "image/jpeg", ("Fotos anteriores",))
+                im.datos = b""
+                db.session.commit()
+                pasadas += 1
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Se cortó: {e}", "error")
+                break
+        quedan = Imagen.query.filter(Imagen.drive_id.is_(None)).count()
+        flash(f"Pasé {pasadas} fotos a Drive." + (f" Quedan {quedan}: tocá el botón otra vez." if quedan else " ¡Ya están todas!"), "ok")
+        return redirect(url_for("drive_panel"))
 
 
 # ====================================================================== app
@@ -231,7 +341,8 @@ def crear_app(config=None):
     @app.before_request
     def proteger():
         if request.path.startswith("/admin"):
-            if request.method == "POST" and not hmac.compare_digest(request.form.get("_csrf", ""), session.get("csrf", "x")):
+            enviado = request.headers.get("X-CSRF") or request.form.get("_csrf", "")
+            if request.method == "POST" and not hmac.compare_digest(enviado, session.get("csrf", "x")):
                 abort(400, "Formulario vencido: volvé a cargar la página.")
 
     @app.after_request
@@ -279,7 +390,13 @@ def crear_app(config=None):
     @app.get("/media/<int:iid>")
     def media(iid):
         im = db.session.get(Imagen, iid) or abort(404)
-        return Response(im.datos, mimetype="image/jpeg", headers={"Cache-Control": "public, max-age=31536000, immutable"})
+        datos = im.datos
+        if not datos and im.drive_id:
+            try:
+                datos = drive.bajar(im.drive_id)
+            except Exception:
+                abort(503)
+        return Response(datos, mimetype="image/jpeg", headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
     @app.post("/api/consulta")
     def api_consulta():
@@ -359,10 +476,13 @@ def crear_app(config=None):
         try:
             fecha = date.fromisoformat((f.get("fecha") or "").strip())
         except ValueError:
-            return "Elegí la fecha de la salida."
+            if not f.get("a_confirmar"):
+                return "Elegí la fecha de la salida (o marcá «Fecha a confirmar»)."
+            fecha = s.fecha or hoy()
         if not destino:
             return "Poné el destino."
         s.destino, s.fecha = destino, fecha
+        s.a_confirmar = bool(f.get("a_confirmar"))
         s.empresa = f.get("empresa") if f.get("empresa") in EMPRESAS else "vdv"
         s.lugar = " ".join((f.get("lugar") or "").split())[:120]
         s.dia = " ".join((f.get("dia") or "").split())[:40]
@@ -385,11 +505,9 @@ def crear_app(config=None):
         archivo = request.files.get("foto")
         if archivo and archivo.filename:
             try:
-                im = Imagen(nombre=archivo.filename[:120], datos=reducir_imagen(archivo.stream))
+                im = guardar_imagen(archivo.filename, archivo.stream, ("Salidas", EMPRESAS.get(s.empresa, s.empresa)))
             except Exception:
                 return "No pude leer esa foto. Probá con un JPG o PNG."
-            db.session.add(im)
-            db.session.flush()
             s.img = f"/media/{im.id}"
         else:
             elegida = f.get("foto_web") or ""
@@ -529,8 +647,10 @@ def crear_app(config=None):
             return redirect(url_for("contacto"))
         return render_template("admin/contacto.html", valores=ajustes(), CONTACTO=CONTACTO)
 
-    aula.montar(app, admin, Imagen, reducir_imagen)
-    portada.montar(app, admin, lambda: json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")), imagenes_de_la_web, reducir_imagen, Imagen)
+    aula.montar(app, admin, Imagen, guardar_imagen, borrar_imagen)
+    portada.montar(app, admin, lambda: json.loads((AQUI / "contenido.json").read_text(encoding="utf-8")), imagenes_de_la_web, reducir_imagen, Imagen,
+                   guardar_imagen)
+    montar_drive(app, admin, Imagen)
     @app.route("/admin/respaldo")
     @admin
     def respaldo_pagina():
@@ -553,10 +673,14 @@ def crear_app(config=None):
 def migrar():
     """Agrega columnas nuevas a tablas que ya existían (create_all no toca tablas existentes)."""
     from sqlalchemy import inspect, text
-    cols = {c["name"] for c in inspect(db.engine).get_columns("vdv_salida")}
-    if "cupos" not in cols:
-        db.session.execute(text("ALTER TABLE vdv_salida ADD COLUMN cupos INTEGER"))
-        db.session.commit()
+    nuevas = [("vdv_salida", "cupos", "INTEGER"), ("vdv_salida", "a_confirmar", "BOOLEAN DEFAULT FALSE"),
+              ("vdv_imagen", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "tamano", "BIGINT")]
+    insp = inspect(db.engine)
+    tablas = insp.get_table_names()
+    for tabla, col, tipo in nuevas:
+        if tabla in tablas and col not in {c["name"] for c in insp.get_columns(tabla)}:
+            db.session.execute(text(f"ALTER TABLE {tabla} ADD COLUMN {col} {tipo}"))
+            db.session.commit()
 
 
 def sembrar():

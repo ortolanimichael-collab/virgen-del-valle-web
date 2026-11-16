@@ -12,6 +12,7 @@
   <a href="{{ url_for('reporte') }}" class="{{ 'on' if request.endpoint == 'reporte' }}">Reporte</a>
   <a href="{{ url_for('portada') }}" class="{{ 'on' if request.endpoint == 'portada' }}">Portada</a>
   <a href="{{ url_for('aula_inicio') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('aula_') }}">Escuelas</a>
+  <a href="{{ url_for('drive_panel') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('drive_') }}">Drive</a>
   <a href="{{ url_for('catalogo_pagina') }}" class="{{ 'on' if request.endpoint == 'catalogo_pagina' }}">Catálogo</a>
   <a href="{{ url_for('respaldo_pagina') }}" class="{{ 'on' if request.endpoint == 'respaldo_pagina' }}">Respaldo</a>
   <a href="{{ url_for('contacto') }}" class="{{ 'on' if request.endpoint == 'contacto' }}">Contacto</a>

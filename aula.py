@@ -12,11 +12,18 @@ import json
 import re
 from urllib.parse import parse_qs, urlparse
 
-from flask import Response, abort, flash, jsonify, redirect, render_template, request, url_for
+import secrets
+import time
 
+from flask import Response, abort, flash, jsonify, redirect, render_template, request, stream_with_context, url_for
+
+import drive
 from extensiones import db
 
-MAX_VIDEO_MB = 30
+MAX_VIDEO_MB = 30                    # subida directa a la base (cuando Drive no está conectado)
+MAX_VIDEO_DRIVE_MB = 2048            # con Drive conectado
+PROXY_MAX_MB = 60                    # hasta este tamaño el video se ve con el reproductor de la web; más grande, con el de Drive
+TROZO = 8 * 1024 * 1024
 CLASES = {"foto": "Fotos", "flyer": "Flyers", "video": "Videos"}
 
 ESCUELAS_INICIALES = [
@@ -62,12 +69,19 @@ class AulaMedia(db.Model):
 
 
 class AulaVideo(db.Model):
-    """MP4 subidos. Prefijo vdvx_ a propósito: queda fuera del respaldo .json (sería enorme)."""
+    """Videos subidos: en Google Drive (drive_id) o, si Drive no está conectado, en la base (datos).
+    Prefijo vdvx_ a propósito: queda fuera del respaldo .json (sería enorme)."""
     __tablename__ = "vdvx_aula_video"
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(120))
     tipo = db.Column(db.String(40), default="video/mp4")
-    datos = db.Column(db.LargeBinary, nullable=False)
+    datos = db.Column(db.LargeBinary, nullable=False, default=b"")
+    drive_id = db.Column(db.String(80))
+    tamano = db.Column(db.BigInteger)
+
+    @property
+    def grande(self):
+        return bool(self.drive_id) and (self.tamano or 0) > PROXY_MAX_MB * 1024 * 1024
 
 
 # ---------------------------------------------------------------- videos por link
@@ -106,6 +120,7 @@ def galeria_publica():
     escuelas = Escuela.query.filter_by(activa=True).order_by(Escuela.orden, Escuela.id).all()
     viajes = AulaViaje.query.filter_by(activo=True).order_by(AulaViaje.orden, AulaViaje.id).all()
     medias = AulaMedia.query.order_by(AulaMedia.orden, AulaMedia.id).all()
+    videos_drive = {v.id: v for v in AulaVideo.query.with_entities(AulaVideo.id, AulaVideo.drive_id, AulaVideo.tamano).all()}
     por_viaje = {}
     for m in medias:
         por_viaje.setdefault(m.viaje_id, []).append(m)
@@ -119,7 +134,11 @@ def galeria_publica():
                 flyers.append(f"/media/{m.imagen_id}")
             elif m.clase == "video":
                 if m.video_id:
-                    videos.append({"red": "archivo", "src": f"/media/video/{m.video_id}", "titulo": m.titulo})
+                    vd = videos_drive.get(m.video_id)
+                    if vd and vd.drive_id and (vd.tamano or 0) > PROXY_MAX_MB * 1024 * 1024:
+                        videos.append({"red": "drive", "embed": drive.embed(vd.drive_id), "titulo": m.titulo})
+                    else:
+                        videos.append({"red": "archivo", "src": f"/media/video/{m.video_id}", "titulo": m.titulo})
                 else:
                     info = leer_link(m.url)
                     if info:
@@ -143,7 +162,7 @@ def sembrar_escuelas(Ajuste):
 
 # ---------------------------------------------------------------- panel
 
-def montar(app, admin, Imagen, reducir_imagen):
+def montar(app, admin, Imagen, guardar_imagen, borrar_imagen):
     def txt(v, n):
         return " ".join((v or "").split())[:n]
 
@@ -151,12 +170,18 @@ def montar(app, admin, Imagen, reducir_imagen):
         if m.imagen_id:
             im = db.session.get(Imagen, m.imagen_id)
             if im:
-                db.session.delete(im)
+                borrar_imagen(im)
         if m.video_id:
             vd = db.session.get(AulaVideo, m.video_id)
             if vd:
+                if vd.drive_id and drive.conectado():
+                    drive.borrar(vd.drive_id)
                 db.session.delete(vd)
         db.session.delete(m)
+
+    def carpeta_viaje(v, sub):
+        e = db.session.get(Escuela, v.escuela_id)
+        return ("Aula Viajera", e.nombre if e else "Escuela", f"{v.destino} {v.anio}".strip() + f" (#{v.id})", sub)
 
     def borrar_viaje(v):
         for m in AulaMedia.query.filter_by(viaje_id=v.id).all():
@@ -175,6 +200,13 @@ def montar(app, admin, Imagen, reducir_imagen):
     @app.get("/media/video/<int:vid>")
     def media_video(vid):
         v = db.session.get(AulaVideo, vid) or abort(404)
+        if v.drive_id:
+            try:
+                estado, cab, gen = drive.trozo_video(v.drive_id, v.tamano or 0, request.headers.get("Range", ""))
+            except Exception:
+                abort(503)
+            cab["Cache-Control"] = "public, max-age=86400"
+            return Response(stream_with_context(gen), status=estado, headers=cab, mimetype=v.tipo or "video/mp4", direct_passthrough=True)
         r = Response(v.datos, mimetype=v.tipo or "video/mp4", headers={"Cache-Control": "public, max-age=31536000, immutable"})
         return r.make_conditional(request, accept_ranges=True, complete_length=len(v.datos))
 
@@ -294,7 +326,10 @@ def montar(app, admin, Imagen, reducir_imagen):
         medias = AulaMedia.query.filter_by(viaje_id=v.id).order_by(AulaMedia.orden, AulaMedia.id).all()
         grupos = {k: [m for m in medias if m.clase == k] for k in CLASES}
         links = {m.id: leer_link(m.url) for m in grupos["video"] if m.url}
-        return render_template("admin/aula_viaje.html", v=v, e=e, grupos=grupos, links=links, CLASES=CLASES, MAX_VIDEO_MB=MAX_VIDEO_MB)
+        vids = {x.id: x for x in AulaVideo.query.with_entities(AulaVideo.id, AulaVideo.drive_id, AulaVideo.tamano).filter(
+            AulaVideo.id.in_([m.video_id for m in grupos["video"] if m.video_id] or [0])).all()}
+        return render_template("admin/aula_viaje.html", v=v, e=e, grupos=grupos, links=links, vids=vids, CLASES=CLASES, MAX_VIDEO_MB=MAX_VIDEO_MB,
+                               drive_ok=drive.conectado(), MAX_VIDEO_DRIVE_MB=MAX_VIDEO_DRIVE_MB, PROXY_MAX_MB=PROXY_MAX_MB, TROZO=TROZO)
 
     @app.post("/admin/aula/viaje/<int:vid>/imagen")
     @admin
@@ -308,11 +343,74 @@ def montar(app, admin, Imagen, reducir_imagen):
         if not arch or not arch.filename:
             return jsonify(ok=False, error="Sin archivo"), 400
         try:
-            im = Imagen(nombre=arch.filename[:120], datos=reducir_imagen(arch.stream))
+            im = guardar_imagen(arch.filename, arch.stream, carpeta_viaje(v, "Fotos" if clase == "foto" else "Flyers"))
         except Exception:
+            db.session.rollback()
             return jsonify(ok=False, error=f"No pude leer «{arch.filename}». Probá con JPG o PNG."), 400
-        db.session.add(im)
-        db.session.flush()
         db.session.add(AulaMedia(viaje_id=v.id, clase=clase, imagen_id=im.id, orden=AulaMedia.query.filter_by(viaje_id=v.id, clase=clase).count()))
         db.session.commit()
         return jsonify(ok=True)
+
+    # ------------------------------------------------ videos a Google Drive (en trozos de 8 MB a través de la web)
+
+    @app.post("/admin/aula/viaje/<int:vid>/video/iniciar")
+    @admin
+    def aula_video_iniciar(vid):
+        v = db.session.get(AulaViaje, vid) or abort(404)
+        if not drive.conectado():
+            return jsonify(ok=False, error="Google Drive no está conectado."), 400
+        f = request.form
+        tipo = (f.get("tipo") or "video/mp4")[:60]
+        try:
+            tamano = int(f.get("tamano") or 0)
+        except ValueError:
+            tamano = 0
+        if not tipo.startswith("video/") or tamano <= 0:
+            return jsonify(ok=False, error="Eso no parece un video."), 400
+        if tamano > MAX_VIDEO_DRIVE_MB * 1024 * 1024:
+            return jsonify(ok=False, error=f"El video pesa más de {MAX_VIDEO_DRIVE_MB // 1024} GB."), 400
+        DriveSubidaVieja = drive.DriveSubida
+        DriveSubidaVieja.query.filter(DriveSubidaVieja.creada < time.time() - 86400).delete()
+        nombre = (f.get("nombre") or "video.mp4")[:150]
+        try:
+            url = drive.iniciar_subida(nombre, tipo, tamano, carpeta_viaje(v, "Videos"))
+        except Exception as e:
+            db.session.rollback()
+            return jsonify(ok=False, error=str(e) if isinstance(e, drive.DriveError) else "No pude empezar la subida."), 502
+        clave = secrets.token_urlsafe(24)
+        db.session.add(drive.DriveSubida(clave=clave, url=url, viaje_id=v.id, tamano=tamano, tipo=tipo, nombre=nombre, titulo=" ".join((f.get("titulo") or "").split())[:120]))
+        db.session.commit()
+        return jsonify(ok=True, clave=clave, trozo=TROZO)
+
+    @app.post("/admin/aula/subida/<clave>")
+    @admin
+    def aula_video_trozo(clave):
+        sub = drive.DriveSubida.query.filter_by(clave=clave).first() or abort(404)
+        try:
+            desde = int(request.headers.get("X-Desde", "0"))
+        except ValueError:
+            abort(400)
+        datos = request.get_data(cache=False)
+        if not datos or len(datos) > TROZO or desde + len(datos) > sub.tamano:
+            abort(400)
+        try:
+            listo, info = drive.mandar_trozo(sub.url, desde, datos, sub.tamano)
+        except Exception as e:
+            return jsonify(ok=False, error=str(e)), 502
+        if not listo:
+            return jsonify(ok=True, listo=False, siguiente=info)
+        fid = info.get("id")
+        tamano = int(info.get("size") or sub.tamano)
+        if tamano > PROXY_MAX_MB * 1024 * 1024:
+            try:
+                drive.compartir(fid)
+            except Exception:
+                pass
+        vd = AulaVideo(nombre=sub.nombre[:120], tipo=sub.tipo[:40], datos=b"", drive_id=fid, tamano=tamano)
+        db.session.add(vd)
+        db.session.flush()
+        db.session.add(AulaMedia(viaje_id=sub.viaje_id, clase="video", video_id=vd.id, titulo=sub.titulo,
+                                 orden=AulaMedia.query.filter_by(viaje_id=sub.viaje_id).count()))
+        db.session.delete(sub)
+        db.session.commit()
+        return jsonify(ok=True, listo=True)

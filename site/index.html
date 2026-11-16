@@ -239,7 +239,7 @@
   var fTipo=document.getElementById("fTipo"), fMes=document.getElementById("fMes"), fil=document.getElementById("filtros");
   fTipo.innerHTML=V.tipos.map(function(t){return '<option value="'+t.id+'">'+(t.id==="todos"?"Todos los viajes":t.nombre)+'</option>';}).join("");
   var meses={}, NM=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-  vig.forEach(function(s){meses[s.fecha.slice(0,7)]=1;});
+  vig.forEach(function(s){if(!s.confirmar)meses[s.fecha.slice(0,7)]=1;});
   Object.keys(meses).sort().forEach(function(m){fMes.insertAdjacentHTML("beforeend",'<option value="'+m+'">'+NM[+m.slice(5)-1]+" "+m.slice(0,4)+"</option>");});
   fil.innerHTML=V.tipos.map(function(t){return '<button class="chip'+(t.id==="todos"?" on":"")+'" data-t="'+t.id+'">'+t.nombre+'</button>';}).join("");
   function pintar(){
@@ -250,7 +250,7 @@
     else if(q.region==="america") l=l.filter(function(s){return s.region==="america"||s.region==="brasil";});
     else if(q.region) l=l.filter(function(s){return s.region===q.region;});
     var ft=document.getElementById("ftxt");ft.hidden=!(q.texto||q.region);ft.querySelector("b").textContent=q.nombre||q.region;
-    if(q.mes) l=l.filter(function(s){return s.fecha.slice(0,7)===q.mes;});
+    if(q.mes) l=l.filter(function(s){return !s.confirmar&&s.fecha.slice(0,7)===q.mes;});
     A.salidas(document.getElementById("salidas"),l,function(s){
       var sold=s.estado==="agotado";
       return '<article class="card rv'+(sold?" sold":"")+'"><a class="ph" href="viaje.html?id='+s.id+'" tabindex="-1" aria-hidden="true"><img src="'+s.img+'" alt="" loading="lazy">'+A.badge(s)+'<span class="date">'+V.esc(s.dia)+'</span></a>'+

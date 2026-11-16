@@ -10,7 +10,9 @@
   </div>
   <div class="campo"><label>Destino (el título)</label><input name="destino" value="{{ s.destino or '' }}" required maxlength="120" style="width:100%" placeholder="Ej: Termas de San Luis y La Carolina"></div>
   <div class="g2">
-    <div class="campo"><label>Fecha de salida</label><input type="date" name="fecha" value="{{ s.fecha.isoformat() }}" required style="width:100%"><div class="small muted">Cuando pasa esta fecha, la salida deja de verse sola.</div></div>
+    <div class="campo"><label>Fecha de salida</label><input type="date" name="fecha" id="fFecha" value="{{ s.fecha.isoformat() if s.fecha else '' }}" {{ '' if s.a_confirmar else 'required' }} style="width:100%">
+      <label class="small" style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" name="a_confirmar" value="1" id="fConf" {{ 'checked' if s.a_confirmar }} style="width:auto"> Fecha a confirmar</label>
+      <div class="small muted">Cuando pasa la fecha, la salida deja de verse sola. Con «Fecha a confirmar» se muestra siempre, con el texto «Fecha a confirmar».</div></div>
     <div class="campo"><label>Cómo se muestra la fecha (opcional)</label><input name="dia" value="{{ s.dia or '' }}" maxlength="40" style="width:100%" placeholder="Ej: 8 al 11 nov. Vacío = se arma con la fecha"></div>
   </div>
   <div class="g2">
@@ -50,4 +52,9 @@
   <form method="post" action="{{ url_for('salida_borrar', sid=s.id) }}" onsubmit="return confirm('¿Borrar esta salida para siempre?')"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn peli">Borrar</button></form>
 </div>
 {% endif %}
+{% endblock %}
+{% block js %}
+<script>
+(function(){var c=document.getElementById("fConf"),f=document.getElementById("fFecha");if(!c)return;function a(){f.required=!c.checked;f.style.opacity=c.checked?.5:1;}c.addEventListener("change",a);a();})();
+</script>
 {% endblock %}

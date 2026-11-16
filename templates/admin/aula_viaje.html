@@ -59,20 +59,34 @@
       <div class="campo"><input name="titulo" maxlength="120" placeholder="Título (opcional)" style="width:100%"></div>
       <button class="btn chico" name="accion" value="link">Agregar video</button>
     </form>
+    {% if drive_ok %}
+    <div class="card" style="background:#fbf7f9" id="subirVideo">
+      <b>Subir un video</b> <span class="small muted">(va a Google Drive)</span>
+      <p class="small muted" style="margin:4px 0 8px">MP4 de hasta {{ MAX_VIDEO_DRIVE_MB // 1024 }} GB. Hasta {{ PROXY_MAX_MB }} MB se ve con el reproductor de la web; los más pesados, con el reproductor de Drive (igual se ven dentro de la web).</p>
+      <div class="campo"><input type="file" accept="video/*" id="vArch"></div>
+      <div class="campo"><input id="vTit" maxlength="120" placeholder="Título (opcional)" style="width:100%"></div>
+      <button type="button" class="btn chico" id="vBtn">Subir video</button>
+      <div class="small" id="vEst" style="margin-top:8px"></div>
+      <div style="height:8px;background:#eee;border-radius:9px;overflow:hidden;margin-top:6px" hidden id="vBarC"><div id="vBar" style="height:100%;width:0;background:var(--plum,#7e2c52);transition:width .3s"></div></div>
+    </div>
+    {% else %}
     <form method="post" enctype="multipart/form-data" class="card" style="background:#fbf7f9" onsubmit="this.querySelector('button').textContent='Subiendo… no cierres la página'">
       <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="video">
       <b>Subir un video corto</b>
-      <p class="small muted" style="margin:4px 0 8px">MP4 de hasta {{ MAX_VIDEO_MB }} MB (un reel o un video corto). Para videos más largos, usá un link de YouTube.</p>
+      <p class="small muted" style="margin:4px 0 8px">MP4 de hasta {{ MAX_VIDEO_MB }} MB. <a href="{{ url_for('drive_panel') }}">Conectá Google Drive</a> para subir videos más largos.</p>
       <div class="campo"><input type="file" name="archivo" accept="video/mp4,video/*" required></div>
       <div class="campo"><input name="titulo" maxlength="120" placeholder="Título (opcional)" style="width:100%"></div>
       <button class="btn chico" name="accion" value="video">Subir video</button>
     </form>
+    {% endif %}
   </div>
   <form method="post" class="lista" style="margin-top:12px">
     <input type="hidden" name="_csrf" value="{{ csrf_token() }}"><input type="hidden" name="volver" value="video">
     {% for m in grupos['video'] %}{% set l = links.get(m.id) %}
     <div class="item" style="grid-template-columns:120px 1fr auto">
-      {% if m.video_id %}<video src="/media/video/{{ m.video_id }}" preload="metadata" muted style="width:120px;height:68px;object-fit:cover;border-radius:10px;background:#000"></video>
+      {% set vd = vids.get(m.video_id) %}
+      {% if m.video_id and vd and vd.drive_id and (vd.tamano or 0) > PROXY_MAX_MB * 1048576 %}<span style="width:120px;height:68px;border-radius:10px;background:#2a1220;color:#fff;display:grid;place-items:center" class="small">Drive · {{ ((vd.tamano or 0) / 1048576)|round|int }} MB</span>
+      {% elif m.video_id %}<video src="/media/video/{{ m.video_id }}" preload="metadata" muted style="width:120px;height:68px;object-fit:cover;border-radius:10px;background:#000"></video>
       {% elif l and l.thumb %}<img src="{{ l.thumb }}" alt="" style="width:120px;height:68px">
       {% else %}<span style="width:120px;height:68px;border-radius:10px;background:#2a1220;color:#fff;display:grid;place-items:center" class="small">{{ (l.red if l else 'link')|capitalize }}</span>{% endif %}
       <div><h3>{{ m.titulo or ('Video subido' if m.video_id else 'Video de ' ~ ((l.red if l else 'link')|capitalize)) }}</h3>
@@ -127,6 +141,31 @@
       if(mal.length) alert("No se pudieron subir: "+mal.join(", "));
       location.hash=box.dataset.clase; location.reload();
     });
+  });
+})();
+
+/* Video a Google Drive: se manda en trozos de 8 MB, con barra de progreso. Si se corta, reintenta el trozo. */
+(function(){
+  var btn=document.getElementById("vBtn"); if(!btn) return;
+  var csrf={{ csrf_token()|tojson }}, est=document.getElementById("vEst"), bar=document.getElementById("vBar");
+  function post(url,body,hdr){var h=Object.assign({"X-CSRF":csrf},hdr||{});return fetch(url,{method:"POST",body:body,headers:h,credentials:"same-origin"}).then(function(r){return r.json().catch(function(){return {ok:false,error:"Error "+r.status};});});}
+  btn.addEventListener("click",async function(){
+    var f=document.getElementById("vArch").files[0]; if(!f){est.textContent="Elegí un video.";return;}
+    btn.disabled=true; document.getElementById("vBarC").hidden=false; est.textContent="Preparando…";
+    var fd=new FormData(); fd.append("nombre",f.name); fd.append("tipo",f.type||"video/mp4"); fd.append("tamano",f.size); fd.append("titulo",document.getElementById("vTit").value);
+    var ini=await post({{ url_for('aula_video_iniciar', vid=v.id)|tojson }},fd);
+    if(!ini.ok){est.textContent=ini.error||"No se pudo empezar.";btn.disabled=false;return;}
+    var desde=0, intentos=0;
+    while(true){
+      var trozo=f.slice(desde,desde+ini.trozo), r;
+      try{ r=await post("/admin/aula/subida/"+ini.clave, trozo, {"X-Desde":String(desde),"Content-Type":"application/octet-stream"}); }catch(e){ r={ok:false,error:"Sin conexión"}; }
+      if(!r.ok){ if(++intentos<=5){est.textContent="Reintentando… ("+intentos+")";await new Promise(function(ok){setTimeout(ok,3000*intentos);});continue;}
+        est.textContent="Se cortó la subida: "+(r.error||"")+". Probá de nuevo.";btn.disabled=false;return; }
+      intentos=0;
+      if(r.listo){bar.style.width="100%";est.textContent="¡Listo! Video subido.";setTimeout(function(){location.hash="video";location.reload();},700);return;}
+      desde=r.siguiente; var p=Math.round(desde*100/f.size); bar.style.width=p+"%";
+      est.textContent="Subiendo "+p+"% ("+Math.round(desde/1048576)+" de "+Math.round(f.size/1048576)+" MB)… no cierres la página";
+    }
   });
 })();
 </script>

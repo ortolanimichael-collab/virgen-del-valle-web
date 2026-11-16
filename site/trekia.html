@@ -154,11 +154,11 @@
   document.getElementById("y").textContent=new Date().getFullYear();
   document.getElementById("nSal").textContent=todas.length;
   var NM=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"], lug={}, mes={};
-  vig.forEach(function(s){lug[s.lugar]=1;mes[s.fecha.slice(0,7)]=1;});
+  vig.forEach(function(s){lug[s.lugar]=1;if(!s.confirmar)mes[s.fecha.slice(0,7)]=1;});
   Object.keys(lug).forEach(function(l){document.getElementById("fLugar").insertAdjacentHTML("beforeend",'<option>'+V.esc(l)+'</option>');});
   Object.keys(mes).sort().forEach(function(m){document.getElementById("fMes").insertAdjacentHTML("beforeend",'<option value="'+m+'">'+NM[+m.slice(5)-1]+" "+m.slice(0,4)+'</option>');});
   function pintar(){
-    var l=vig.filter(function(s){return (!dif||s.dificultad===dif)&&(!q.lugar||s.lugar===q.lugar)&&(!q.mes||s.fecha.slice(0,7)===q.mes);});
+    var l=vig.filter(function(s){return (!dif||s.dificultad===dif)&&(!q.lugar||s.lugar===q.lugar)&&(!q.mes||(!s.confirmar&&s.fecha.slice(0,7)===q.mes));});
     A.salidas(document.getElementById("grid"),l,function(s){
       return '<a class="tk rv'+(s.estado==="agotado"?" sold":"")+'" href="#" data-wa="Hola! Quiero consultar por la salida de Trekia turismo aventura a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')"><img src="'+s.img+'" alt="" loading="lazy"><div class="top"><span>'+V.esc(s.dia)+'</span>'+(V.estadoTxt[s.estado]?'<span class="badge '+s.estado+'">'+V.estadoTxt[s.estado]+'</span>':'')+'</div><div class="bot"><h3>'+V.esc(s.destino)+'</h3><div class="m"><span>'+V.esc(s.lugar)+'<br>'+(s.dificultad?'Dificultad '+V.esc(s.dificultad.toLowerCase()):'')+'</span><span class="pr">'+V.esc(s.precio)+'</span></div></div></a>';
     });

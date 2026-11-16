@@ -30,7 +30,7 @@
   var V=VDV, id=new URLSearchParams(location.search).get("id"), s=V.porId(id), m=document.getElementById("main");
   if(!s){m.innerHTML='<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><h1 class="h2">No encontramos ese viaje</h1><p class="lead">Puede que la salida ya haya pasado. Escribinos y te contamos qué hay disponible.</p><p style="margin-top:18px"><a class="btn" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos por WhatsApp</a></p></div></section>';VDVapp.reveal();document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa)});return;}
   document.title=s.destino+" — Virgen del Valle";
-  var vencida=V.diasHasta(s.fecha)<0, sold=s.estado==="agotado"||vencida, dias=V.diasHasta(s.fecha);
+  var vencida=!s.confirmar&&V.diasHasta(s.fecha)<0, sold=s.estado==="agotado"||vencida, dias=s.confirmar?-1:V.diasHasta(s.fecha);
   var estado=vencida?"Salida finalizada":(V.estadoTxt[s.estado]||"Cupos disponibles");
   var msg='Hola! Quiero consultar por la salida a '+s.destino+' ('+s.dia+')';
   m.innerHTML=

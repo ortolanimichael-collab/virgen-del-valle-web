@@ -49,7 +49,7 @@ def armar(Salida, hoy):
     """(filas, excluidas): lo que va al catálogo y lo que quedó afuera con el motivo."""
     base = base_https()
     filas, afuera = [], []
-    for s in Salida.query.filter(Salida.activa.is_(True), Salida.fecha >= hoy()).order_by(Salida.fecha, Salida.id).all():
+    for s in Salida.query.filter(Salida.activa.is_(True), (Salida.fecha >= hoy()) | Salida.a_confirmar.is_(True)).order_by(Salida.fecha, Salida.id).all():
         p = precio_meta(s.precio)
         if not p:
             afuera.append((s, "no tiene un precio con número (dice «%s»)" % (s.precio or "vacío")))
@@ -57,7 +57,7 @@ def armar(Salida, hoy):
         img = s.img or "img/sierras.jpg"
         img = img if img.startswith("http") else base + ("" if img.startswith("/") else "/") + img
         desc = " · ".join(x for x in [s.detalle, ("Incluye: " + ", ".join(s.lista_incluye)) if s.lista_incluye else "", s.nota] if x) or s.destino
-        filas.append(dict(id=s.slug, title=f"{s.destino} · {s.dia or ''}".strip(" ·")[:150], description=desc[:5000],
+        filas.append(dict(id=s.slug, title=f"{s.destino} · {s.dia_txt}".strip(" ·")[:150], description=desc[:5000],
                           availability="out of stock" if s.estado == "agotado" else "in stock", condition="new", price=p,
                           link=f"{base}/viaje.html?id={s.slug}", image_link=img, brand=MARCAS.get(s.empresa, "Virgen del Valle")))
     return filas, afuera
