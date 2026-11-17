@@ -21,6 +21,8 @@
   </div>
   <div class="campo"><label>Descripción corta</label><input name="detalle" value="{{ s.detalle or '' }}" maxlength="300" style="width:100%" placeholder="Ej: 2 días y 1 noche en hotel 3 estrellas con media pensión"></div>
   <div class="campo"><label>Qué incluye (uno por línea)</label><textarea name="incluye" placeholder="Bus semi cama&#10;Hotel&#10;Media pensión">{{ s.incluye or '' }}</textarea></div>
+  <div class="campo"><label>Ficha del viaje (opcional, un dato por línea: «Título: dato»)</label><textarea name="ficha" rows="6" placeholder="Transporte: Bus mix con coordinador&#10;Duración: 6 días / 4 noches&#10;Hotel: Cadi Palace&#10;Régimen: Pensión completa&#10;Recorrido: Roma, Nápoles, Pompeya…">{{ s.ficha or '' }}</textarea>
+    <div class="small muted">Se muestra en la página del viaje como «Detalles del viaje».</div></div>
   <div class="g2">
     <div class="campo"><label>Precio (tal cual se muestra)</label><input name="precio" value="{{ s.precio or '' }}" maxlength="40" style="width:100%" placeholder="$255.000 · USD 889 · Consultá"></div>
     <div class="campo"><label>Aclaración del precio</label><input name="nota" value="{{ s.nota or '' }}" maxlength="80" style="width:100%" placeholder="3 cuotas sin interés · por persona · desde, base doble"></div>

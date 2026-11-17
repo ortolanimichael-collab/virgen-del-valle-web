@@ -254,3 +254,10 @@ footer.pie img{height:70px;width:auto;background:#fff;border-radius:14px;padding
   .sl-a{top:150px;transform:none;width:40px;height:40px;font-size:24px;display:none}
   .slides .dots{bottom:12px}
 }
+/* Ficha del viaje (página de cada salida) */
+.ficha{display:grid;gap:0;margin:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+.ficha div{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:14px;padding:12px 16px;border-top:1px solid var(--line)}
+.ficha div:first-child{border-top:0}
+.ficha dt{font-weight:800;color:var(--plum-d);font-size:14px}
+.ficha dd{margin:0;font-size:15px;line-height:1.45}
+@media (max-width:560px){.ficha div{grid-template-columns:1fr;gap:2px}}

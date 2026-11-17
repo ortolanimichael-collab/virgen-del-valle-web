@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block titulo %}Importar paquetes{% endblock %}
+{% block c %}
+<p class="small"><a href="{{ url_for('salidas') }}">← Volver a las salidas</a></p>
+<h1>Importar paquetes</h1>
+<p class="muted small">Subí el archivo <b>.json</b> con los paquetes de la temporada. Cada paquete se carga como una salida, con su precio,
+qué incluye y la ficha del viaje (hotel, régimen, salida desde, recorrido…). Si un paquete ya está cargado (misma empresa, destino y fecha),
+se actualiza en vez de duplicarse, así que podés volver a subir el archivo corregido las veces que haga falta.</p>
+<form method="post" enctype="multipart/form-data" class="card" onsubmit="this.querySelector('button').textContent='Importando…'">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="campo"><label>Archivo de paquetes (.json)</label><input type="file" name="archivo" accept=".json,application/json" required></div>
+  <label class="small" style="display:flex;gap:6px;align-items:center;margin:6px 0 14px"><input type="checkbox" name="ocultar_ejemplos" value="1" checked style="width:auto">
+    Ocultar las salidas de ejemplo que estos paquetes reemplazan (Mar del Plata, Las Grutas, Puerto Madryn, Bariloche, El Calafate, crucero por Brasil, Caribe brasileño, Europa clásica, y las viejas de Chárter a Buzios y Porto de Galinhas)</label>
+  <button class="btn">Importar</button>
+</form>
+<p class="small muted" style="margin-top:12px">Los paquetes que en la planilla estaban «Revisar con Miriam» entran ocultos: revisalos y tocá «Mostrar» cuando estén listos.
+Las fotos son de la web; después podés cambiar cada una desde «Editar».</p>
+{% endblock %}

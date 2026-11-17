@@ -36,8 +36,9 @@
   m.innerHTML=
   '<section class="vj-hero"><img src="'+s.img+'" alt=""><div class="wrap"><span class="kicker" style="color:#F1779E">'+V.esc(s.lugar)+' · '+V.esc(s.dia)+'</span><h1>'+V.esc(s.destino)+'</h1></div></section>'+
   '<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><div class="vj">'+
-  '<div class="rv"><span class="kicker">El viaje</span><h2 class="h2">'+V.esc(s.destino)+'</h2><p class="lead" style="max-width:60ch">'+V.esc(s.detalle)+'.</p>'+
+  '<div class="rv"><span class="kicker">El viaje</span><h2 class="h2">'+V.esc(s.destino)+'</h2><p class="lead" style="max-width:60ch">'+V.esc((s.detalle||'').replace(/\.$/,''))+'.</p>'+
   '<h3 style="margin:30px 0 12px;font-weight:800">Qué incluye</h3><div class="tags" style="gap:10px">'+s.incluye.map(function(i){return '<span style="font-size:14px;padding:7px 14px">'+V.esc(i)+'</span>'}).join('')+'</div>'+
+  ((s.ficha&&s.ficha.length)?'<h3 style="margin:30px 0 12px;font-weight:800">Detalles del viaje</h3><dl class="ficha">'+s.ficha.map(function(f){return '<div><dt>'+V.esc(f[0])+'</dt><dd>'+V.esc(f[1])+'</dd></div>'}).join('')+'</dl>':'')+
   '<h3 style="margin:30px 0 12px;font-weight:800">Cómo reservar</h3><p class="lead">Escribinos por WhatsApp con el viaje elegido y la cantidad de pasajeros. Te confirmamos cupos, formas de pago y seña. La misma persona te acompaña hasta la salida.</p></div>'+
   '<aside class="box rv"><span class="badge '+s.estado+'" style="position:static;display:inline-block;margin-bottom:12px">'+estado+'</span>'+
   '<div class="pr">'+V.esc(s.precio)+'</div><p class="price"><small>'+V.esc(s.nota)+'</small></p>'+

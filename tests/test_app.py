@@ -555,3 +555,18 @@ def test_drive_fotos_y_videos(cli, monkeypatch):
     monkeypatch.setattr(A.drive, "trozo_video", lambda fid, tamano, rango: (206, {"Content-Range": "bytes 0-4/25", "Content-Length": "5", "Accept-Ranges": "bytes"}, iter([b"xxxxx"])))
     r = c.get(v["videos"][0]["src"], headers={"Range": "bytes=0-"})
     assert r.status_code == 206 and r.data == b"xxxxx"
+
+
+def test_importar_paquetes(cli):
+    ap, c = cli
+    entrar(c)
+    tok = c.get("/admin/salidas/importar").get_data(as_text=True).split('name="_csrf" value="', 1)[1].split('"', 1)[0]
+    arch = json.dumps({"salidas": [
+        {"empresa": "vdv", "destino": "Pipa · Brasil", "fecha": "2030-01-02", "dia": "2 ene", "precio": "USD 1.689", "nota": "+ USD 182 imp.",
+         "incluye": ["Aéreo", "Hotel"], "ficha": [["Hotel", "Liiv Nature"], ["Régimen", "Desayuno"]], "region": "brasil", "tipo": ["aereo"]},
+        {"destino": "", "fecha": "mal"}]}).encode()
+    for vez in range(2):
+        c.post("/admin/salidas/importar", data={"_csrf": tok, "archivo": (io.BytesIO(arch), "p.json")}, content_type="multipart/form-data")
+    with ap.app_context():
+        q = A.Salida.query.filter_by(destino="Pipa · Brasil").all()
+        assert len(q) == 1 and q[0].lista_ficha == [["Hotel", "Liiv Nature"], ["Régimen", "Desayuno"]] and q[0].tipos == "aereo"

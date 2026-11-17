@@ -17,7 +17,7 @@
 {% endmacro %}
 {% block c %}
 <div class="row" style="justify-content:space-between"><h1>Salidas</h1>
-  <div class="row"><a class="btn" href="{{ url_for('salida_nueva') }}">+ Nueva salida</a><a class="btn sec" href="{{ url_for('salida_nueva', empresa='trekia') }}">+ Salida de Trekia</a></div></div>
+  <div class="row"><a class="btn" href="{{ url_for('salida_nueva') }}">+ Nueva salida</a><a class="btn sec" href="{{ url_for('salida_nueva', empresa='trekia') }}">+ Salida de Trekia</a><a class="btn sec" href="{{ url_for('salidas_importar') }}">⇪ Importar paquetes</a></div></div>
 {% if nuevas %}<div class="flash ok">Tenés <b>{{ nuevas }}</b> consulta{{ 's' if nuevas != 1 }} nueva{{ 's' if nuevas != 1 }}. <a href="{{ url_for('consultas', filtro='nueva') }}">Verlas</a></div>{% endif %}
 <p class="muted small">Lo que cargues acá aparece solo en la web. Las salidas con fecha pasada dejan de mostrarse solas (acá quedan abajo, por si querés copiarlas para la próxima).</p>
 <div class="lista">{% for s in proximas %}{{ tarjeta(s) }}{% else %}<div class="card muted">No hay salidas próximas. Cargá la primera con «Nueva salida».</div>{% endfor %}</div>

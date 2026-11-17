@@ -81,6 +81,7 @@ class Salida(db.Model):
     activa = db.Column(db.Boolean, nullable=False, default=True)
     cupos = db.Column(db.Integer)                                                 # lugares totales (vacío = sin control de cupos)
     a_confirmar = db.Column(db.Boolean, default=False)                            # «Fecha a confirmar»: se muestra aunque la fecha haya pasado
+    ficha = db.Column(db.Text, default="")                                        # datos del viaje, uno por línea: «Hotel: Cadi Palace»
     creada = db.Column(db.DateTime, default=ahora)
     actualizada = db.Column(db.DateTime, default=ahora, onupdate=ahora)
 
@@ -114,7 +115,18 @@ class Salida(db.Model):
             d["destacado"] = True
         if self.a_confirmar:
             d["confirmar"] = True
+        if self.lista_ficha:
+            d["ficha"] = self.lista_ficha
         return d
+
+    @property
+    def lista_ficha(self):
+        filas = []
+        for linea in (self.ficha or "").splitlines():
+            k, sep, v = linea.partition(":")
+            if sep and k.strip() and v.strip():
+                filas.append([k.strip(), v.strip()])
+        return filas
 
 
 class Imagen(db.Model):
@@ -488,6 +500,7 @@ def crear_app(config=None):
         s.dia = " ".join((f.get("dia") or "").split())[:40]
         s.detalle = " ".join((f.get("detalle") or "").split())[:300]
         s.incluye = "\n".join(x.strip()[:80] for x in (f.get("incluye") or "").splitlines() if x.strip())[:800]
+        s.ficha = "\n".join(x.strip()[:400] for x in (f.get("ficha") or "").splitlines() if ":" in x)[:4000]
         s.precio = " ".join((f.get("precio") or "").split())[:40] or "Consultá"
         s.nota = " ".join((f.get("nota") or "").split())[:80]
         s.region = f.get("region") if f.get("region") in REGIONES else "argentina"
@@ -534,6 +547,83 @@ def crear_app(config=None):
                 flash(f"Salida «{s.destino}» cargada. Ya se ve en la web.", "ok")
                 return redirect(url_for("salidas"))
         return render_template("admin/salida_form.html", s=s, nueva=True, fotos=imagenes_de_la_web(), DIFICULTADES=DIFICULTADES)
+
+    @app.route("/admin/salidas/importar", methods=["GET", "POST"])
+    @admin
+    def salidas_importar():
+        """Carga muchos paquetes de una vez desde un archivo .json (el que se arma a partir de la planilla).
+        Si un paquete ya existe (misma empresa, destino y fecha) lo actualiza en vez de duplicarlo."""
+        if request.method == "GET":
+            return render_template("admin/importar.html")
+        arch = request.files.get("archivo")
+        if not arch or not arch.filename:
+            flash("Elegí el archivo .json.", "error")
+            return redirect(url_for("salidas_importar"))
+        try:
+            datos = json.loads(arch.read().decode("utf-8-sig"))
+            lista = datos["salidas"] if isinstance(datos, dict) else datos
+            assert isinstance(lista, list)
+        except Exception:
+            flash("Ese archivo no es un paquete de salidas válido (.json).", "error")
+            return redirect(url_for("salidas_importar"))
+
+        def t(v, n):
+            return " ".join(str(v or "").split())[:n]
+
+        nuevas = actualizadas = 0
+        errores = []
+        for i, x in enumerate(lista, 1):
+            try:
+                destino = t(x.get("destino"), 120)
+                fecha = date.fromisoformat(str(x.get("fecha")))
+                empresa = x.get("empresa") if x.get("empresa") in EMPRESAS else "vdv"
+                if not destino:
+                    raise ValueError("sin destino")
+            except Exception:
+                errores.append(f"fila {i}")
+                continue
+            s = Salida.query.filter_by(empresa=empresa, destino=destino, fecha=fecha).first()
+            if s is None:
+                s = Salida(empresa=empresa, destino=destino, fecha=fecha, slug=slug_unico(destino, fecha))
+                db.session.add(s)
+                nuevas += 1
+            else:
+                actualizadas += 1
+            tipos = [k for k in (x.get("tipo") or []) if k in TIPOS] or ["grupal"]
+            s.lugar, s.dia, s.detalle = t(x.get("lugar"), 120), t(x.get("dia"), 40), t(x.get("detalle"), 300)
+            s.incluye = "\n".join(t(k, 80) for k in (x.get("incluye") or []) if t(k, 80))[:800]
+            s.ficha = "\n".join(f"{t(k, 60)}: {t(v, 400)}" for k, v in (x.get("ficha") or []) if t(k, 60) and t(v, 400))[:4000]
+            s.precio, s.nota = t(x.get("precio"), 40) or "Consultá", t(x.get("nota"), 80)
+            s.img = t(x.get("img"), 200) or s.img or "img/sierras.jpg"
+            s.region = x.get("region") if x.get("region") in REGIONES else "argentina"
+            s.tipos = ",".join(dict.fromkeys(tipos))
+            s.estado = x.get("estado") if x.get("estado") in ESTADOS else "disponible"
+            s.a_confirmar = bool(x.get("a_confirmar"))
+            s.activa = bool(x.get("activa", True))
+            s.destacado = bool(x.get("destacado"))
+            db.session.flush()
+        ocultas = 0
+        if request.form.get("ocultar_ejemplos"):
+            # Solo las salidas de ejemplo que este archivo reemplaza con datos reales (las demás quedan como están)
+            reemplazadas = {"Mar del Plata", "Las Grutas", "Puerto Madryn y Península Valdés", "Bariloche y Circuito Chico",
+                            "El Calafate y Glaciar Perito Moreno", "Crucero por Brasil", "Brasil: el Caribe brasileño", "Europa clásica"}
+            for s in Salida.query.filter(Salida.activa.is_(True), Salida.empresa == "vdv", Salida.precio == "Consultá",
+                                         Salida.destino.in_(reemplazadas), Salida.fecha >= date(2027, 1, 1)).all():
+                s.activa = False
+                ocultas += 1
+            # Salidas originales de la web que también quedan reemplazadas (mismo producto, datos viejos)
+            for destino, fecha in (("Charter a Buzios", date(2027, 1, 3)), ("Porto de Galinhas", date(2027, 2, 6))):
+                for s in Salida.query.filter_by(empresa="vdv", destino=destino, fecha=fecha, activa=True).all():
+                    s.activa = False
+                    ocultas += 1
+        db.session.commit()
+        msg = f"Listo: {nuevas} salidas nuevas y {actualizadas} actualizadas."
+        if ocultas:
+            msg += f" Oculté {ocultas} salidas de ejemplo (siguen en el panel, por si querés volver a mostrarlas)."
+        if errores:
+            msg += f" No pude leer: {', '.join(errores)}."
+        flash(msg, "ok" if not errores else "error")
+        return redirect(url_for("salidas"))
 
     @app.route("/admin/salidas/<int:sid>", methods=["GET", "POST"])
     @admin
@@ -673,7 +763,7 @@ def crear_app(config=None):
 def migrar():
     """Agrega columnas nuevas a tablas que ya existían (create_all no toca tablas existentes)."""
     from sqlalchemy import inspect, text
-    nuevas = [("vdv_salida", "cupos", "INTEGER"), ("vdv_salida", "a_confirmar", "BOOLEAN DEFAULT FALSE"),
+    nuevas = [("vdv_salida", "cupos", "INTEGER"), ("vdv_salida", "a_confirmar", "BOOLEAN DEFAULT FALSE"), ("vdv_salida", "ficha", "TEXT DEFAULT ''"),
               ("vdv_imagen", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "tamano", "BIGINT")]
     insp = inspect(db.engine)
     tablas = insp.get_table_names()
