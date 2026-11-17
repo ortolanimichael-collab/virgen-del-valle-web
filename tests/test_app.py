@@ -107,7 +107,7 @@ def test_las_vencidas_se_ocultan_solas_pero_quedan_en_el_panel(cli):
     assert "Salida Vieja" in h and "Vencida" in h
     with ap.app_context():
         slug = A.Salida.query.filter_by(destino="Salida Vieja").one().slug
-    assert c.get(f"/viaje.html?id={slug}").status_code == 200 and "og:title" not in c.get(f"/viaje.html?id={slug}").get_data(as_text=True)
+    assert c.get(f"/viaje.html?id={slug}").status_code == 200 and "compartir-vdv.jpg" in c.get(f"/viaje.html?id={slug}").get_data(as_text=True)
 
 
 def test_la_pagina_del_viaje_sale_con_foto_y_titulo_para_compartir(cli):
@@ -116,8 +116,8 @@ def test_la_pagina_del_viaje_sale_con_foto_y_titulo_para_compartir(cli):
         s = A.Salida.query.filter(A.Salida.fecha >= A.hoy()).order_by(A.Salida.fecha).first()
         slug, destino = s.slug, s.destino
     h = c.get(f"/viaje.html?id={slug}").get_data(as_text=True)
-    assert 'property="og:title"' in h and destino in h and 'property="og:image" content="http://localhost/img/' in h
-    assert 'property="og:title"' not in c.get("/viaje.html?id=inexistente").get_data(as_text=True)
+    assert 'property="og:title"' in h and destino in h and 'property="og:image" content="http://localhost/img/' in h and "compartir-vdv.jpg" not in h
+    assert "compartir-vdv.jpg" in c.get("/viaje.html?id=inexistente").get_data(as_text=True)          # sin viaje: la imagen general de la agencia
 
 
 def test_foto_propia_se_reduce_y_se_sirve(cli):

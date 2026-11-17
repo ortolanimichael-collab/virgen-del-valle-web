@@ -391,11 +391,15 @@ def crear_app(config=None):
         html = (SITE / "viaje.html").read_text(encoding="utf-8")
         s = Salida.query.filter_by(slug=request.args.get("id", ""), activa=True).first()
         if s is not None and not s.vencida:
+            base = os.environ.get("PUBLIC_URL", "").rstrip("/") or request.url_root.rstrip("/")
+            if base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
+                base = "https://" + base[7:]
             img = s.img if s.img.startswith(("http", "/")) else "/" + s.img
-            og = (f'<meta property="og:type" content="website"><meta property="og:title" content="{escape(s.destino)} · {escape(s.dia or dia_corto(s.fecha))} · {escape(s.precio or "")}">'
+            og = (f'<meta property="og:type" content="website"><meta property="og:title" content="{escape(s.destino)} · {escape(s.dia_txt)} · {escape(s.precio or "")}">'
                   f'<meta property="og:description" content="{escape(s.detalle or "Salida con Virgen del Valle")}">'
-                  f'<meta property="og:image" content="{escape(request.url_root.rstrip("/") + img)}"><meta property="og:url" content="{escape(request.url)}">'
+                  f'<meta property="og:image" content="{escape(img if img.startswith("http") else base + img)}"><meta property="og:url" content="{escape(base + "/viaje.html?id=" + s.slug)}">'
                   f'<meta name="twitter:card" content="summary_large_image">')
+            html = re.sub(r"<!--og-->.*?<!--/og-->", "", html, count=1, flags=re.S)
             html = html.replace("</head>", og + "</head>", 1)
         return Response(html, mimetype="text/html", headers={"Cache-Control": "no-cache"})
 
