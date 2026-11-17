@@ -20,7 +20,7 @@
 (function(){
 var S={{ salidas|tojson }}, C={{ {'wa': c.whatsapp, 'tel': c.telefono, 'legajo': c.legajo, 'ig': c.instagram}|tojson }};
 var $=function(i){return document.getElementById(i)}, cv=$('cv'), ctx=cv.getContext('2d');
-var T={vdv:{a:'#A53F6E',b:'#F1779E',n:'#2A1220',logo:'/img/logo-vdv.jpg',nombre:'Virgen del Valle'},trekia:{a:'#6B1D35',b:'#EE8A24',n:'#2b0d17',logo:'/img/logo-trekia-c.jpg',nombre:'Trekia'}};
+var T={vdv:{a:'#A53F6E',b:'#F1779E',n:'#2A1220',logo:'/img/logo-vdv-blanco.png',sinFondo:true,nombre:'Virgen del Valle'},trekia:{a:'#6B1D35',b:'#EE8A24',n:'#2b0d17',logo:'/img/logo-trekia-c.jpg',nombre:'Trekia'}};
 var cache={}; function img(src){return cache[src]||(cache[src]=new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=src}))}
 function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
 function lineas(t,max){var w=t.split(' '),l='',ls=[];w.forEach(function(p){var p2=l?l+' '+p:p;if(ctx.measureText(p2).width>max&&l){ls.push(l);l=p}else l=p2});ls.push(l);return ls}
@@ -35,7 +35,7 @@ async function dibujar(){
   if(f){var r=Math.max(W/f.width,H/f.height),w=f.width*r,h=f.height*r;ctx.drawImage(f,(W-w)/2,(H-h)/2,w,h)}
   var g=ctx.createLinearGradient(0,H*.25,0,H);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.55,th.n+'cc');g.addColorStop(1,th.n+'f2');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   var g2=ctx.createLinearGradient(0,0,0,H*.22);g2.addColorStop(0,'rgba(0,0,0,.45)');g2.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H*.22);
-  if(lg){var lh=H>1500?150:130,lw=lg.width*lh/lg.height;ctx.fillStyle='#fff';rr(M-14,M-14,lw+28,lh+28,26);ctx.fill();ctx.drawImage(lg,M,M,lw,lh)}
+  if(lg){var lh=H>1500?150:130,lw=lg.width*lh/lg.height;if(th.sinFondo){ctx.save();ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=18;ctx.drawImage(lg,M,M,lw,lh);ctx.restore()}else{ctx.fillStyle='#fff';rr(M-14,M-14,lw+28,lh+28,26);ctx.fill();ctx.drawImage(lg,M,M,lw,lh)}}
   var est=EST[s.estado];
   if(est){ctx.font='800 38px "Plus Jakarta Sans",sans-serif';var tw=ctx.measureText(est).width+60;ctx.fillStyle=s.estado==='agotado'?'#c0392b':th.b;rr(W-M-tw,M,tw,74,37);ctx.fill();ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillText(est,W-M-tw/2,M+39);ctx.textAlign='left'}
   ctx.textBaseline='alphabetic';

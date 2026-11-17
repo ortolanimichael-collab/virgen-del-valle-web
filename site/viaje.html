@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Viaje — Virgen del Valle">
 <meta property="og:description" content="Salida con fecha, precio, qué incluye y consulta directa por WhatsApp.">
-<meta property="og:image" content="https://agenciavirgendelvalle.com.ar/img/compartir-vdv.jpg">
+<meta property="og:image" content="https://agenciavirgendelvalle.com.ar/img/compartir-vdv.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Logo de Virgen del Valle">
@@ -31,7 +31,7 @@
 <div class="sw"><div class="wrap"><small>Nuestras empresas</small>
   <a class="on" href="index.html">Virgen del Valle</a><a href="trekia.html">Trekia turismo aventura</a><a href="aula-viajera.html">Aula Viajera</a></div></div>
 <header class="top"><div class="wrap">
-  <a class="brand" href="index.html"><img src="img/logo-vdv.jpg" alt="Virgen del Valle"></a>
+  <a class="brand" href="index.html"><img src="img/logo-vdv-blanco.png" alt="Virgen del Valle"></a>
   <nav class="nav"><a href="index.html#paquetes">Todos los viajes</a><a class="btn pink" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos</a></nav>
 </div></header>
 <main id="main"></main>
@@ -43,7 +43,7 @@
 <script>
 (function(){
   var V=VDV, id=new URLSearchParams(location.search).get("id"), s=V.porId(id), m=document.getElementById("main");
-  if(!s){m.innerHTML='<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><h1 class="h2">No encontramos ese viaje</h1><p class="lead">Puede que la salida ya haya pasado. Escribinos y te contamos qué hay disponible.</p><p style="margin-top:18px"><a class="btn" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos por WhatsApp</a></p></div></section>';VDVapp.reveal();document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa)});return;}
+  if(!s){var lgo=document.querySelector('.brand img');lgo.src='img/logo-vdv.png';lgo.style.filter='none';m.innerHTML='<section><div class="wrap"><a class="back" href="index.html#paquetes">← Ver todos los viajes</a><h1 class="h2">No encontramos ese viaje</h1><p class="lead">Puede que la salida ya haya pasado. Escribinos y te contamos qué hay disponible.</p><p style="margin-top:18px"><a class="btn" data-wa="Hola! Quiero consultar por un viaje" href="#">Escribinos por WhatsApp</a></p></div></section>';VDVapp.reveal();document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa)});return;}
   document.title=s.destino+" — Virgen del Valle";
   var vencida=!s.confirmar&&V.diasHasta(s.fecha)<0, sold=s.estado==="agotado"||vencida, dias=s.confirmar?-1:V.diasHasta(s.fecha);
   var estado=vencida?"Salida finalizada":(V.estadoTxt[s.estado]||"Cupos disponibles");
