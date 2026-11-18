@@ -338,6 +338,7 @@ def crear_app(config=None):
         sembrar_temporada_2027()
         sembrar_temporada_2027b()
         ajuste_noviembre_2026()
+        ajuste_noviembre_2026b()
         aula.sembrar_escuelas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
@@ -897,6 +898,18 @@ def ajuste_noviembre_2026():
             if (d.get("nombre") or "").strip().lower() in ("el chaltén", "el chalten"):
                 d.update(nombre="Norte Argentino", lugar="Salta y Jujuy", desde="Consultá", q="argentina", img="img/norte-argentino.jpg")
         db.session.get(portada.Bloque, "destinos").datos = json.dumps(guardados, ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+
+def ajuste_noviembre_2026b():
+    """Una sola vez: foto nueva para el Carnaval Norteño · Jujuy y Los Tekis."""
+    marca = "ajuste_2026_11b"
+    if db.session.get(Ajuste, marca):
+        return
+    for s in Salida.query.filter(Salida.destino.ilike("carnaval norteño%")).all():
+        s.img = "img/carnaval-norteno.jpg"
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 

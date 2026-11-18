@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Allura&family=Caveat:wght@700&family=Oswald:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/vdv.css">
+<link rel="stylesheet" href="css/vdv.css?v=3">
 </head>
 <body>
 <div class="sw"><div class="wrap"><small>Nuestras empresas</small>
@@ -266,7 +266,7 @@
     l=l.map(function(s,k){return {s:s,g:grupo(s),k:k};}).sort(function(a,b){return a.g-b.g||a.k-b.k;}).map(function(x){return x.s;});
     var varios=l.some(function(s){return grupo(s)!==grupo(l[0]);});
     A.salidas(document.getElementById("salidas"),l,function(s,k){
-      var sold=s.estado==="agotado", g=grupo(s), tit=(varios&&(k===0||grupo(l[k-1])!==g))?'<h3 class="grupo">'+GRUPOS[g]+'</h3>':'';
+      var sold=s.estado==="agotado", g=grupo(s), tit=(varios&&(k===0||grupo(l[k-1])!==g))?'<h3 class="grupo" style="grid-column:1/-1">'+GRUPOS[g]+'</h3>':'';
       return tit+'<article class="card rv'+(sold?" sold":"")+'"><a class="ph" href="viaje.html?id='+s.id+'" tabindex="-1" aria-hidden="true"><img src="'+s.img+'" alt="" loading="lazy">'+A.badge(s)+'<span class="date">'+V.esc(s.dia)+'</span></a>'+
       '<div class="bd"><span class="lug">'+V.esc(s.lugar)+'</span><h3><a href="viaje.html?id='+s.id+'" style="text-decoration:none">'+V.esc(s.destino)+'</a></h3><p>'+V.esc(s.detalle)+'</p>'+
       '<div class="tags">'+s.incluye.map(function(i){return '<span>'+V.esc(i)+'</span>';}).join("")+'</div>'+
