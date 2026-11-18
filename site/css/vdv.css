@@ -109,7 +109,9 @@ section{padding-block:clamp(54px,7vw,92px)}
 .dest img{width:100%;height:100%;object-fit:cover;border-radius:10px;transition:transform .6s}
 .dest:hover img{transform:scale(1.08)}
 .dest .tx{position:absolute;left:14px;right:14px;bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:6px}
-.dest b{font:700 22px/1 var(--hand);font-size:25px}
+.dest b{font:700 22px/1 var(--hand);font-size:25px;white-space:nowrap}
+.dest.largo b{font-size:20px}
+@media (max-width:760px){.dest.largo b{font-size:16px}}
 .dest small{font-size:11.5px;color:var(--plum);font-weight:700;text-align:right;line-height:1.1}
 
 /* Paquetes */
@@ -118,6 +120,9 @@ section{padding-block:clamp(54px,7vw,92px)}
 .filters .chip{color:var(--plum-d);border-color:var(--line);background:#fff}
 .filters .chip.on,.filters .chip:hover{background:var(--plum);border-color:var(--plum);color:#fff}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.grid .grupo{grid-column:1/-1;margin:22px 0 -6px;font-size:22px;font-weight:800;color:var(--plum,#A53F6E);display:flex;align-items:center;gap:14px}
+.grid .grupo:first-child{margin-top:0}
+.grid .grupo::after{content:"";flex:1;height:1px;background:currentColor;opacity:.25}
 .vacio{grid-column:1/-1;color:var(--soft);padding:30px;text-align:center}
 .card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:0 8px 24px rgba(60,20,40,.09);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s}
 .card:hover{transform:translateY(-8px) rotate(-.6deg);box-shadow:0 22px 44px rgba(60,20,40,.2)}

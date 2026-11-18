@@ -45,7 +45,7 @@
     <div class="track">
       <figure class="sl" data-sbusca="caribe" data-sq="america"><img src="img/caribe-2.jpg" alt="Playa del Caribe con palmeras" fetchpriority="high"><figcaption>Caribe</figcaption></figure>
       <figure class="sl" data-sbusca="crucero" data-sq="crucero"><img src="img/crucero-atardecer.jpg" alt="Crucero navegando al atardecer" decoding="async"><figcaption>Cruceros</figcaption></figure>
-      <figure class="sl" data-sbusca="chalten" data-sq="argentina"><img src="img/el-chalten.jpg" alt="Laguna de los Tres frente al Fitz Roy" decoding="async"><figcaption>El Chaltén · Patagonia</figcaption></figure>
+      <figure class="sl" data-sbusca="patagonia|calafate|chalten" data-sq="argentina"><img src="img/el-chalten.jpg" alt="Laguna de los Tres frente al Fitz Roy" decoding="async"><figcaption>El Chaltén · Patagonia</figcaption></figure>
       <figure class="sl" data-sbusca="mar del plata" data-sq="argentina"><img src="img/mar-del-plata.jpg" alt="Costa de Mar del Plata al atardecer" decoding="async"><figcaption>Mar del Plata</figcaption></figure>
       <figure class="sl" data-sbusca="brasil|buzios" data-sq="brasil"><img src="img/buzios.jpg" alt="Costa de Buzios, Brasil" decoding="async"><figcaption>Brasil · Buzios</figcaption></figure>
       <figure class="sl" data-sbusca="perito moreno|calafate" data-sq="argentina"><img src="img/costa-argentina.jpg" alt="Glaciar Perito Moreno" decoding="async"><figcaption>Glaciar Perito Moreno</figcaption></figure>
@@ -90,7 +90,7 @@
 </div>
 
 <section id="destinos"><div class="wrap">
-  <div class="head rv"><div><span class="kicker">Destinos más pedidos</span><h2 class="h2">Lugares para soñar nacionales</h2><p class="lead">Patagonia, la costa atlántica, Mendoza y las sierras. Tocá un destino para ver sus salidas.</p></div></div>
+  <div class="head rv"><div><span class="kicker">Destinos más pedidos</span><h2 class="h2">Lugares para soñar nacionales</h2><p class="lead">Patagonia, el Norte, la costa atlántica, Mendoza y las sierras. Tocá un destino para ver sus salidas.</p></div></div>
   <div class="dests" id="dests"></div>
   <div class="head rv" style="margin-top:64px"><div><span class="kicker">Por el mundo</span><h2 class="h2">Lugares para soñar internacionales</h2><p class="lead">Playas de Brasil y el Caribe, Europa y cruceros.</p></div></div>
   <div class="dests" id="destsInt"></div>
@@ -203,7 +203,8 @@
     return norm(busca).split("|").some(function(w){w=w.trim();return w&&(h.indexOf(w)>-1||(w.length>4&&/s$/.test(w)&&h.indexOf(w.slice(0,-1))>-1));});
   }
   document.getElementById("y").textContent=new Date().getFullYear();
-  var vig=V.vigentes();
+  /* En la agencia van solo sus viajes: los paseos de naturaleza quedan en la página de Trekia */
+  var vig=V.vigentes("vdv");
   document.getElementById("nSal").textContent=vig.length;
   /* Destinos */
   /* Carrusel de la portada: se desliza suave cada 6 segundos, en bucle; flechas, puntitos y deslizar con el dedo */
@@ -240,7 +241,7 @@
   /* Destinos: los de Argentina van en nacionales, el resto en internacionales */
   function dest(d){
     var desde=(d.desde||"").trim(), pr=!desde?"":(/^consult/i.test(desde)?desde:"desde "+desde);
-    return '<a class="dest rv" href="#paquetes" data-q="'+V.esc(d.q)+'" data-busca="'+V.esc(d.nombre)+'" data-nombre="'+V.esc(d.nombre)+'"><img src="'+d.img+'" alt="'+V.esc(d.nombre)+'" loading="lazy"><span class="tx"><b>'+V.esc(d.nombre)+'</b><small>'+V.esc(d.lugar)+(pr?'<br>'+V.esc(pr):'')+'</small></span></a>';
+    return '<a class="dest rv'+((d.nombre||"").length>12?' largo':'')+'" href="#paquetes" data-q="'+V.esc(d.q)+'" data-busca="'+V.esc(d.nombre)+'" data-nombre="'+V.esc(d.nombre)+'"><img src="'+d.img+'" alt="'+V.esc(d.nombre)+'" loading="lazy"><span class="tx"><b>'+V.esc(d.nombre)+'</b><small>'+V.esc(d.lugar)+(pr?'<br>'+V.esc(pr):'')+'</small></span></a>';
   }
   document.getElementById("dests").innerHTML=V.destinos.filter(function(d){return d.q==="argentina";}).map(dest).join("");
   document.getElementById("destsInt").innerHTML=V.destinos.filter(function(d){return d.q!=="argentina";}).map(dest).join("");
@@ -261,15 +262,26 @@
     else if(q.region) l=l.filter(function(s){return s.region===q.region;});
     var ft=document.getElementById("ftxt");ft.hidden=!(q.texto||q.region);ft.querySelector("b").textContent=q.nombre||q.region;
     if(q.mes) l=l.filter(function(s){return !s.confirmar&&s.fecha.slice(0,7)===q.mes;});
-    A.salidas(document.getElementById("salidas"),l,function(s){
-      var sold=s.estado==="agotado";
-      return '<article class="card rv'+(sold?" sold":"")+'"><a class="ph" href="viaje.html?id='+s.id+'" tabindex="-1" aria-hidden="true"><img src="'+s.img+'" alt="" loading="lazy">'+A.badge(s)+'<span class="date">'+V.esc(s.dia)+'</span></a>'+
+    /* Ordenados por zona: primero Argentina, después Brasil y el Caribe, el resto de América y Europa (cada zona por fecha) */
+    l=l.map(function(s,k){return {s:s,g:grupo(s),k:k};}).sort(function(a,b){return a.g-b.g||a.k-b.k;}).map(function(x){return x.s;});
+    var varios=l.some(function(s){return grupo(s)!==grupo(l[0]);});
+    A.salidas(document.getElementById("salidas"),l,function(s,k){
+      var sold=s.estado==="agotado", g=grupo(s), tit=(varios&&(k===0||grupo(l[k-1])!==g))?'<h3 class="grupo">'+GRUPOS[g]+'</h3>':'';
+      return tit+'<article class="card rv'+(sold?" sold":"")+'"><a class="ph" href="viaje.html?id='+s.id+'" tabindex="-1" aria-hidden="true"><img src="'+s.img+'" alt="" loading="lazy">'+A.badge(s)+'<span class="date">'+V.esc(s.dia)+'</span></a>'+
       '<div class="bd"><span class="lug">'+V.esc(s.lugar)+'</span><h3><a href="viaje.html?id='+s.id+'" style="text-decoration:none">'+V.esc(s.destino)+'</a></h3><p>'+V.esc(s.detalle)+'</p>'+
       '<div class="tags">'+s.incluye.map(function(i){return '<span>'+V.esc(i)+'</span>';}).join("")+'</div>'+
       '<div class="ft">'+
       (sold?'<a class="btn out" data-wa="Hola! La salida a '+V.esc(s.destino)+' figura agotada. ¿Me avisan si se libera un lugar?" href="#">Avisame</a>':'<a class="btn" data-wa="Hola! Quiero consultar por la salida a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')" href="#">Consultar</a>')+
       '</div></div></article>';
     });
+  }
+  var GRUPOS=["Argentina","Brasil y el Caribe","América","Europa","Cruceros y más"];
+  function grupo(s){
+    if(s.region==="argentina")return 0;
+    if(s.region==="brasil"||/caribe/.test(norm(s.destino+" "+s.lugar)))return 1;
+    if(s.region==="america")return 2;
+    if(s.region==="europa")return 3;
+    return 4;
   }
   function marcar(){fil.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.dataset.t===tipoSel);});fTipo.value=tipoSel;}
   fil.addEventListener("click",function(e){var c=e.target.closest(".chip");if(!c)return;tipoSel=c.dataset.t;marcar();pintar();});

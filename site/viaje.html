@@ -56,7 +56,7 @@
   ((s.ficha&&s.ficha.length)?'<h3 style="margin:30px 0 12px;font-weight:800">Detalles del viaje</h3><dl class="ficha">'+s.ficha.map(function(f){return '<div><dt>'+V.esc(f[0])+'</dt><dd>'+V.esc(f[1])+'</dd></div>'}).join('')+'</dl>':'')+
   '<h3 style="margin:30px 0 12px;font-weight:800">Cómo reservar</h3><p class="lead">Escribinos por WhatsApp con el viaje elegido y la cantidad de pasajeros. Te confirmamos cupos, formas de pago y seña. La misma persona te acompaña hasta la salida.</p></div>'+
   '<aside class="box rv"><span class="badge '+s.estado+'" style="position:static;display:inline-block;margin-bottom:12px">'+estado+'</span>'+
-  '<div class="pr">'+V.esc(s.precio)+'</div><p class="price"><small>'+V.esc(s.nota)+'</small></p>'+
+  (s.empresa==="trekia"?'':'<div class="pr">'+V.esc(s.precio)+'</div><p class="price"><small>'+V.esc(s.nota)+'</small></p>')+
   '<ul style="margin:18px 0"><li>Salida: '+V.esc(s.dia)+(dias>=0?' (faltan '+dias+' días)':'')+'</li><li>Destino: '+V.esc(s.lugar)+'</li>'+s.incluye.map(function(i){return '<li>'+V.esc(i)+'</li>'}).join('')+'</ul>'+
   (sold?'<a class="btn out" style="width:100%" data-wa="Hola! La salida a '+V.esc(s.destino)+' figura agotada. ¿Me avisan si se libera un lugar?" href="#">Avisame si se libera un lugar</a>':'<a class="btn" style="width:100%" data-wa="'+V.esc(msg)+'" href="#">Consultar por WhatsApp</a>')+
   '</aside></div></div></section>';

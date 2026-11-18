@@ -78,7 +78,7 @@
 </div>
 
 <section class="s" id="salidas"><div class="wrap">
-  <div class="head"><div><span class="kicker">Próxima salida temporada 2027</span><h2 class="h2">Salidas populares</h2><p class="lead">Valle de Uco, El Chaltén, Capilla del Monte y el Uritorco, Miramar y más. Fechas y dificultad de cada salida. Las que ya pasaron se ocultan solas.</p></div><a data-wa="Hola! Quiero consultar por las próximas salidas de Trekia turismo aventura" href="#">Consultar todas →</a></div>
+  <div class="head"><div><span class="kicker">Próxima salida temporada 2027</span><h2 class="h2">Salidas populares</h2><p class="lead">El Chaltén, la cordillera de los Andes, el Uritorco, Calamuchita, Río Bamba y más. Elegí la fecha y consultanos. Las que ya pasaron se ocultan solas.</p></div><a data-wa="Hola! Quiero consultar por las próximas salidas de Trekia turismo aventura" href="#">Consultar todas →</a></div>
   <div class="grid" id="grid"></div>
   <div class="cats" id="cats" role="group" aria-label="Filtrar por dificultad">
     <button class="cat on" data-d=""><i>⛰</i>Todas</button>
@@ -159,7 +159,7 @@
   /* Escapadas cerca de casa: las salidas marcadas «Escapada» en el panel */
   if(escs.length){
     document.getElementById("escs").innerHTML=escs.slice(0,4).map(function(s){
-      return '<a class="mini" href="#" data-wa="Hola! Quiero consultar por la escapada a '+V.esc(s.destino)+' ('+V.esc(s.dia)+') de Trekia turismo aventura"><img src="'+s.img+'" alt="" loading="lazy"><div><b>'+V.esc(s.destino)+'</b>'+V.esc(s.dia)+(s.precio&&!/^consult/i.test(s.precio)?' · '+V.esc(s.precio):'')+'</div></a>';
+      return '<a class="mini" href="#" data-wa="Hola! Quiero consultar por la escapada a '+V.esc(s.destino)+' ('+V.esc(s.dia)+') de Trekia turismo aventura"><img src="'+s.img+'" alt="" loading="lazy"><div><b>'+V.esc(s.destino)+'</b>'+V.esc(s.dia)+'</div></a>';
     }).join("");
   }
   document.getElementById("y").textContent=new Date().getFullYear();
@@ -171,7 +171,7 @@
   function pintar(){
     var l=vig.filter(function(s){return (!dif||s.dificultad===dif)&&(!q.lugar||s.lugar===q.lugar)&&(!q.mes||(!s.confirmar&&s.fecha.slice(0,7)===q.mes));});
     A.salidas(document.getElementById("grid"),l,function(s){
-      return '<a class="tk rv'+(s.estado==="agotado"?" sold":"")+'" href="#" data-wa="Hola! Quiero consultar por la salida de Trekia turismo aventura a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')"><img src="'+s.img+'" alt="" loading="lazy"><div class="top"><span>'+V.esc(s.dia)+'</span>'+(V.estadoTxt[s.estado]?'<span class="badge '+s.estado+'">'+V.estadoTxt[s.estado]+'</span>':'')+'</div><div class="bot"><h3>'+V.esc(s.destino)+'</h3><div class="m"><span>'+V.esc(s.lugar)+'<br>'+(s.dificultad?'Dificultad '+V.esc(s.dificultad.toLowerCase()):'')+'</span><span class="pr">'+V.esc(s.precio)+'</span></div></div></a>';
+      return '<a class="tk rv'+(s.estado==="agotado"?" sold":"")+'" href="#" data-wa="Hola! Quiero consultar por la salida de Trekia turismo aventura a '+V.esc(s.destino)+' ('+V.esc(s.dia)+')"><img src="'+s.img+'" alt="" loading="lazy"><div class="top"><span>'+V.esc(s.dia)+'</span></div><div class="bot"><h3>'+V.esc(s.destino)+'</h3></div></a>';
     });
   }
   document.getElementById("cats").addEventListener("click",function(e){var c=e.target.closest(".cat");if(!c)return;dif=c.dataset.d;document.querySelectorAll(".cat").forEach(function(x){x.classList.toggle("on",x===c);});pintar();});

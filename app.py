@@ -337,6 +337,7 @@ def crear_app(config=None):
         sembrar()
         sembrar_temporada_2027()
         sembrar_temporada_2027b()
+        ajuste_noviembre_2026()
         aula.sembrar_escuelas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
@@ -852,6 +853,49 @@ def sembrar_temporada_2027b():
         for d in fabrica:
             if d["q"] != "argentina" and d["nombre"].strip().lower() not in nombres and len(guardados) < portada.SECCIONES["destinos"]["maximo"]:
                 guardados.append(d)
+        db.session.get(portada.Bloque, "destinos").datos = json.dumps(guardados, ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+TREKIA_SOLO = {"río bamba", "rio bamba", "el chaltén", "el chalten", "valle de calamuchita", "capilla buffo", "capilla de buffo",
+               "cerro uritorco", "capilla del monte y cerro uritorco", "selva y cascadas", "selva y cascada", "cordillera de los andes"}
+
+
+def ajuste_noviembre_2026():
+    """Una sola vez (pedido de Miriam, nov 2026): los paseos de naturaleza quedan solo en Trekia, Miramar pasa a la agencia,
+    «Valle de Punilla» pasa a «Carlos Paz, La Falda y Mina Clavero», el Carnaval de la Quebrada pasa a llamarse «Norte Argentino»,
+    fotos nuevas para Gualeguaychú, Italia y el Norte, se sacan los «Últimos cupos» y El Chaltén de la portada pasa a ser el Norte Argentino."""
+    marca = "ajuste_2026_11"
+    if db.session.get(Ajuste, marca):
+        return
+    for s in Salida.query.all():
+        nombre = (s.destino or "").strip().lower()
+        if nombre in TREKIA_SOLO and s.empresa != "trekia":
+            s.empresa = "trekia"
+            s.tipos = ",".join(dict.fromkeys(s.lista_tipos + ["naturaleza"]))
+        if nombre == "miramar" and s.empresa == "trekia":
+            s.empresa = "vdv"
+            s.tipos = "grupal"
+            s.dificultad = ""
+            s.km = ""
+        if nombre == "valle de punilla":
+            s.destino = "Carlos Paz, La Falda y Mina Clavero"
+            s.detalle = "Escapada de fin de semana por Villa Carlos Paz, La Falda y Mina Clavero"
+        if nombre == "carnaval de la quebrada · jujuy":
+            s.destino = "Norte Argentino"
+            s.img = "img/norte-argentino.jpg"
+        if nombre == "carnaval en gualeguaychú":
+            s.img = "img/carnaval-gualeguaychu.jpg"
+        if nombre.startswith("sur de italia"):
+            s.img = "img/puglia.jpg"
+        if s.estado == "ultimos":
+            s.estado = "disponible"
+    guardados = portada.guardado("destinos")
+    if guardados is not None:
+        for d in guardados:
+            if (d.get("nombre") or "").strip().lower() in ("el chaltén", "el chalten"):
+                d.update(nombre="Norte Argentino", lugar="Salta y Jujuy", desde="Consultá", q="argentina", img="img/norte-argentino.jpg")
         db.session.get(portada.Bloque, "destinos").datos = json.dumps(guardados, ensure_ascii=False)
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
