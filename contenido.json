@@ -5,6 +5,8 @@
  "ciudad": "Río Tercero, Córdoba",
  "telefono": "03571 15-59-3669",
  "whatsapp": "5493571593669",
+ "whatsapp_aula": "5493571512462",
+ "telefono_aula": "03571 15-51-2462",
  "instagram": "virgendelvalleagencia",
  "seguidores": "4.500+",
  "empresas": {
@@ -174,7 +176,7 @@
   {
    "id": "contingentes",
    "nombre": "Contingentes escolares",
-   "lugar": "Desde Río Tercero y zonas",
+   "lugar": "Para escuelas de todo el país",
    "detalle": "Bus, coordinación permanente y asistencia médica a bordo, con la misma persona de principio a fin.",
    "img": "img/aula/viaje-04.jpg"
   }

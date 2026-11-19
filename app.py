@@ -43,6 +43,7 @@ REGIONES = {"argentina": "Argentina", "brasil": "Brasil", "america": "América (
 DIFICULTADES = ["", "Baja", "Media", "Alta"]
 ESTADOS_CONSULTA = {"nueva": "Nueva", "contactada": "Contactada", "senia": "Dejó seña", "vendida": "Vendida", "descartada": "Descartada"}
 CONTACTO = {"whatsapp": "WhatsApp (solo números, con 549 y código de área)", "telefono": "Teléfono que se muestra", "direccion": "Dirección",
+            "whatsapp_aula": "WhatsApp de Aula Viajera (solo números, con 549 y código de área)", "telefono_aula": "Teléfono de Aula Viajera que se muestra",
             "ciudad": "Ciudad", "instagram": "Instagram (sin @)", "legajo": "Legajo EVT",
             "razon_social": "Razón social (para la política de privacidad)", "cuit": "CUIT", "email": "Mail de contacto (para pedidos de datos)",
             "pixel_id": "ID del Meta Pixel (solo números; vacío = sin pixel)",
@@ -352,6 +353,7 @@ def crear_app(config=None):
         cargar_egipto_turquia()
         ajuste_fotos_aula()
         ajuste_programas_aula()
+        ajuste_aula_todo_el_pais()
         aula.sembrar_escuelas(Ajuste)
         aula.borrar_escuelas_viejas(Ajuste)
 
@@ -763,7 +765,7 @@ def crear_app(config=None):
         if request.method == "POST":
             for k in CONTACTO:
                 v = " ".join((request.form.get(k) or "").split())[:300]
-                if k in ("whatsapp", "pixel_id"):
+                if k in ("whatsapp", "whatsapp_aula", "pixel_id"):
                     v = re.sub(r"\D", "", v)[:20]
                 if k == "resenas_url" and v and not re.match(r"https://\S+$", v):
                     flash("El link de reseñas tiene que empezar con https:// (copialo entero desde Google). No se guardó ese dato.", "error")
@@ -1041,6 +1043,23 @@ def ajuste_programas_aula():
     if b is not None:
         with open(AQUI / "contenido.json", encoding="utf-8") as f:
             b.datos = json.dumps(json.load(f)["programas"], ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+
+def ajuste_aula_todo_el_pais():
+    """Una sola vez (nov 2026): Aula Viajera trabaja con grupos de todo el país; la tarjeta de contingentes deja de decir
+    «Desde Río Tercero y zonas»."""
+    marca = "ajuste_aula_todo_el_pais"
+    if db.session.get(Ajuste, marca):
+        return
+    guardados = portada.guardado("programas")
+    if guardados is not None:
+        for p in guardados:
+            if (p.get("lugar") or "").strip().lower() == "desde río tercero y zonas":
+                p["lugar"] = "Para escuelas de todo el país"
+        db.session.get(portada.Bloque, "programas").datos = json.dumps(guardados, ensure_ascii=False)
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 
