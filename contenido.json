@@ -155,28 +155,28 @@
    "nombre": "Viaje de egresados",
    "lugar": "Bariloche, Brasil y más",
    "detalle": "Salidas para cursos completos, con coordinadores y seguro de viaje.",
-   "img": "img/floripa.jpg"
+   "img": "img/aula/viaje-05.jpg"
   },
   {
    "id": "educativo",
    "nombre": "Viajes educativos",
    "lugar": "Córdoba, Buenos Aires, Mendoza",
    "detalle": "Recorridos con contenido curricular para primaria y secundaria.",
-   "img": "img/mendoza.jpg"
+   "img": "img/aula/viaje-01.jpg"
   },
   {
    "id": "contingentes",
    "nombre": "Contingentes escolares",
    "lugar": "Desde Río Tercero y zonas",
    "detalle": "Bus, coordinación permanente y asistencia médica a bordo.",
-   "img": "img/grupo-escalada.jpg"
+   "img": "img/aula/viaje-04.jpg"
   },
   {
    "id": "familias",
    "nombre": "Escapadas de fin de curso",
    "lugar": "Sierras y termas",
    "detalle": "Salidas de 1 o 2 días para cerrar el año con el grupo.",
-   "img": "img/sierras.jpg"
+   "img": "img/aula/viaje-07.jpg"
   }
  ]
 }

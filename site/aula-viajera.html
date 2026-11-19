@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/aula.css">
+<link rel="stylesheet" href="css/aula.css?v=2">
 </head>
 <body>
 <div class="sw"><div class="wrap"><small>Nuestras empresas</small>
@@ -42,7 +42,7 @@
 
 <main>
 <section class="hero">
-  <img src="img/mendoza.jpg" alt="Cordillera de los Andes sobre los viñedos" fetchpriority="high">
+  <img src="img/aula-portada.jpg" alt="Grupo de alumnos de viaje con Aula Viajera frente a un mural" fetchpriority="high" style="object-position:center 62%">
   <span class="hand" aria-hidden="true">Aprender<br>viajando</span>
   <div class="wrap">
     <span class="kicker">Viajes educativos y de egresados</span>
@@ -118,8 +118,9 @@
 
 <section class="s" id="viajes"><div class="wrap">
   <div class="head rv"><div><span class="kicker">Nuestros viajes</span><h2 class="h2">Viajes que ya <em>hicimos</em></h2>
-    <p class="lead">Fotos, videos y flyers de los viajes con cada escuela. Elegí una escuela o mirá todas las fotos juntas.</p></div>
+    <p class="lead">Momentos de nuestros viajes con los chicos, y las fotos, videos y flyers de cada escuela. Tocá una foto para verla grande.</p></div>
     <button class="btn dk" type="button" id="verTodas">Ver todas las fotos</button></div>
+  <div class="momentos" id="momentos"></div>
   <div class="esc-chips" id="escChips" role="tablist" aria-label="Escuelas"></div>
   <div class="esc-grid" id="escGrid"></div>
 </div></section>
@@ -185,6 +186,12 @@
   var V=VDV, G=(V.galeria||[]), esc=V.esc, sel="todas";
   var chips=document.getElementById("escChips"), grid=document.getElementById("escGrid");
   var gx=document.getElementById("gx"), lb=document.getElementById("lb"), lista=[], pos=0, ultimoFoco=null;
+  /* Fotos de viajes de Aula Viajera (fijas en la web): se ven las primeras 9 y el resto con «Ver todas» */
+  var MOMENTOS=[];for(var i=1;i<=24;i++)MOMENTOS.push({src:"img/aula/viaje-"+(i<10?"0":"")+i+".jpg",cap:"Aula Viajera · viajes educativos"});
+  document.getElementById("momentos").innerHTML='<div class="mom-grid">'+MOMENTOS.slice(0,9).map(function(it,i){
+    return '<button type="button" class="mom-f rv" data-i="'+i+'" aria-label="Ver foto '+(i+1)+'"><img src="'+it.src+'" alt="" loading="lazy"></button>';}).join("")+'</div>';
+  document.getElementById("momentos").addEventListener("click",function(ev){
+    var f=ev.target.closest(".mom-f");if(!f)return;ultimoFoco=f;lista=MOMENTOS;pos=+f.dataset.i;verFoto();lb.hidden=false;lb.querySelector(".lb-x").focus();});
   function viajes(){var r=[];G.forEach(function(e){e.viajes.forEach(function(v){r.push({e:e,v:v});});});return r;}
   function n(x,s,p){return x+" "+(x===1?s:p);}
   chips.innerHTML='<button class="chip on" data-e="todas" role="tab">Todas las escuelas</button>'+G.map(function(e){
@@ -200,8 +207,7 @@
           '<span class="vj-tx"><b>'+esc(v.destino)+(v.anio?' '+esc(v.anio):'')+'</b><small>'+esc(v.tipo||"")+(v.tipo&&cnt?' · ':'')+cnt+'</small></span></button>';
       }).join("")+'</div></article>';
     }).join("") || '<p class="lead">Pronto vas a ver acá los viajes que hicimos con cada escuela.</p>';
-    var hay=viajes().some(function(x){return x.v.fotos.length||x.v.flyers.length;});
-    document.getElementById("verTodas").hidden=!hay;
+    document.getElementById("verTodas").hidden=false;
   }
   chips.addEventListener("click",function(ev){var c=ev.target.closest(".chip");if(!c)return;sel=c.dataset.e;
     chips.querySelectorAll(".chip").forEach(function(x){x.classList.toggle("on",x===c);});pintar();});
@@ -243,7 +249,7 @@
       fotos:x.v.fotos.map(function(s){return {src:s,cap:cap};}), videos:x.v.videos, flyers:x.v.flyers.map(function(s){return {src:s,cap:"Flyer · "+cap};})});
   });
   document.getElementById("verTodas").addEventListener("click",function(){
-    var fotos=[],flyers=[],vids=[];
+    var fotos=sel==="todas"?MOMENTOS.slice():[],flyers=[],vids=[];
     viajes().filter(function(x){return sel==="todas"||String(x.e.id)===sel;}).forEach(function(x){
       var cap=x.e.nombre+" · "+x.v.destino+(x.v.anio?" "+x.v.anio:"");
       x.v.fotos.forEach(function(s){fotos.push({src:s,cap:cap});});x.v.flyers.forEach(function(s){flyers.push({src:s,cap:"Flyer · "+cap});});

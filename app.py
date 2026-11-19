@@ -350,6 +350,7 @@ def crear_app(config=None):
         ajuste_noviembre_2026()
         ajuste_noviembre_2026b()
         cargar_egipto_turquia()
+        ajuste_fotos_aula()
         aula.sembrar_escuelas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
@@ -1002,6 +1003,26 @@ def cargar_egipto_turquia():
         s.slug = slug_unico(s.destino, s.fecha)
         db.session.add(s)
         db.session.flush()
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+
+def ajuste_fotos_aula():
+    """Una sola vez (nov 2026): fotos reales de viajes de Aula Viajera en las tarjetas de programas.
+    Solo cambia las tarjetas que todavía tienen la foto original (si Miriam puso otra desde el panel, se respeta)."""
+    marca = "ajuste_fotos_aula"
+    if db.session.get(Ajuste, marca):
+        return
+    nuevas = {"egresados": ("img/floripa.jpg", "img/aula/viaje-05.jpg"), "educativo": ("img/mendoza.jpg", "img/aula/viaje-01.jpg"),
+              "contingentes": ("img/grupo-escalada.jpg", "img/aula/viaje-04.jpg"), "familias": ("img/sierras.jpg", "img/aula/viaje-07.jpg")}
+    guardados = portada.guardado("programas")
+    if guardados is not None:
+        for p in guardados:
+            vieja, nueva = nuevas.get(p.get("id"), (None, None))
+            if vieja and p.get("img") == vieja:
+                p["img"] = nueva
+        db.session.get(portada.Bloque, "programas").datos = json.dumps(guardados, ensure_ascii=False)
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 
