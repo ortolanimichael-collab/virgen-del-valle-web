@@ -352,6 +352,7 @@ def crear_app(config=None):
         cargar_egipto_turquia()
         ajuste_fotos_aula()
         aula.sembrar_escuelas(Ajuste)
+        aula.borrar_escuelas_viejas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
     intentos = {}

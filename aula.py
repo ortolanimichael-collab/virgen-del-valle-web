@@ -26,13 +26,10 @@ PROXY_MAX_MB = 60                    # hasta este tamaño el video se ve con el 
 TROZO = 8 * 1024 * 1024
 CLASES = {"foto": "Fotos", "flyer": "Flyers", "video": "Videos"}
 
-ESCUELAS_INICIALES = [
-    ("Instituto Dr. Abraham Molina (IDAM)", "Los Cóndores"),
-    ("Escuela Primaria Remedios Escalada de San Martín", "Río Tercero"),
-    ("Escuela General Manuel Belgrano", "Río Tercero"),
-    ("El Mundo de los Chicos", "Santa Rosa de Calamuchita"),
-    ("Colegio Sagrado Corazón", "Villa General Belgrano"),
-]
+# Nov 2026: Aula Viajera arranca la galería desde cero; cada escuela se carga en el panel cuando salga su viaje.
+ESCUELAS_INICIALES = []
+ESCUELAS_VIEJAS = {"Instituto Dr. Abraham Molina (IDAM)", "Escuela Primaria Remedios Escalada de San Martín",
+                   "Escuela General Manuel Belgrano", "El Mundo de los Chicos", "Colegio Sagrado Corazón"}
 
 
 class Escuela(db.Model):
@@ -156,6 +153,19 @@ def sembrar_escuelas(Ajuste):
     if not Escuela.query.count():
         for i, (n, loc) in enumerate(ESCUELAS_INICIALES):
             db.session.add(Escuela(nombre=n, localidad=loc, orden=i))
+    db.session.add(Ajuste(clave=marca, valor="ok"))
+    db.session.commit()
+
+
+def borrar_escuelas_viejas(Ajuste):
+    """Una sola vez (nov 2026): saca las escuelas de ejemplo cargadas al principio, para empezar la galería desde cero.
+    Solo borra las que no tienen ningún viaje cargado (si Miriam ya subió fotos a alguna, esa queda)."""
+    marca = "escuelas_desde_cero"
+    if db.session.get(Ajuste, marca):
+        return
+    for e in Escuela.query.filter(Escuela.nombre.in_(ESCUELAS_VIEJAS)).all():
+        if not AulaViaje.query.filter_by(escuela_id=e.id).count():
+            db.session.delete(e)
     db.session.add(Ajuste(clave=marca, valor="ok"))
     db.session.commit()
 

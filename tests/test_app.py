@@ -475,10 +475,13 @@ def test_galeria_aula_viajera(cli):
     assert c.get("/admin/aula").status_code == 302
     entrar(c)
     def datos(): return json.loads(c.get("/js/data.js").get_data(as_text=True).split("window.VDV = ", 1)[1].split(";\n", 1)[0])
-    g = datos()["galeria"]
-    assert len(g) == 5 and g[0]["nombre"].startswith("Instituto Dr. Abraham Molina") and g[0]["viajes"] == []
+    assert datos()["galeria"] == []                       # la galería arranca desde cero (nov 2026)
     tok = lambda: c.get("/admin/aula").get_data(as_text=True).split('name="_csrf" value="', 1)[1].split('"', 1)[0]
     t = tok()
+    for n in ("Escuela Uno", "Escuela Dos"):
+        c.post("/admin/aula", data={"_csrf": t, "accion": "nueva", "nombre": n, "localidad": "Río Tercero"})
+    g = datos()["galeria"]
+    assert len(g) == 2 and g[0]["nombre"] == "Escuela Uno" and g[0]["viajes"] == []
     r = c.post(f"/admin/aula/escuela/{g[1]['id']}/viaje", data={"_csrf": t, "destino": "San Luis", "anio": "2025"})
     vid = int(r.headers["Location"].rstrip("/").split("/")[-1])
     b = io.BytesIO(); Image.new("RGB", (40, 30), "red").save(b, "PNG"); b.seek(0)
@@ -522,6 +525,7 @@ def test_drive_fotos_y_videos(cli, monkeypatch):
     monkeypatch.setattr(A.drive, "subir", lambda datos, nombre, mime, partes: guardado.setdefault("f1", (datos, partes)) and "f1")
     monkeypatch.setattr(A.drive, "bajar", lambda fid: guardado[fid][0])
     tok = c.get("/admin/aula").get_data(as_text=True).split('name="_csrf" value="', 1)[1].split('"', 1)[0]
+    c.post("/admin/aula", data={"_csrf": tok, "accion": "nueva", "nombre": "Escuela de prueba"})
     r = c.post("/admin/aula/escuela/1/viaje", data={"_csrf": tok, "destino": "Bariloche", "anio": "2024"})
     vid = int(r.headers["Location"].rstrip("/").split("/")[-1])
     b = io.BytesIO(); Image.new("RGB", (40, 30), "red").save(b, "PNG"); b.seek(0)
