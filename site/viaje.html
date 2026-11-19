@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/vdv.css?v=3">
+<link rel="stylesheet" href="css/vdv.css?v=4">
 </head>
 <body>
 <div class="sw"><div class="wrap"><small>Nuestras empresas</small>
@@ -54,6 +54,7 @@
   '<div class="rv"><span class="kicker">El viaje</span><h2 class="h2">'+V.esc(s.destino)+'</h2><p class="lead" style="max-width:60ch">'+V.esc((s.detalle||'').replace(/\.$/,''))+'.</p>'+
   '<h3 style="margin:30px 0 12px;font-weight:800">Qué incluye</h3><div class="tags" style="gap:10px">'+s.incluye.map(function(i){return '<span style="font-size:14px;padding:7px 14px">'+V.esc(i)+'</span>'}).join('')+'</div>'+
   ((s.ficha&&s.ficha.length)?'<h3 style="margin:30px 0 12px;font-weight:800">Detalles del viaje</h3><dl class="ficha">'+s.ficha.map(function(f){return '<div><dt>'+V.esc(f[0])+'</dt><dd>'+V.esc(f[1])+'</dd></div>'}).join('')+'</dl>':'')+
+  ((s.galeria&&s.galeria.length)?'<h3 style="margin:30px 0 12px;font-weight:800">Fotos del viaje</h3><div class="galeria">'+[s.img].concat(s.galeria).map(function(g,k){return '<button type="button" data-k="'+k+'" aria-label="Ver foto '+(k+1)+'"><img src="'+V.esc(g)+'" alt="" loading="lazy"></button>'}).join('')+'</div>':'')+
   '<h3 style="margin:30px 0 12px;font-weight:800">Cómo reservar</h3><p class="lead">Escribinos por WhatsApp con el viaje elegido y la cantidad de pasajeros. Te confirmamos cupos, formas de pago y seña. La misma persona te acompaña hasta la salida.</p></div>'+
   '<aside class="box rv"><span class="badge '+s.estado+'" style="position:static;display:inline-block;margin-bottom:12px">'+estado+'</span>'+
   (s.empresa==="trekia"?'':'<div class="pr">'+V.esc(s.precio)+'</div><p class="price"><small>'+V.esc(s.nota)+'</small></p>')+
@@ -62,6 +63,24 @@
   '</aside></div></div></section>';
   VDVapp.reveal();
   document.querySelectorAll("[data-wa]").forEach(function(a){a.href=V.waLink(a.dataset.wa);a.target="_blank";a.rel="noopener"});
+  /* Galería: tocás una foto y se abre grande, con flechas para pasar */
+  if(s.galeria&&s.galeria.length){
+    var fotos=[s.img].concat(s.galeria), k=0, lb=document.createElement("div");
+    lb.className="lb";lb.hidden=true;lb.setAttribute("role","dialog");lb.setAttribute("aria-label","Fotos del viaje");
+    lb.innerHTML='<button type="button" class="lb-x" aria-label="Cerrar">×</button><button type="button" class="lb-a" aria-label="Foto anterior">‹</button><img alt=""><button type="button" class="lb-s" aria-label="Foto siguiente">›</button><span class="lb-n"></span>';
+    document.body.appendChild(lb);
+    var img=lb.querySelector("img"), n=lb.querySelector(".lb-n");
+    function ver(i){k=(i+fotos.length)%fotos.length;img.src=fotos[k];n.textContent=(k+1)+" / "+fotos.length;}
+    function cerrar(){lb.hidden=true;document.body.style.overflow="";}
+    document.querySelectorAll(".galeria button").forEach(function(b){b.addEventListener("click",function(){ver(+b.dataset.k);lb.hidden=false;document.body.style.overflow="hidden";lb.querySelector(".lb-x").focus();});});
+    lb.querySelector(".lb-x").onclick=cerrar;
+    lb.querySelector(".lb-a").onclick=function(e){e.stopPropagation();ver(k-1);};
+    lb.querySelector(".lb-s").onclick=function(e){e.stopPropagation();ver(k+1);};
+    lb.addEventListener("click",function(e){if(e.target===lb)cerrar();});
+    document.addEventListener("keydown",function(e){if(lb.hidden)return;if(e.key==="Escape")cerrar();if(e.key==="ArrowLeft")ver(k-1);if(e.key==="ArrowRight")ver(k+1);});
+    var x0=null;lb.addEventListener("touchstart",function(e){x0=e.touches[0].clientX;},{passive:true});
+    lb.addEventListener("touchend",function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)ver(k+(dx<0?1:-1));x0=null;});
+  }
 })();
 </script>
 </body>

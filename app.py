@@ -58,6 +58,9 @@ def ahora():
 
 # ====================================================================== modelos
 
+MAX_GALERIA = 12
+
+
 class Salida(db.Model):
     __tablename__ = "vdv_salida"
     id = db.Column(db.Integer, primary_key=True)
@@ -82,6 +85,7 @@ class Salida(db.Model):
     cupos = db.Column(db.Integer)                                                 # lugares totales (vacío = sin control de cupos)
     a_confirmar = db.Column(db.Boolean, default=False)                            # «Fecha a confirmar»: se muestra aunque la fecha haya pasado
     ficha = db.Column(db.Text, default="")                                        # datos del viaje, uno por línea: «Hotel: Cadi Palace»
+    galeria = db.Column(db.Text, default="")                                      # más fotos del viaje, una ruta por línea (img/… o /media/<id>)
     creada = db.Column(db.DateTime, default=ahora)
     actualizada = db.Column(db.DateTime, default=ahora, onupdate=ahora)
 
@@ -103,6 +107,10 @@ class Salida(db.Model):
     def lista_tipos(self):
         return [t for t in (self.tipos or "").split(",") if t]
 
+    @property
+    def lista_galeria(self):
+        return [x.strip() for x in (self.galeria or "").splitlines() if x.strip()]
+
     def a_json(self):
         d = dict(id=self.slug, empresa=self.empresa, fecha=self.fecha.isoformat(), dia=self.dia_txt, destino=self.destino,
                  lugar=self.lugar or "", detalle=self.detalle or "", incluye=self.lista_incluye, precio=self.precio or "Consultá",
@@ -117,6 +125,8 @@ class Salida(db.Model):
             d["confirmar"] = True
         if self.lista_ficha:
             d["ficha"] = self.lista_ficha
+        if self.lista_galeria:
+            d["galeria"] = self.lista_galeria
         return d
 
     @property
@@ -339,6 +349,7 @@ def crear_app(config=None):
         sembrar_temporada_2027b()
         ajuste_noviembre_2026()
         ajuste_noviembre_2026b()
+        cargar_egipto_turquia()
         aula.sembrar_escuelas(Ajuste)
 
     # ------------------------------------------------------------------ seguridad básica
@@ -534,6 +545,23 @@ def crear_app(config=None):
                 s.img = f"img/{elegida}"
             elif not s.img:
                 s.img = "img/sierras.jpg"
+        # Galería: se sacan las fotos tildadas y se suman las nuevas (hasta 12)
+        quitar = set(f.getlist("galeria_quitar"))
+        galeria = [g for g in s.lista_galeria if g not in quitar]
+        for g in quitar:
+            if g.startswith("/media/") and g[7:].isdigit():
+                im = db.session.get(Imagen, int(g[7:]))
+                if im:
+                    borrar_imagen(im)
+        for archivo in request.files.getlist("galeria_nuevas"):
+            if not (archivo and archivo.filename) or len(galeria) >= MAX_GALERIA:
+                continue
+            try:
+                im = guardar_imagen(archivo.filename, archivo.stream, ("Salidas", EMPRESAS.get(s.empresa, s.empresa)))
+            except Exception:
+                return f"No pude leer la foto «{archivo.filename}». Probá con un JPG o PNG."
+            galeria.append(f"/media/{im.id}")
+        s.galeria = "\n".join(galeria)
         return None
 
     @app.route("/admin/salidas/nueva", methods=["GET", "POST"])
@@ -601,6 +629,8 @@ def crear_app(config=None):
             s.ficha = "\n".join(f"{t(k, 60)}: {t(v, 400)}" for k, v in (x.get("ficha") or []) if t(k, 60) and t(v, 400))[:4000]
             s.precio, s.nota = t(x.get("precio"), 40) or "Consultá", t(x.get("nota"), 80)
             s.img = t(x.get("img"), 200) or s.img or "img/sierras.jpg"
+            if x.get("galeria") is not None:
+                s.galeria = "\n".join(t(g, 200) for g in (x.get("galeria") or [])[:MAX_GALERIA] if t(g, 200))
             s.region = x.get("region") if x.get("region") in REGIONES else "argentina"
             s.tipos = ",".join(dict.fromkeys(tipos))
             s.estado = x.get("estado") if x.get("estado") in ESTADOS else "disponible"
@@ -769,7 +799,7 @@ def crear_app(config=None):
 def migrar():
     """Agrega columnas nuevas a tablas que ya existían (create_all no toca tablas existentes)."""
     from sqlalchemy import inspect, text
-    nuevas = [("vdv_salida", "cupos", "INTEGER"), ("vdv_salida", "a_confirmar", "BOOLEAN DEFAULT FALSE"), ("vdv_salida", "ficha", "TEXT DEFAULT ''"),
+    nuevas = [("vdv_salida", "cupos", "INTEGER"), ("vdv_salida", "a_confirmar", "BOOLEAN DEFAULT FALSE"), ("vdv_salida", "ficha", "TEXT DEFAULT ''"), ("vdv_salida", "galeria", "TEXT DEFAULT ''"),
               ("vdv_imagen", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "drive_id", "VARCHAR(80)"), ("vdvx_aula_video", "tamano", "BIGINT")]
     insp = inspect(db.engine)
     tablas = insp.get_table_names()
@@ -910,6 +940,68 @@ def ajuste_noviembre_2026b():
         return
     for s in Salida.query.filter(Salida.destino.ilike("carnaval norteño%")).all():
         s.img = "img/carnaval-norteno.jpg"
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+
+def cargar_egipto_turquia():
+    """Una sola vez (nov 2026): carga las salidas grupales a Egipto y Jordania y a Turquía, con su galería de fotos.
+    Si Miriam ya las cargó a mano (mismo destino y fecha), no las toca."""
+    marca = "carga_egipto_turquia"
+    if db.session.get(Ajuste, marca):
+        return
+    paquetes = [
+        dict(destino="Egipto y Jordania", lugar="El Cairo, el Nilo, Petra y Wadi Rum", fecha=date(2027, 3, 3), dia="3 mar 2027",
+             detalle="Salida grupal acompañada de 19 días, categoría Privilege: El Cairo, crucero por el Nilo, Abu Simbel, "
+                     "Petra, el desierto de Wadi Rum y el Mar Muerto",
+             incluye=["Coordinación y guías de habla hispana", "Hoteles 4★ y 4★ superior", "Desayuno y 14 comidas",
+                      "Crucero de 4 noches por el Nilo con pensión completa", "Petra y Little Petra",
+                      "Noche en haimas de lujo en Wadi Rum", "Day use en un spa del Mar Muerto", "Asistencia al viajero USD 150.000"],
+             precio="USD 7.424", nota="+ USD 1.410 imp. y gastos (total USD 8.834) · base doble",
+             img="img/egipto.jpg", region="otro", tipos="aereo,internacional,grupal", destacado=True,
+             galeria=["img/petra.jpg", "img/el-cairo.jpg", "img/abu-simbel.jpg", "img/petra-noche.jpg"],
+             ficha=[("Transporte", "Bus exclusivo para el grupo · posibilidad de volar en Business (consultar tarifas y disponibilidad)"),
+                    ("Duración", "19 días"),
+                    ("Fechas de salida", "3 de marzo de 2027"),
+                    ("Hotel", "Categoría 4★ y 4★ superior con excelente ubicación · 1 noche en haimas de lujo en el desierto de Wadi Rum"),
+                    ("Régimen", "Desayuno y 14 comidas incluidas · pensión completa en el crucero por el Nilo"),
+                    ("Base", "Doble · doble a compartir garantizada"),
+                    ("Recorrido", "El Cairo (5 noches, con más tiempo para las visitas y el Museo de las Civilizaciones) · Crucero por el Nilo (4 noches, "
+                                  "con 1 noche en Abu Simbel para ver el espectáculo de Luz y Sonido) · Petra y Little Petra (2 noches) · Amman, "
+                                  "Wadi Rum y Mar Muerto (1 noche cada uno)"),
+                    ("Gastos e impuestos", "USD 911 de impuestos y tasas + USD 499 de gastos de reserva, administrativos e IVA · total USD 8.834 por persona · no incluye la percepción del 30%"),
+                    ("Condiciones", "Salida grupal acompañada con coordinación profesional y kit de viaje exclusivo")]),
+        dict(destino="Turquía", lugar="Estambul, Capadocia y Pamukkale", fecha=date(2027, 4, 15), dia="15 abr 2027",
+             detalle="Estambul, Ankara, Capadocia, Pamukkale, Kusadasi, Izmir y Canakkale, con aéreos y coordinador desde Córdoba",
+             incluye=["Aéreos desde Córdoba con Air Europa", "Valija de 23 kg", "Coordinador desde Córdoba y guía en español",
+                      "11 noches de hotel con desayuno", "6 noches con media pensión", "Excursiones y entradas según itinerario",
+                      "Traslados", "Asistencia al viajero USD 150.000"],
+             precio="USD 2.479", nota="Precio desde · + USD 1.099 de impuestos",
+             img="img/turquia.jpg", region="europa", tipos="aereo,internacional,grupal", destacado=True, galeria=[],
+             ficha=[("Transporte", "Aéreos internacionales desde Córdoba con Air Europa vía Madrid, con valija de 23 kg"),
+                    ("Fechas de salida", "15 de abril de 2027"),
+                    ("Salida desde", "Córdoba"),
+                    ("Hotel", "Estambul (5 noches), Ankara (1), Capadocia (2), Pamukkale (1), Izmir o Kusadasi (1) y Canakkale (1)"),
+                    ("Régimen", "Desayuno · media pensión en 6 noches del circuito por Anatolia"),
+                    ("Base", "Doble a compartir garantizada hasta 60 días antes de la salida, sin adicional para quien viaja solo"),
+                    ("Recorrido", "Estambul: Mezquita de Solimán el Magnífico, paseo en barco por el Bósforo y Bazar de las Especias · Ankara: "
+                                  "Mausoleo de Atatürk · Capadocia: Valle de Göreme, iglesias rupestres, Avanos, Pasabag y Gövercinlik · "
+                                  "Pamukkale y Hierápolis · Éfeso y Casa de la Virgen María · Pérgamo · Troya · Bursa"),
+                    ("Gastos e impuestos", "USD 1.099"),
+                    ("Condiciones", "Coordinador desde Córdoba con un mínimo de 15 pasajeros. Asistencia al viajero de USD 150.000 "
+                                    "(consultar condiciones para mayores de 69 años)")]),
+    ]
+    for p in paquetes:
+        if Salida.query.filter_by(empresa="vdv", destino=p["destino"], fecha=p["fecha"]).first():
+            continue
+        s = Salida(empresa="vdv", destino=p["destino"], lugar=p["lugar"], fecha=p["fecha"], dia=p["dia"], detalle=p["detalle"][:300],
+                   incluye="\n".join(i[:80] for i in p["incluye"]), precio=p["precio"], nota=p["nota"][:80], img=p["img"],
+                   region=p["region"], tipos=p["tipos"], estado="disponible", activa=True, destacado=p["destacado"],
+                   galeria="\n".join(p["galeria"]), ficha="\n".join(f"{k}: {v[:400]}" for k, v in p["ficha"]))
+        s.slug = slug_unico(s.destino, s.fecha)
+        db.session.add(s)
+        db.session.flush()
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 

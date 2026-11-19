@@ -38,6 +38,10 @@
     <div class="fotos">{% for f in fotos %}<label><input type="radio" name="foto_web" value="{{ f }}" {{ 'checked' if s.img == 'img/' ~ f }}><img src="/img/{{ f }}" alt="{{ f }}" loading="lazy"></label>{% endfor %}</div>
     {% if s.img and s.img.startswith('/media/') %}<div class="small muted" style="margin-top:6px">Foto actual (subida por vos): <img src="{{ s.img }}" alt="" style="height:50px;vertical-align:middle;border-radius:6px"> Si no subís otra, se queda.</div>{% endif %}
     <div style="margin-top:8px"><label>…o subí una foto propia (JPG o PNG)</label><input type="file" name="foto" accept="image/*"></div></div>
+  <div class="campo"><label>Más fotos del viaje (galería, hasta 12)</label>
+    <div class="small muted" style="margin-bottom:6px">Se ven dentro de la página del viaje, debajo de los datos. La foto de arriba sigue siendo la portada.</div>
+    {% if s.lista_galeria %}<div class="fotos">{% for g in s.lista_galeria %}<label title="Tildala para sacarla"><input type="checkbox" name="galeria_quitar" value="{{ g }}"><img src="{{ g if g.startswith('/') else '/' ~ g }}" alt="" loading="lazy"><span class="small">Sacar</span></label>{% endfor %}</div>{% endif %}
+    <div style="margin-top:8px"><label>Sumar fotos (podés elegir varias juntas)</label><input type="file" name="galeria_nuevas" accept="image/*" multiple></div></div>
   <div class="campo"><div class="checks"><label><input type="checkbox" name="activa" value="1" {{ 'checked' if s.activa }}> Mostrar en la web</label></div></div>
   <div class="row"><button class="btn">{{ 'Cargar salida' if nueva else 'Guardar cambios' }}</button><a class="btn sec" href="{{ url_for('salidas') }}">Cancelar</a></div>
 </form>

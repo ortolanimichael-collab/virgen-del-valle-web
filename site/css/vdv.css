@@ -266,3 +266,17 @@ footer.pie img{height:74px;width:auto}
 .ficha dt{font-weight:800;color:var(--plum-d);font-size:14px}
 .ficha dd{margin:0;font-size:15px;line-height:1.45}
 @media (max-width:560px){.ficha div{grid-template-columns:1fr;gap:2px}}
+
+/* Galería de fotos dentro del viaje */
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.galeria button{padding:0;border:0;background:none;cursor:zoom-in;border-radius:12px;overflow:hidden;aspect-ratio:4/3;box-shadow:var(--shadow)}
+.galeria img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.galeria button:hover img,.galeria button:focus-visible img{transform:scale(1.06)}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(20,8,15,.92);display:flex;align-items:center;justify-content:center;padding:56px 64px}
+.lb[hidden]{display:none}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb button{position:absolute;background:rgba(255,255,255,.14);color:#fff;border:0;width:48px;height:48px;border-radius:50%;font-size:30px;line-height:1;cursor:pointer}
+.lb button:hover{background:rgba(255,255,255,.28)}
+.lb .lb-x{top:14px;right:14px}.lb .lb-a{left:10px;top:50%;transform:translateY(-50%)}.lb .lb-s{right:10px;top:50%;transform:translateY(-50%)}
+.lb .lb-n{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:#fff;font-size:13px;opacity:.8}
+@media (max-width:560px){.lb{padding:56px 8px}.lb .lb-a,.lb .lb-s{top:auto;bottom:8px;transform:none}}
