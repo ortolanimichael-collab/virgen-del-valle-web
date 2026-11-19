@@ -180,5 +180,92 @@
    "detalle": "Bus, coordinación permanente y asistencia médica a bordo, con la misma persona de principio a fin.",
    "img": "img/aula/viaje-04.jpg"
   }
+ ],
+ "destinos_aula": [
+  {
+   "nombre": "Buenos Aires",
+   "grupo": "ciudades",
+   "detalle": "Casa Rosada, el Congreso, el Cabildo y los barrios porteños: la historia argentina en primera persona."
+  },
+  {
+   "nombre": "Rosario",
+   "grupo": "ciudades",
+   "detalle": "El Monumento Histórico Nacional a la Bandera y la costanera del Paraná."
+  },
+  {
+   "nombre": "Córdoba",
+   "grupo": "ciudades",
+   "detalle": "La Manzana Jesuítica, el Cabildo y la universidad más antigua del país."
+  },
+  {
+   "nombre": "Villa María",
+   "grupo": "ciudades",
+   "detalle": "Museos, espacios culturales y la costanera del río Ctalamochita."
+  },
+  {
+   "nombre": "Alta Gracia",
+   "grupo": "ciudades",
+   "detalle": "La Estancia Jesuítica, el Tajamar y los museos Manuel de Falla y Casa del Che."
+  },
+  {
+   "nombre": "Mendoza",
+   "grupo": "ciudades",
+   "detalle": "El Cerro de la Gloria, la gesta sanmartiniana y la cordillera de los Andes."
+  },
+  {
+   "nombre": "Catamarca",
+   "grupo": "ciudades",
+   "detalle": "La Virgen del Valle, la cultura del noroeste y paisajes de cerros y quebradas."
+  },
+  {
+   "nombre": "San Luis y ciudad de La Punta",
+   "grupo": "ciudades",
+   "detalle": "La Punta, ciudad planificada con la réplica a escala real del Cabildo de 1810."
+  },
+  {
+   "nombre": "Sierras de Calamuchita",
+   "grupo": "naturaleza",
+   "detalle": "Lagos, sierras y pueblos de origen centroeuropeo como Villa General Belgrano."
+  },
+  {
+   "nombre": "La Carolina",
+   "grupo": "naturaleza",
+   "detalle": "Pueblo minero de piedra en San Luis: la historia del oro y la casa del poeta Lafinur."
+  },
+  {
+   "nombre": "Miramar de Ansenuza y La Para",
+   "grupo": "naturaleza",
+   "detalle": "La laguna salada más grande del país, hoy Parque Nacional Ansenuza, con flamencos y aves."
+  },
+  {
+   "nombre": "Cerro Colorado",
+   "grupo": "naturaleza",
+   "detalle": "Miles de pinturas rupestres de los pueblos originarios, en plena reserva natural."
+  },
+  {
+   "nombre": "Experiencias arqueológicas regionales",
+   "grupo": "circuitos",
+   "detalle": "Sitios y museos para conocer cómo vivían los pueblos originarios de la región."
+  },
+  {
+   "nombre": "Circuito religioso brocheriano",
+   "grupo": "circuitos",
+   "detalle": "Tras los pasos del Santo Cura Brochero en Traslasierra."
+  },
+  {
+   "nombre": "Circuitos productivos regionales",
+   "grupo": "circuitos",
+   "detalle": "Fábricas, campos y producciones de la zona: cómo se hace lo que consumimos."
+  },
+  {
+   "nombre": "Estancias Jesuíticas",
+   "grupo": "circuitos",
+   "detalle": "Patrimonio de la Humanidad: Jesús María, Caroya, Santa Catalina, Alta Gracia y La Candelaria."
+  },
+  {
+   "nombre": "Camino Real",
+   "grupo": "circuitos",
+   "detalle": "El antiguo camino colonial al Alto Perú, con postas como Sinsacate y pueblos históricos."
+  }
  ]
 }

@@ -2,7 +2,7 @@
 {% block titulo %}Portada{% endblock %}
 {% block c %}
 <h1>Portada</h1>
-<p class="muted small">Acá cambiás los destinos que se ven en la portada y los programas de Aula Viajera: nombre, textos, foto y orden. Cada lista se guarda por separado con su botón <b>Guardar</b>. Subir y bajar acomodan el orden.</p>
+<p class="muted small">Acá cambiás los destinos que se ven en la portada, y los programas y destinos educativos de Aula Viajera: nombre, textos, foto y orden. Cada lista se guarda por separado con su botón <b>Guardar</b>. Subir y bajar acomodan el orden.</p>
 {% for clave, cfg in secciones.items() %}
 <section id="{{ clave }}" style="margin-bottom:30px">
 <div class="row" style="justify-content:space-between"><h2 style="margin:0">{{ cfg.titulo }}</h2>
@@ -12,6 +12,13 @@
   <div class="lista">
   {% for it in filas[clave] %}{% set i = loop.index0 %}
   <div class="card">
+    {% if 'img' not in cfg.campos %}
+    <div class="g2">
+      <div class="campo"><label>Destino</label><input name="nombre" value="{{ it.nombre }}" maxlength="60" style="width:100%"></div>
+      <div class="campo"><label>Grupo</label><select name="grupo" style="width:100%">{% for k, v in GRUPOS_AULA.items() %}<option value="{{ k }}" {{ 'selected' if it.grupo == k }}>{{ v }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="campo"><label>Qué se aprende (opcional, una línea)</label><input name="detalle" value="{{ it.detalle }}" maxlength="200" style="width:100%"></div>
+    {% else %}
     <div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:12px">
       <img src="{{ '/' ~ it.img if not it.img.startswith('/') else it.img }}" alt="" style="width:96px;height:72px;object-fit:cover;border-radius:10px;flex:none">
       <div style="flex:1;min-width:0">
@@ -33,6 +40,7 @@
           <div class="small muted" style="margin:6px 0 2px">…o subí una propia (JPG o PNG):</div><input type="file" name="foto" accept="image/*"></div>
       </div>
     </div>
+    {% endif %}
     <div class="row noprint" style="margin-top:4px">
       <button class="btn sec chico" name="accion" value="subir:{{ i }}" {{ 'disabled' if loop.first }}>↑ Subir</button>
       <button class="btn sec chico" name="accion" value="bajar:{{ i }}" {{ 'disabled' if loop.last }}>↓ Bajar</button>

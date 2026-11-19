@@ -15,8 +15,11 @@ SECCIONES = {
                      nuevo=dict(nombre="Nuevo destino", lugar="", desde="Consultá", q="", img="img/sierras.jpg")),
     "programas": dict(titulo="Programas de Aula Viajera", maximo=8, campos=("nombre", "lugar", "detalle", "img"),
                       nuevo=dict(nombre="Nuevo programa", lugar="", detalle="", img="img/sierras.jpg")),
+    "destinos_aula": dict(titulo="Destinos educativos de Aula Viajera", maximo=40, campos=("nombre", "grupo", "detalle"),
+                          nuevo=dict(nombre="Nuevo destino", grupo="ciudades", detalle="")),
 }
-LARGOS = dict(nombre=60, lugar=80, desde=40, q=20, detalle=200, img=200)
+GRUPOS_AULA = {"ciudades": "Ciudades e historia", "naturaleza": "Naturaleza y paisajes", "circuitos": "Circuitos temáticos"}
+LARGOS = dict(nombre=60, lugar=80, desde=40, q=20, detalle=200, img=200, grupo=20)
 FILTROS = {"": "No filtra (va a todos los viajes)", "argentina": "Viajes por Argentina (sale en nacionales)", "brasil": "Viajes a Brasil",
            "america": "Viajes por América / Caribe", "europa": "Viajes a Europa", "crucero": "Cruceros"}
 
@@ -70,7 +73,7 @@ def montar(app, admin, fabrica, imagenes_de_la_web, reducir_imagen, Imagen, guar
     @admin
     def portada():
         return render_template("admin/portada.html", secciones=SECCIONES, filas={k: filas(k) for k in SECCIONES}, fotos=imagenes_de_la_web(),
-                               personalizado={k: guardado(k) is not None for k in SECCIONES}, FILTROS=FILTROS)
+                               personalizado={k: guardado(k) is not None for k in SECCIONES}, FILTROS=FILTROS, GRUPOS_AULA=GRUPOS_AULA)
 
     @app.post("/admin/portada/<clave>")
     @admin
@@ -86,6 +89,11 @@ def montar(app, admin, fabrica, imagenes_de_la_web, reducir_imagen, Imagen, guar
                 if c == "img":
                     continue
                 it[c] = " ".join((f.getlist(c)[i] if i < len(f.getlist(c)) else "").split())[:LARGOS[c]]
+            if "grupo" in it and it["grupo"] not in GRUPOS_AULA:
+                it["grupo"] = "ciudades"
+            if "img" not in cfg["campos"]:
+                items.append(it)
+                continue
             actual = f.getlist("img_actual")[i] if i < len(f.getlist("img_actual")) else ""
             elegida = f.getlist("foto_web")[i] if i < len(f.getlist("foto_web")) else ""
             arch = archivos[i] if i < len(archivos) else None

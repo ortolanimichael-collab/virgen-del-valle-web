@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/aula.css?v=3">
+<link rel="stylesheet" href="css/aula.css?v=4">
 </head>
 <body>
 <div class="sw"><div class="wrap"><small>Nuestras empresas</small>
@@ -33,7 +33,7 @@
 <header class="top"><div class="wrap">
   <a class="brand" href="aula-viajera.html" aria-label="Aula Viajera, inicio"><img src="img/logo-aula.jpg" alt="Aula Viajera Travel"></a>
   <nav class="nav" aria-label="Principal">
-    <a href="#programas">Programas</a><a href="#como">Cómo trabajamos</a><a href="#viajes">Viajes realizados</a><a href="#presupuesto">Presupuesto</a>
+    <a href="#programas">Programas</a><a href="#destinos">Destinos</a><a href="#como">Cómo trabajamos</a><a href="#viajes">Viajes realizados</a><a href="#presupuesto">Presupuesto</a>
     <a href="index.html" class="only-m">Virgen del Valle</a><a href="trekia.html" class="only-m">Trekia turismo aventura</a>
     <a class="btn" data-wa="Hola! Quiero consultar por un viaje con Aula Viajera" href="#">Escribinos</a>
   </nav>
@@ -50,7 +50,7 @@
     <p class="sub">Viajes educativos, de egresados y de fin de curso pensados para que el aula salga al mundo. Con el respaldo de 26 años de Virgen del Valle, coordinación permanente, asistencia médica y facilidades de pago en cuotas.</p>
     <form class="finder" id="finder" aria-label="Pedir presupuesto rápido" data-origen="aula-buscador" data-lead="Hola! Quiero un presupuesto de Aula Viajera. Tipo de viaje: {tipo}. Destino: {destino}. Mes: {mes}.">
       <label><span>Tipo de viaje</span><select name="tipo"><option>Egresados</option><option>Educativo</option><option>Fin de curso</option><option>Internacional</option><option>Otro grupo</option></select></label>
-      <label><span>Destino</span><select name="destino"><option>A definir</option><option>Bariloche</option><option>Brasil</option><option>Córdoba y sierras</option><option>Buenos Aires</option><option>Mendoza</option></select></label>
+      <label><span>Destino</span><select name="destino" id="selDestino"><option>A definir</option><option>Bariloche</option><option>Brasil</option></select></label>
       <label><span>Mes</span><select name="mes"><option>A definir</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option><option>Primer semestre</option></select></label>
       <button class="btn" type="submit">Pedir presupuesto</button>
       <span class="gracias" hidden></span>
@@ -98,6 +98,14 @@
 <section class="s" id="programas"><div class="wrap">
   <div class="head rv"><div><span class="kicker">Programas</span><h2 class="h2">Un viaje para <em>cada grupo</em></h2><p class="lead">Del aula al mundo: elegí el tipo de experiencia y te armamos el presupuesto a medida del curso.</p></div></div>
   <div class="progs" id="progs"></div>
+</div></section>
+
+<section class="s dz-s" id="destinos"><div class="wrap">
+  <div class="head rv"><div><span class="kicker">Destinos educativos</span><h2 class="h2">¿A dónde <em>vamos</em>?</h2>
+    <p class="lead">Propuestas para cada materia y cada edad. Tocá un destino y te mandamos la propuesta por WhatsApp.</p></div></div>
+  <div class="dz-g" id="dzGrupos"></div>
+  <div class="dz-mas rv"><div><b>Y muchos más.</b> ¿Tenés otro destino en mente? Lo armamos a medida del curso.</div>
+    <a class="btn" data-wa="Hola! Quiero armar un viaje educativo a medida con Aula Viajera" href="#">Contanos tu idea</a></div>
 </div></section>
 
 <div class="cinta-frases" aria-hidden="true"><div class="cf-in">
@@ -194,7 +202,7 @@
 
 <footer class="pie"><div class="wrap">
   <div><img src="img/logo-aula.jpg" alt="Aula Viajera"><p style="margin-top:12px;max-width:30ch;opacity:.85">Viajes educativos y de egresados. Una empresa de Virgen del Valle.</p></div>
-  <div><h4>Aula Viajera</h4><ul><li><a href="#programas">Programas</a></li><li><a href="#como">Cómo trabajamos</a></li><li><a href="#presupuesto">Presupuesto</a></li></ul></div>
+  <div><h4>Aula Viajera</h4><ul><li><a href="#programas">Programas</a></li><li><a href="#destinos">Destinos educativos</a></li><li><a href="#como">Cómo trabajamos</a></li><li><a href="#presupuesto">Presupuesto</a></li></ul></div>
   <div><h4>Empresas</h4><ul><li><a href="index.html">Virgen del Valle</a></li><li><a href="trekia.html">Trekia turismo aventura</a></li><li><a href="aula-viajera.html">Aula Viajera</a></li></ul></div>
   <div><h4>Contacto</h4><ul><li id="telAula">03571 15-51-2462</li><li>Obispo Trejo 110</li><li>Río Tercero, Córdoba</li><li>EVT Legajo 15772</li></ul></div>
   <p class="copy">© <span id="y"></span> Aula Viajera · una empresa de Virgen del Valle · Agencia de viajes y turismo EVT Legajo 15772 · <a href="privacidad.html">Privacidad y cookies</a></p>
@@ -210,6 +218,16 @@
 (function(){
   var V=VDV;
   document.getElementById("y").textContent=new Date().getFullYear();
+  /* Destinos educativos (se editan en el panel: Portada) */
+  var GR=[["ciudades","Ciudades e historia","🏛"],["naturaleza","Naturaleza y paisajes","⛰"],["circuitos","Circuitos temáticos","🧭"]], DZ=V.destinos_aula||[];
+  document.getElementById("dzGrupos").innerHTML=GR.map(function(g){
+    var l=DZ.filter(function(d){return (d.grupo||"ciudades")===g[0];});
+    if(!l.length)return "";
+    return '<div class="dz-col rv"><h3><i aria-hidden="true">'+g[2]+'</i>'+g[1]+'</h3>'+l.map(function(d){
+      return '<a class="dz" href="#" data-wa="Hola! Quiero consultar por un viaje educativo a '+V.esc(d.nombre)+'"><b>'+V.esc(d.nombre)+'</b>'+(d.detalle?'<span>'+V.esc(d.detalle)+'</span>':'')+'</a>';}).join("")+'</div>';
+  }).join("");
+  var sd=document.getElementById("selDestino");
+  if(sd&&DZ.length){var og=document.createElement("optgroup");og.label="Destinos educativos";DZ.forEach(function(d){var o=document.createElement("option");o.textContent=d.nombre;og.appendChild(o);});sd.appendChild(og);}
   document.getElementById("progs").innerHTML=V.programas.map(function(p){
     return '<a class="pg rv" href="#" data-wa="Hola! Quiero consultar por '+V.esc(p.nombre)+' con Aula Viajera"><img src="'+p.img+'" alt="" loading="lazy"><span class="ar">↗</span><div class="tx"><h3>'+V.esc(p.nombre)+'</h3><small>'+V.esc(p.lugar)+'</small><p>'+V.esc(p.detalle)+'</p></div></a>';
   }).join("");
