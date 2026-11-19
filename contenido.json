@@ -151,32 +151,32 @@
  ],
  "programas": [
   {
+   "id": "educativo",
+   "nombre": "Viajes educativos",
+   "lugar": "Aprender también es salir a descubrir.",
+   "detalle": "Transformamos los contenidos del aula en experiencias vivenciales: historia, ciencia, arte y naturaleza, en primera persona.",
+   "img": "img/aula/viaje-01.jpg"
+  },
+  {
    "id": "egresados",
-   "nombre": "Viaje de egresados",
-   "lugar": "Bariloche, Brasil y más",
-   "detalle": "Salidas para cursos completos, con coordinadores y seguro de viaje.",
+   "nombre": "Egresados y fin de curso",
+   "lugar": "Hay momentos que merecen convertirse en recuerdos.",
+   "detalle": "Viajes para cerrar etapas de una manera especial, cuidando cada detalle para que los protagonistas sean quienes viajan.",
    "img": "img/aula/viaje-05.jpg"
   },
   {
-   "id": "educativo",
-   "nombre": "Viajes educativos",
-   "lugar": "Córdoba, Buenos Aires, Mendoza",
-   "detalle": "Recorridos con contenido curricular para primaria y secundaria.",
-   "img": "img/aula/viaje-01.jpg"
+   "id": "internacional",
+   "nombre": "Experiencias internacionales",
+   "lugar": "Idiomas, culturas y experiencias que amplían horizontes.",
+   "detalle": "Practicar el idioma en situaciones reales, conocer otras formas de vivir y aprender desde la experiencia cotidiana.",
+   "img": "img/venecia.jpg"
   },
   {
    "id": "contingentes",
    "nombre": "Contingentes escolares",
    "lugar": "Desde Río Tercero y zonas",
-   "detalle": "Bus, coordinación permanente y asistencia médica a bordo.",
+   "detalle": "Bus, coordinación permanente y asistencia médica a bordo, con la misma persona de principio a fin.",
    "img": "img/aula/viaje-04.jpg"
-  },
-  {
-   "id": "familias",
-   "nombre": "Escapadas de fin de curso",
-   "lugar": "Sierras y termas",
-   "detalle": "Salidas de 1 o 2 días para cerrar el año con el grupo.",
-   "img": "img/aula/viaje-07.jpg"
   }
  ]
 }

@@ -349,7 +349,7 @@ def test_editor_de_portada(cli):
     assert c.get("/admin/portada").status_code == 302
     entrar(c)
     pag = c.get("/admin/portada").get_data(as_text=True)
-    assert "Buzios" in pag and "Viaje de egresados" in pag
+    assert "Buzios" in pag and "Egresados y fin de curso" in pag
 
     def enviar(form, clave="destinos"):
         f = dict(form)

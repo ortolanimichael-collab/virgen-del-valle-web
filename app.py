@@ -351,6 +351,7 @@ def crear_app(config=None):
         ajuste_noviembre_2026b()
         cargar_egipto_turquia()
         ajuste_fotos_aula()
+        ajuste_programas_aula()
         aula.sembrar_escuelas(Ajuste)
         aula.borrar_escuelas_viejas(Ajuste)
 
@@ -1024,6 +1025,22 @@ def ajuste_fotos_aula():
             if vieja and p.get("img") == vieja:
                 p["img"] = nueva
         db.session.get(portada.Bloque, "programas").datos = json.dumps(guardados, ensure_ascii=False)
+    db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
+    db.session.commit()
+
+
+
+def ajuste_programas_aula():
+    """Una sola vez (nov 2026): los programas de Aula Viajera pasan a ser Viajes educativos, Egresados y fin de curso,
+    Experiencias internacionales y Contingentes escolares, con los textos nuevos. Pisa lo guardado en el panel (después
+    Miriam los puede seguir editando desde Portada)."""
+    marca = "ajuste_programas_aula"
+    if db.session.get(Ajuste, marca):
+        return
+    b = db.session.get(portada.Bloque, "programas")
+    if b is not None:
+        with open(AQUI / "contenido.json", encoding="utf-8") as f:
+            b.datos = json.dumps(json.load(f)["programas"], ensure_ascii=False)
     db.session.add(Ajuste(clave=marca, valor=hoy().isoformat()))
     db.session.commit()
 
